@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="py-5 text-center border-bottom border-gold mb-5">
+    <div class="row align-items-center">
+        <div class="col-lg-7">
+            <h1 class="display-3 fw-bold mb-4">Una Experiencia Gastronómica Única</h1>
+            <p class="lead text-gold-light mb-4">Descubra el arte culinario de Koi Enterprise. Una fusión de tradición y exclusividad diseñada para los paladares más exigentes.</p>
+            <a href="/restaurante/" class="btn btn-lg btn-koi-red px-5 py-3 fw-bold">VISITAR EL RESTAURANTE</a>
+        </div>
+        <div class="col-lg-5">
+            <img src="{% static 'images/logo.png' %}" class="img-fluid hero-logo" alt="Koi Logo">
+        </div>
+    </div>
+</section>
+
+<section class="py-5 mb-5">
+    <h2 class="text-center text-gold mb-4">Productos Destacados</h2>
+    <div id="productCarousel" class="carousel slide shadow-lg" data-bs-ride="carousel">
+        <div class="carousel-inner rounded border border-gold">
+            <div class="carousel-item active">
+                <div class="carousel-caption-custom p-5 text-center bg-dark">
+                    <h3 class="text-gold">Sashimi Premium Koi</h3>
+                    <p>Selección diaria del mejor mercado, presentada con elegancia.</p>
+                </div>
+            </div>
+            </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
+    </div>
+</section>
+
+<section class="py-5 bg-dark-soft rounded p-4 border border-secondary">
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="p-4 border-start border-gold">
+                <h2 class="text-gold">Eventos Exclusivos</h2>
+                <p>Organizamos sus momentos más especiales con la distinción de nuestra marca. Desde cenas privadas hasta celebraciones corporativas.</p>
+                <a href="#" class="btn btn-outline-gold">PLANIFICAR EVENTO</a>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="p-4 border-start border-gold">
+                <h2 class="text-gold">Transporte de Lujo</h2>
+                <p>No se preocupe por el trayecto. Nuestro servicio de transporte privado le garantiza una llegada a la altura de la experiencia Koi.</p>
+                <a href="#" class="btn btn-outline-gold">SOLICITAR TRANSPORTE</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
