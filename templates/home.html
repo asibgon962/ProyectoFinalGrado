@@ -17,21 +17,20 @@
 
 <section class="py-5 mb-5">
     <h2 class="text-center text-gold mb-4">Productos Destacados</h2>
-    <div id="productCarousel" class="carousel slide shadow-lg" data-bs-ride="carousel">
-        <div class="carousel-inner rounded border border-gold">
-            <div class="carousel-item active">
-                <div class="carousel-caption-custom p-5 text-center bg-dark">
-                    <h3 class="text-gold">Sashimi Premium Koi</h3>
-                    <p>Selección diaria del mejor mercado, presentada con elegancia.</p>
+    <div class="row">
+        {% for plato in platos %}
+        <div class="col-md-4">
+            <div class="card bg-dark text-gold">
+                <img src="{{ plato.imagen.url }}" class="card-img-top" alt="{{ plato.nombre }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ plato.nombre }}</h5>
+                    <p class="card-text">{{ plato.precio_venta }} €</p>
                 </div>
             </div>
-            </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon"></span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon"></span>
-        </button>
+        </div>
+        {% empty %}
+        <p>Próximamente: Nuevas delicias de Koi Enterprise.</p>
+        {% endfor %}
     </div>
 </section>
 
