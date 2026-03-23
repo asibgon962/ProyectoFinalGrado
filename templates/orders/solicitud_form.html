@@ -10,6 +10,22 @@
         <div class="col-12 col-lg-10">
             <div class="card bg-dark text-light border-gold p-3 p-md-4 shadow-lg">
                 <h2 class="text-gold mb-4 text-center">Solicitud Logística</h2>
+
+                {% if form.errors %}
+                <div class="alert alert-danger shadow-sm border-0 mb-4" style="background-color: #721c24; color: white;">
+                    <p class="fw-bold mb-1">Por favor, corrige los siguientes errores:</p>
+                    <ul class="mb-0 small">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
                 
                 <form method="post" id="form-solicitud">
                     {% csrf_token %}
@@ -99,6 +115,25 @@
     let carritoTransporte = {};
 
     $(document).ready(function() {
+        // --- 1. RESTRICCIÓN DE CALENDARIO (4 a 30 días) ---
+        const hoy = new Date();
+        
+        // Calcular fecha mínima (hoy + 4 días)
+        const fechaMin = new Date();
+        fechaMin.setDate(hoy.getDate() + 4);
+        const minStr = fechaMin.toISOString().split('T')[0];
+        
+        // Calcular fecha máxima (hoy + 30 días)
+        const fechaMax = new Date();
+        fechaMax.setDate(hoy.getDate() + 30);
+        const maxStr = fechaMax.toISOString().split('T')[0];
+
+        // Aplicar al input (Django genera el id id_fecha_entrega automáticamente)
+        const $inputFecha = $('#id_fecha_entrega');
+        $inputFecha.attr('min', minStr);
+        $inputFecha.attr('max', maxStr);
+
+        // --- 2. INICIALIZACIÓN DE SELECT2 ---
         const $selectorServicios = $('#id_tipo_servicio');
         $selectorServicios.val(null); 
         
@@ -110,6 +145,7 @@
 
         $('#buscador-productos').select2({ width: '100%' });
 
+        // --- 3. EVENTOS DE INTERFAZ ---
         $selectorServicios.on('change', function() {
             const seleccionados = $(this).val() || [];
             if (seleccionados.includes('TRANSPORTE')) { $('#div-transporte-vip').fadeIn(); }
@@ -121,7 +157,6 @@
             else { $('#seccion-productos').slideUp(); }
         });
 
-        // HTML PRODUCTOS RESPONSIVE
         $('#buscador-productos').on('select2:select', function (e) {
             const data = e.params.data.element.dataset;
             const id = e.params.data.id;
@@ -145,7 +180,6 @@
             $(this).val(null).trigger('change');
         });
 
-        // HTML TRANSPORTE RESPONSIVE
         $('#btn-add-transporte').on('click', function() {
             const v = $('#selector-vehiculos').val();
             if (v && !carritoTransporte[v]) {
@@ -165,6 +199,7 @@
         });
     });
 
+    // --- 4. FUNCIONES DE APOYO ---
     function actualizarInputOculto() { $('[name="detalles_cantidades"]').val(JSON.stringify(carrito)); }
     function actualizarInputTrans() { $('[name="detalles_transporte"]').val(JSON.stringify(carritoTransporte)); }
     function cambiarCantidad(id, valor) { carrito[id] = parseInt(valor); actualizarInputOculto(); }
@@ -173,14 +208,14 @@
     function eliminarItem(id) {
         delete carrito[id];
         $(`#fila-${id}`).remove();
-        if (Object.keys(carrito).length === 0) { $('#vacio-msg').show(); $('[name="detalles_cantidades"]').val(''); }
+        if (Object.keys(carrito).length === 0) { $('#vacio-msg').show(); $('[name="detalles_cantidades"]').val('{}'); }
         else { actualizarInputOculto(); }
     }
 
     function eliminarTrans(v) {
         delete carritoTransporte[v];
         $(`#fila-trans-${v}`).remove();
-        if (Object.keys(carritoTransporte).length === 0) { $('#trans-vacio-msg').show(); $('[name="detalles_transporte"]').val(''); }
+        if (Object.keys(carritoTransporte).length === 0) { $('#trans-vacio-msg').show(); $('[name="detalles_transporte"]').val('{}'); }
         else { actualizarInputTrans(); }
     }
 </script>

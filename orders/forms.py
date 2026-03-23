@@ -5,13 +5,20 @@ from datetime import timedelta
 import json
 
 class SolicitudServicioForm(forms.ModelForm):
-    # Campos ocultos para recibir los JSON desde el JavaScript
+    tipo_servicio = forms.MultipleChoiceField(
+        choices=SolicitudServicio.TIPO_CHOICES, 
+        widget=forms.SelectMultiple(attrs={
+            'class': 'form-select select2', 
+            'id': 'id_tipo_servicio'
+        }),
+        label="Tipos de Servicio"
+    )
+
     detalles_cantidades = forms.CharField(widget=forms.HiddenInput(), required=False)
     detalles_transporte = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     class Meta:
         model = SolicitudServicio
-        # Eliminamos 'vehiculo_vip' porque ya no existe en el modelo
         fields = [
             'tipo_servicio', 
             'nombre_entidad', 
@@ -24,53 +31,44 @@ class SolicitudServicioForm(forms.ModelForm):
         
         widgets = {
             'fecha_entrega': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'tipo_servicio': forms.SelectMultiple(attrs={'class': 'form-select select2', 'id': 'id_tipo_servicio'}),
             'nombre_entidad': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de la empresa o evento'}),
             'observaciones': forms.Textarea(attrs={
                 'class': 'form-control bg-dark text-white border-secondary',
                 'rows': 3,
-                'placeholder': 'Detalles adicionales o logística especial...'
+                'placeholder': 'Detalles adicionales...'
             }),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['requiere_productos'].initial = False
+        self.fields['tipo_servicio'].initial = []
+        self.fields['detalles_cantidades'].initial = "{}"
+        self.fields['detalles_transporte'].initial = "{}"
 
     def clean(self):
         cleaned_data = super().clean()
-        fecha = cleaned_data.get('fecha_entrega')
-        tipo = cleaned_data.get('tipo_servicio')
         
-        # 1. Validación de margen de fechas
+        # Limpieza de JSON para evitar errores de tipo string
+        for field in ['detalles_cantidades', 'detalles_transporte']:
+            value = cleaned_data.get(field)
+            if isinstance(value, str) and value:
+                try:
+                    cleaned_data[field] = json.loads(value)
+                except json.JSONDecodeError:
+                    cleaned_data[field] = {}
+            elif not value:
+                cleaned_data[field] = {}
+
+        # Validación de rango de fecha (Mínimo 4 días, Máximo 30 días)
+        fecha = cleaned_data.get('fecha_entrega')
         if fecha:
             hoy = timezone.now().date()
-            if fecha < hoy + timedelta(days=4):
-                self.add_error('fecha_entrega', "Mínimo 4 días de antelación.")
-            elif fecha > hoy + timedelta(days=30):
-                self.add_error('fecha_entrega', "Máximo 30 días de antelación.")
-
-        # 2. Validación de Stock para múltiples vehículos
-        transporte_json = cleaned_data.get('detalles_transporte')
-        if tipo == 'TRANSPORTE' and transporte_json and fecha:
-            try:
-                seleccion = json.loads(transporte_json)
-                for vehiculo, cantidad in seleccion.items():
-                    # Contamos cuántas unidades de este vehículo específico hay ya reservadas ese día
-                    reservas_del_dia = SolicitudServicio.objects.filter(
-                        fecha_entrega=fecha
-                    ).exclude(estado='CANCELADO')
-                    
-                    total_reservado = 0
-                    for r in reservas_del_dia:
-                        # Sumamos las cantidades del JSON de cada reserva existente
-                        total_reservado += r.detalles_transporte.get(vehiculo, 0)
-
-                    if total_reservado + int(cantidad) > 2:
-                        raise forms.ValidationError(
-                            f"Lo sentimos, solo quedan {2 - total_reservado} unidades de '{vehiculo}' para el día {fecha}."
-                        )
-            except json.JSONDecodeError:
-                pass 
+            min_fecha = hoy + timedelta(days=4)
+            max_fecha = hoy + timedelta(days=30)
+            
+            if fecha < min_fecha:
+                self.add_error('fecha_entrega', "La fecha debe tener al menos 4 días de antelación.")
+            elif fecha > max_fecha:
+                self.add_error('fecha_entrega', "La fecha no puede superar el mes de antelación (máximo 30 días).")
         
         return cleaned_data
