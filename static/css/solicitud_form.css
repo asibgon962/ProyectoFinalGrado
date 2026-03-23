@@ -1,0 +1,72 @@
+/* Estilos Globales del Formulario Logístico */
+:root { 
+    --gold: #d4af37; 
+    --dark-bg: #121212; 
+}
+
+.border-gold { border: 1px solid var(--gold) !important; }
+.text-gold { color: var(--gold) !important; }
+.btn-gold { background-color: var(--gold); color: black; font-weight: bold; border: none; transition: 0.3s; }
+.btn-gold:hover { background-color: #b8962e; color: white; }
+
+/* Contenedores de listas dinámicas */
+#lista-pedido, #lista-transporte { 
+    min-height: 60px; 
+    border: 1px dashed #444; 
+}
+
+.item-pedido { 
+    border-bottom: 1px solid #333; 
+    padding: 10px 5px; 
+}
+
+/* Select2 Custom Dark Mode */
+.select2-container--default .select2-selection--multiple {
+    background-color: #222 !important; 
+    border: 1px solid var(--gold) !important; 
+    min-height: 45px !important;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: var(--gold) !important; 
+    color: black !important; 
+    border: none !important;
+    font-weight: bold;
+}
+
+.select2-dropdown { 
+    background-color: #222 !important; 
+    border: 1px solid var(--gold) !important; 
+    color: white; 
+}
+
+
+
+/* RESPONSIVE */
+
+/* Tablet y superior: Alineación Entidad/Fecha */
+@media (min-width: 768px) {
+    .row-responsive { display: flex; align-items: flex-end; }
+}
+
+/* Móvil S y ajustes generales de inputs */
+@media (max-width: 576px) {
+    .card { padding: 1rem !important; }
+    h2 { font-size: 1.4rem; }
+    
+    /* Forzar que el grupo de añadir transporte se apile si no cabe */
+    .input-group-responsive {
+        display: flex;
+        flex-direction: column;
+    }
+    .input-group-responsive .form-select, 
+    .input-group-responsive .btn {
+        width: 100% !important;
+        margin-bottom: 8px;
+        border-radius: 4px !important;
+    }
+
+    /* Ajuste de textos para que no se pisen */
+    .item-pedido span { font-size: 0.85rem; }
+    .item-pedido img { width: 35px !important; height: 35px !important; }
+}

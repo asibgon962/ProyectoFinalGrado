@@ -1,84 +1,59 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="{% static 'css/solicitud_form.css' %}">
 
-<style>
-    :root { --gold: #d4af37; --dark-bg: #121212; }
-    .border-gold { border: 1px solid var(--gold) !important; }
-    .text-gold { color: var(--gold) !important; }
-    .btn-gold { background-color: var(--gold); color: black; font-weight: bold; border: none; }
-    .btn-gold:hover { background-color: #b8962e; color: white; }
-
-    #lista-pedido, #lista-transporte { min-height: 80px; border: 1px dashed #444; transition: all 0.3s; }
-    .item-pedido { border-bottom: 1px solid #333; padding: 10px 0; }
-    
-    .select2-container--default .select2-selection--single {
-        background-color: #222 !important; border: 1px solid var(--gold) !important; height: 45px !important;
-    }
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        color: white !important; line-height: 40px !important;
-    }
-    .select2-dropdown { background-color: #222 !important; border: 1px solid var(--gold) !important; color: white; }
-</style>
-
-<div class="container mt-5 mb-5">
+<div class="container mt-4 mb-5">
     <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div class="card bg-dark text-light border-gold p-4 shadow-lg">
-                <h2 class="text-gold mb-4 text-center">Nueva Solicitud Logística</h2>
+        <div class="col-12 col-lg-10">
+            <div class="card bg-dark text-light border-gold p-3 p-md-4 shadow-lg">
+                <h2 class="text-gold mb-4 text-center">Solicitud Logística</h2>
                 
                 <form method="post" id="form-solicitud">
                     {% csrf_token %}
                     
-                    {% if form.non_field_errors %}
-                        <div class="alert alert-danger">
-                            {{ form.non_field_errors.0 }}
-                        </div>
-                    {% endif %}
-
                     <div class="row">
-                        <div class="col-md-8 mb-3">
-                            <label class="text-gold fw-bold">Entidad / Empresa</label>
+                        <div class="col-12 col-md-6 mb-3">
+                            <label class="text-gold fw-bold mb-1">Entidad / Empresa</label>
                             {{ form.nombre_entidad }}
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <label class="text-gold fw-bold">Fecha de Entrega</label>
+                        <div class="col-12 col-md-6 mb-3">
+                            <label class="text-gold fw-bold mb-1">Fecha de Entrega</label>
                             {{ form.fecha_entrega }}
-                            {% if form.fecha_entrega.errors %}
-                                <div class="text-danger small mt-1">{{ form.fecha_entrega.errors.0 }}</div>
-                            {% endif %}
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="text-gold fw-bold">Tipo de Servicio</label>
+                        <div class="col-12 mb-3">
+                            <label class="text-gold fw-bold mb-1">Tipos de Servicio (Selección Múltiple)</label>
                             {{ form.tipo_servicio }}
                         </div>
                         
-                        <div class="col-md-6" id="div-transporte-vip" style="display: none;">
-                            <label class="text-gold fw-bold">Seleccionar Vehículos VIP</label>
-                            <div class="input-group">
-                                <select id="selector-vehiculos" class="form-select bg-dark text-white border-gold">
-                                    <option value="">-- Añadir transporte --</option>
-                                    <option value="Limusina">Limusina (Máx 2)</option>
-                                    <option value="Jet Privado">Jet Privado (Máx 2)</option>
-                                    <option value="Camión de Carga">Camión de Carga (Máx 2)</option>
-                                </select>
-                                <button type="button" id="btn-add-transporte" class="btn btn-gold px-3">Añadir</button>
-                            </div>
-                            
-                            <div id="lista-transporte" class="mt-2 p-2 bg-black rounded border border-secondary">
-                                <p id="trans-vacio-msg" class="text-muted small m-0 text-center">No has añadido vehículos.</p>
+                        <div class="col-12" id="div-transporte-vip" style="display: none;">
+                            <div class="p-3 border border-gold rounded mb-3 bg-black">
+                                <label class="text-gold fw-bold mb-2">Añadir Vehículos VIP</label>
+                                <div class="input-group input-group-responsive">
+                                    <select id="selector-vehiculos" class="form-select bg-dark text-white border-gold">
+                                        <option value="">-- Añadir transporte --</option>
+                                        <option value="Limusina">Limusina (Máx 2)</option>
+                                        <option value="Jet Privado">Jet Privado (Máx 2)</option>
+                                        <option value="Camión de Carga">Camión de Carga (Máx 2)</option>
+                                    </select>
+                                    <button type="button" id="btn-add-transporte" class="btn btn-gold px-4">Añadir</button>
+                                </div>
+                                <div id="lista-transporte" class="mt-2 p-2 bg-dark rounded border border-secondary">
+                                    <p id="trans-vacio-msg" class="text-muted small m-0 text-center">No has añadido vehículos.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="form-check mb-3 p-3 border border-secondary rounded bg-black">
+                    <div class="form-check mb-3 p-3 border border-secondary rounded bg-black d-flex align-items-center">
                         {{ form.requiere_productos }}
-                        <label class="form-check-label text-gold fw-bold ms-2" for="id_requiere_productos">
-                            ¿Esta solicitud requiere alimentos / productos de la carta?
+                        <label class="form-check-label text-gold fw-bold ms-2 mb-0" for="id_requiere_productos">
+                            ¿Esta solicitud requiere alimentos / productos?
                         </label>
                     </div>
 
@@ -86,36 +61,30 @@
                         <div class="mb-3">
                             <h5 class="text-gold">Selección de Productos</h5>
                             <select id="buscador-productos" class="form-select">
-                                <option value="">Escribe para buscar un plato...</option>
+                                <option value="">Buscar plato...</option>
                                 {% for plato in platos_disponibles %}
-                                    <option value="{{ plato.id }}" 
-                                            data-imagen="{{ plato.imagen.url }}" 
-                                            data-nombre="{{ plato.nombre }}"
-                                            data-precio="{{ plato.precio_venta }}">
+                                    <option value="{{ plato.id }}" data-imagen="{{ plato.imagen.url }}" data-nombre="{{ plato.nombre }}">
                                         {{ plato.nombre }} ({{ plato.precio_venta }}€)
                                     </option>
                                 {% endfor %}
                             </select>
                         </div>
-
-                        <div id="lista-pedido" class="rounded mb-4 p-3 bg-black border border-secondary">
+                        <div id="lista-pedido" class="rounded mb-4 p-2 p-md-3 bg-black border border-secondary">
                             <div id="vacio-msg" class="text-center p-2">
-                                <p class="text-muted small m-0">No has añadido productos todavía.</p>
+                                <p class="text-muted small m-0">Sin productos seleccionados.</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="mb-4">
-                        <label class="text-gold fw-bold mb-2">Detalles del encargo o evento (Observaciones)</label>
+                        <label class="text-gold fw-bold mb-2">Observaciones</label>
                         {{ form.observaciones }}
                     </div>
 
                     {{ form.detalles_cantidades }}
                     {{ form.detalles_transporte }}
 
-                    <button type="submit" class="btn btn-gold w-100 p-3 shadow text-uppercase">
-                        Confirmar y enviar solicitud
-                    </button>
+                    <button type="submit" class="btn btn-gold w-100 p-3 shadow text-uppercase">Confirmar y Enviar</button>
                 </form>
             </div>
         </div>
@@ -126,97 +95,93 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
-    const carrito = {};
-    const carritoTransporte = {};
+    let carrito = {};
+    let carritoTransporte = {};
 
     $(document).ready(function() {
-        // --- RESTRICCIONES DE FECHA ---
-        const inputFecha = document.getElementById('id_fecha_entrega');
-        if (inputFecha) {
-            const hoy = new Date();
-            const minDate = new Date();
-            minDate.setDate(hoy.getDate() + 4);
-            const maxDate = new Date();
-            maxDate.setDate(hoy.getDate() + 30);
-            const formatDate = (d) => d.toISOString().split('T')[0];
-            inputFecha.setAttribute('min', formatDate(minDate));
-            inputFecha.setAttribute('max', formatDate(maxDate));
-        }
-
-        // --- MOSTRAR/OCULTAR TRANSPORTE ---
-        $('#id_tipo_servicio').on('change', function() {
-            if ($(this).val() === 'TRANSPORTE') {
-                $('#div-transporte-vip').fadeIn();
-            } else {
-                $('#div-transporte-vip').fadeOut();
-            }
+        const $selectorServicios = $('#id_tipo_servicio');
+        $selectorServicios.val(null); 
+        
+        $selectorServicios.select2({
+            placeholder: "Selecciona uno o varios servicios...",
+            allowClear: true,
+            width: '100%'
         }).trigger('change');
 
-        // --- MOSTRAR/OCULTAR PRODUCTOS ---
+        $('#buscador-productos').select2({ width: '100%' });
+
+        $selectorServicios.on('change', function() {
+            const seleccionados = $(this).val() || [];
+            if (seleccionados.includes('TRANSPORTE')) { $('#div-transporte-vip').fadeIn(); }
+            else { $('#div-transporte-vip').fadeOut(); }
+        });
+
         $('#id_requiere_productos').on('change', function() {
             if ($(this).is(':checked')) { $('#seccion-productos').slideDown(); }
             else { $('#seccion-productos').slideUp(); }
-        }).trigger('change');
+        });
 
-        // --- LÓGICA PRODUCTOS ---
-        $('#buscador-productos').select2({ width: '100%' });
+        // HTML PRODUCTOS RESPONSIVE
         $('#buscador-productos').on('select2:select', function (e) {
-            const el = e.params.data.element.dataset;
+            const data = e.params.data.element.dataset;
             const id = e.params.data.id;
             if (!carrito[id]) {
                 carrito[id] = 1;
                 const html = `
-                    <div class="item-pedido d-flex align-items-center justify-content-between" id="fila-${id}">
-                        <div class="d-flex align-items-center">
-                            <img src="${el.imagen}" class="rounded border-gold" style="width: 45px; height: 45px; object-fit: cover; margin-right: 15px;">
-                            <div>
-                                <h6 class="m-0 text-white small">${el.nombre}</h6>
-                                <small class="text-gold">${el.precio} € / ud</small>
-                            </div>
+                    <div class="item-pedido d-flex align-items-center justify-content-between flex-wrap" id="fila-${id}">
+                        <div class="d-flex align-items-center col-8">
+                            <img src="${data.imagen}" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                            <span class="small text-white text-truncate">${data.nombre}</span>
                         </div>
-                        <div class="d-flex align-items-center">
-                            <input type="number" value="1" min="1" class="form-control form-control-sm bg-dark text-white border-secondary text-center" 
-                                   style="width: 65px;" onchange="cambiarCantidad(${id}, this.value)">
-                            <button type="button" class="btn btn-sm text-danger ms-3" onclick="eliminarItem(${id})">✕ Borrar</button>
+                        <div class="d-flex align-items-center justify-content-end col-4">
+                            <input type="number" value="1" min="1" class="form-control form-control-sm bg-dark text-white text-center me-1" style="width: 50px;" onchange="cambiarCantidad(${id}, this.value)">
+                            <button type="button" class="btn btn-sm text-danger p-0" onclick="eliminarItem(${id})">✕</button>
                         </div>
                     </div>`;
                 $('#lista-pedido').append(html);
                 $('#vacio-msg').hide();
+                actualizarInputOculto();
             }
-            actualizarInputOculto();
             $(this).val(null).trigger('change');
         });
 
-        // --- LÓGICA TRANSPORTE VIP ---
+        // HTML TRANSPORTE RESPONSIVE
         $('#btn-add-transporte').on('click', function() {
             const v = $('#selector-vehiculos').val();
             if (v && !carritoTransporte[v]) {
                 carritoTransporte[v] = 1;
                 $('#trans-vacio-msg').hide();
                 const html = `
-                    <div class="item-pedido d-flex align-items-center justify-content-between py-2 border-bottom border-secondary" id="fila-trans-${v}">
-                        <div class="text-white small"><i class="fas fa-car text-gold me-2"></i> ${v}</div>
-                        <div class="d-flex align-items-center">
-                            <input type="number" value="1" min="1" max="2" 
-                                   class="form-control form-control-sm bg-dark text-white border-secondary text-center" 
-                                   style="width: 55px;" onchange="cambiarCantTrans('${v}', this.value)">
-                            <button type="button" class="btn btn-sm text-danger ms-2" onclick="eliminarTrans('${v}')">✕</button>
+                    <div class="item-pedido d-flex align-items-center justify-content-between py-2 border-bottom border-secondary flex-wrap" id="fila-trans-${v}">
+                        <span class="text-white small col-8">${v}</span>
+                        <div class="d-flex align-items-center justify-content-end col-4">
+                            <input type="number" value="1" min="1" max="2" class="form-control form-control-sm bg-dark text-white text-center me-1" style="width: 50px;" onchange="cambiarCantTrans('${v}', this.value)">
+                            <button type="button" class="btn btn-sm text-danger p-0" onclick="eliminarTrans('${v}')">✕</button>
                         </div>
                     </div>`;
                 $('#lista-transporte').append(html);
                 actualizarInputTrans();
             }
-            $('#selector-vehiculos').val("");
         });
     });
 
-    // Funciones Globales
-    function cambiarCantidad(id, valor) { carrito[id] = parseInt(valor); actualizarInputOculto(); }
-    function eliminarItem(id) { delete carrito[id]; $(`#fila-${id}`).remove(); if (Object.keys(carrito).length === 0) $('#vacio-msg').show(); actualizarInputOculto(); }
     function actualizarInputOculto() { $('[name="detalles_cantidades"]').val(JSON.stringify(carrito)); }
-
-    function cambiarCantTrans(v, valor) { carritoTransporte[v] = parseInt(valor); actualizarInputTrans(); }
-    function eliminarTrans(v) { delete carritoTransporte[v]; $(`#fila-trans-${v}`).remove(); if (Object.keys(carritoTransporte).length === 0) $('#trans-vacio-msg').show(); actualizarInputTrans(); }
     function actualizarInputTrans() { $('[name="detalles_transporte"]').val(JSON.stringify(carritoTransporte)); }
+    function cambiarCantidad(id, valor) { carrito[id] = parseInt(valor); actualizarInputOculto(); }
+    function cambiarCantTrans(v, valor) { carritoTransporte[v] = parseInt(valor); actualizarInputTrans(); }
+
+    function eliminarItem(id) {
+        delete carrito[id];
+        $(`#fila-${id}`).remove();
+        if (Object.keys(carrito).length === 0) { $('#vacio-msg').show(); $('[name="detalles_cantidades"]').val(''); }
+        else { actualizarInputOculto(); }
+    }
+
+    function eliminarTrans(v) {
+        delete carritoTransporte[v];
+        $(`#fila-trans-${v}`).remove();
+        if (Object.keys(carritoTransporte).length === 0) { $('#trans-vacio-msg').show(); $('[name="detalles_transporte"]').val(''); }
+        else { actualizarInputTrans(); }
+    }
 </script>
 {% endblock %}

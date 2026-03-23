@@ -24,7 +24,7 @@ class SolicitudServicioForm(forms.ModelForm):
         
         widgets = {
             'fecha_entrega': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'tipo_servicio': forms.Select(attrs={'class': 'form-select', 'id': 'id_tipo_servicio'}),
+            'tipo_servicio': forms.SelectMultiple(attrs={'class': 'form-select select2', 'id': 'id_tipo_servicio'}),
             'nombre_entidad': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de la empresa o evento'}),
             'observaciones': forms.Textarea(attrs={
                 'class': 'form-control bg-dark text-white border-secondary',
