@@ -21,12 +21,14 @@ from django.urls import path, include  # ¡Asegúrate de tener el include!
 from django.views.generic import TemplateView
 from catalog.views import home_view
 from orders.views import solicitar_servicio
+from users.views import register_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),
     path('', home_view, name='home'),
     path('solicitar/', solicitar_servicio, name='solicitar_servicio'),
+    path('register/', register_view, name='register'),
 ]
 
 if settings.DEBUG:

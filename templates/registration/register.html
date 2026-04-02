@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .card-register {
+        background-color: #1a1c20;
+        border: 1px solid #bfa071;
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+
+    .register-title {
+        color: #bfa071;
+        font-family: 'Playfair Display', serif;
+        font-weight: bold;
+        letter-spacing: 1px;
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    .register-input {
+        width: 100%;
+        padding: 10px 15px;
+        margin-bottom: 12px;
+        background-color: #f0f4f8 !important;
+        border: 1px solid #444;
+        border-radius: 6px;
+        color: #333 !important;
+        font-size: 0.9rem;
+    }
+
+    .register-input::placeholder {
+        color: #666;
+    }
+
+    .btn-register {
+        background-color: #c0282d;
+        color: white;
+        font-weight: bold;
+        padding: 12px;
+        border: none;
+        border-radius: 6px;
+        width: 100%;
+        font-size: 1rem;
+        margin-top: 10px;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .btn-register:hover {
+        background-color: #a02125;
+        transform: translateY(-1px);
+    }
+
+    .login-link-section {
+        text-align: center;
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #333;
+    }
+
+    .login-link-text { color: #f1e5c3; font-size: 0.85rem; }
+    .login-link { color: #bfa071; text-decoration: none; font-weight: bold; margin-left: 5px; }
+    
+    .error-msg {
+        color: #ff4d4d;
+        font-size: 0.8rem;
+        font-weight: bold;
+        margin-top: -8px;
+        margin-bottom: 10px;
+        display: block;
+        text-shadow: 1px 1px 2px black;
+    }
+
+    ul.errorlist { display: none !important; }
+</style>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card-register p-4">
+                <h2 class="register-title">Registrarse</h2>
+                
+                <!-- novalidate es CLAVE para ver los errores de Django en lugar de los del navegador -->
+                <form method="POST" novalidate>
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        {% for error in form.non_field_errors %}
+                            <div class="error-msg text-center mb-3">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Nombre -->
+                    {% if form.username.errors %}
+                        <span class="error-msg">{{ form.username.errors|striptags }}</span>
+                    {% endif %}
+                    <input type="text" name="username" class="register-input" 
+                           placeholder="Nombre_Apellido" 
+                           value="{{ form.username.value|default:'' }}">
+
+                    <!-- ID CODE (Actualizado de id_lipa a id_code) -->
+                    {% if form.id_code.errors %}
+                        <span class="error-msg">{{ form.id_code.errors|striptags }}</span>
+                    {% endif %}
+                    <input type="text" name="id_code" class="register-input" 
+                           placeholder="ID #CODE (Ej: #ABCD)" 
+                           value="{{ form.id_code.value|default:'' }}">
+
+                    <!-- Teléfono -->
+                    {% if form.telefono.errors %}
+                        <span class="error-msg">{{ form.telefono.errors|striptags }}</span>
+                    {% endif %}
+                    <input type="text" name="telefono" class="register-input" 
+                           placeholder="Número de Teléfono" 
+                           value="{{ form.telefono.value|default:'' }}">
+
+                    <!-- Código de Organización (Opcional) -->
+                    {% if form.codigo_empresa.errors %}
+                        <span class="error-msg">{{ form.codigo_empresa.errors|striptags }}</span>
+                    {% endif %}
+                    <input type="text" name="codigo_empresa" class="register-input" 
+                           placeholder="Código de Organización (Opcional)" 
+                           value="{{ form.codigo_empresa.value|default:'' }}">
+
+                    <!-- Contraseñas -->
+                    <input type="password" name="password1" class="register-input" placeholder="Contraseña">
+                    <input type="password" name="password2" class="register-input" placeholder="Confirmar Contraseña">
+
+                    <button type="submit" class="btn-register">Enviar</button>
+                </form>
+
+                <div class="login-link-section">
+                    <p style="margin: 0;">
+                        <span class="login-link-text">¿Ya tienes cuenta?</span>
+                        <a href="{% url 'login' %}" class="login-link">Inicia sesión</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

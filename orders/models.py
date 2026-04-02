@@ -3,6 +3,7 @@ from django.conf import settings
 from catalog.models import Plato
 
 class SolicitudServicio(models.Model):
+    # Añadimos esta constante exactamente con este nombre para que el Form la encuentre
     TIPO_CHOICES = [
         ('EVENTO', 'Catering para Evento'),
         ('SUMINISTRO', 'Suministro a Restaurante'),
@@ -17,8 +18,21 @@ class SolicitudServicio(models.Model):
         ('CANCELADO', 'Cancelado'),
     ]
 
-    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
-    tipo_servicio = models.CharField(max_length=255, default='EVENTO')
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        null=True, 
+        blank=True, 
+        related_name='solicitudes'
+    )
+    
+    # Usamos TIPO_CHOICES aquí también para ser coherentes
+    tipo_servicio = models.CharField(
+        max_length=20, 
+        choices=TIPO_CHOICES, 
+        default='EVENTO'
+    )
+    
     nombre_entidad = models.CharField(max_length=200)
     fecha_entrega = models.DateField()
     observaciones = models.TextField(blank=True, null=True)
@@ -26,7 +40,6 @@ class SolicitudServicio(models.Model):
     requiere_productos = models.BooleanField(default=False)
     productos_solicitados = models.ManyToManyField(Plato, blank=True)
     
-    # Usamos dict como callable para el default
     detalles_cantidades = models.JSONField(default=dict, blank=True)
     
     requiere_transporte = models.BooleanField(default=False)
@@ -36,4 +49,4 @@ class SolicitudServicio(models.Model):
     creado_el = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.nombre_entidad} - {self.tipo_servicio}"
+        return f"{self.nombre_entidad} - {self.get_tipo_servicio_display()}"

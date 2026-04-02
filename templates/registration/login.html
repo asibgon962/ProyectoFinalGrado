@@ -1,17 +1,72 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-<h2>Iniciar Sesión</h2>
-
-{% if form.errors %}
-    <p style="color: red;">Tu nombre de usuario o contraseña no son correctos.</p>
-{% endif %}
-
-<form method="post">
-    {% csrf_token %}
+<style>
+    /* Estilo para las etiquetas (Username, Password) */
+    form p label {
+        display: block;
+        color: #f1e5c3 !important; /* Dorado crema claro */
+        margin-bottom: 5px;
+        font-size: 0.95rem;
+        font-family: 'Playfair Display', serif;
+    }
     
-    {{ form.as_p }}
-    
-    <button type="submit">Entrar</button>
-</form>
+    /* Estilo para los cuadros de texto */
+    form p input {
+        width: 100%;
+        padding: 10px;
+        background-color: #f0f4f8 !important; /* Color claro como tu captura */
+        border: 1px solid #bfa071;
+        border-radius: 6px;
+        margin-bottom: 15px;
+        color: #333 !important;
+    }
+
+    /* Quitar puntos de lista si Django los genera */
+    form p {
+        list-style: none;
+    }
+
+    /* Efecto al pasar el ratón por el botón */
+    .btn-login:hover {
+        background-color: #a02125 !important;
+        transform: scale(1.02);
+        transition: all 0.2s ease;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5"> <!-- Un poco más estrecho para mayor elegancia -->
+            <div class="card shadow-lg" style="background-color: #1a1c20; border: 1px solid #bfa071; border-radius: 10px;">
+                <div class="card-body p-4">
+                    <h2 class="text-center mb-4" style="color: #bfa071; font-family: 'Playfair Display', serif; font-weight: bold; letter-spacing: 1px;">
+                        Iniciar Sesión
+                    </h2>
+                    
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        {{ form.as_p }}
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-login text-white" style="background-color: #c0282d; border-radius: 6px; padding: 12px; font-weight: bold; border: none;">
+                                Entrar
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="text-center mt-4 pt-3" style="border-top: 1px solid #444;">
+                        <p style="margin-bottom: 0;">
+                            <span style="color: #f1e5c3; font-size: 0.9rem;">¿No tienes cuenta?</span>
+                            <a href="{% url 'register' %}" style="color: #bfa071; text-decoration: none; font-weight: bold; margin-left: 5px; font-size: 0.95rem;">
+                                Regístrate aquí
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
