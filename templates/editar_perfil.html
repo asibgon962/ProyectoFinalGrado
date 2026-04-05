@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .edit-container {
+        max-width: 650px;
+        margin: 50px auto;
+        background-color: #1a1c20;
+        border: 1px solid #bfa071;
+        border-radius: 15px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+        color: #f1e5c3;
+    }
+
+    .edit-header {
+        padding: 30px;
+        text-align: center;
+        border-bottom: 1px solid rgba(191, 160, 113, 0.3);
+    }
+
+    .edit-header h2 {
+        color: #bfa071;
+        font-family: 'Playfair Display', serif;
+        margin: 0;
+    }
+
+    .edit-body {
+        padding: 40px;
+    }
+
+    /* Estilo para los Avatares de Bootstrap */
+    .avatar-selector {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+
+    .avatar-option {
+        text-align: center;
+    }
+
+    /* Ocultar el radio button real */
+    .btn-check {
+        display: none;
+    }
+
+    /* Estilo del "botón" circular del icono */
+    .avatar-label {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        border: 2px solid #444;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: 0.3s;
+        background-color: #2c2f36;
+        color: #888;
+    }
+
+    .avatar-label i {
+        font-size: 3.5rem;
+    }
+
+    .avatar-label:hover {
+        border-color: #bfa071;
+        color: #bfa071;
+    }
+
+    /* Cuando está seleccionado */
+    .btn-check:checked + .avatar-label {
+        border-color: #bfa071;
+        color: #bfa071;
+        background-color: rgba(191, 160, 113, 0.1);
+        box-shadow: 0 0 15px rgba(191, 160, 113, 0.4);
+    }
+
+    /* Formulario estándar */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        color: #bfa071;
+        font-weight: bold;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .form-control {
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid #444;
+        color: #f1e5c3;
+        border-radius: 8px;
+        padding: 10px;
+    }
+
+    .form-control:focus {
+        background-color: rgba(255, 255, 255, 0.08);
+        border-color: #bfa071;
+        box-shadow: none;
+        color: #fff;
+    }
+
+    .btn-save {
+        background-color: #bfa071;
+        color: #1a1c20;
+        border: none;
+        padding: 12px;
+        width: 100%;
+        font-weight: bold;
+        text-transform: uppercase;
+        border-radius: 5px;
+        transition: 0.3s;
+        margin-top: 10px;
+    }
+
+    .btn-save:hover {
+        background-color: #d4b584;
+        transform: translateY(-2px);
+    }
+
+    .btn-cancel {
+        display: block;
+        text-align: center;
+        margin-top: 15px;
+        color: #888;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+
+    .btn-cancel:hover {
+        color: #fff;
+    }
+</style>
+
+<div class="container">
+    <div class="edit-container">
+        <div class="edit-header">
+            <h2>Actualizar Expediente</h2>
+            <p class="small text-muted">Modifica tus credenciales de ciudadano</p>
+        </div>
+
+        <div class="edit-body">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Selección de Avatar Predeterminado -->
+                <label class="form-label text-center">Selecciona un Avatar de Sistema</label>
+                <div class="avatar-selector">
+                    <!-- Opción Masculino -->
+                    <div class="avatar-option">
+                        <input type="radio" name="avatar_option" value="masculino" class="btn-check" id="av_masc">
+                        <label class="avatar-label" for="av_masc">
+                            <i class="bi bi-person-standing"></i>
+                        </label>
+                        <span class="small d-block mt-1">Masculino</span>
+                    </div>
+
+                    <!-- Opción Femenino -->
+                    <div class="avatar-option">
+                        <input type="radio" name="avatar_option" value="femenino" class="btn-check" id="av_fem">
+                        <label class="avatar-label" for="av_fem">
+                            <i class="bi bi-person-standing-dress"></i>
+                        </label>
+                        <span class="small d-block mt-1">Femenino</span>
+                    </div>
+                </div>
+
+                <hr style="border-color: rgba(191, 160, 113, 0.2);">
+
+                <!-- Subida de archivo personalizada -->
+                <div class="form-group">
+                    <label class="form-label" for="id_avatar">O sube una imagen personalizada</label>
+                    {{ form.avatar }}
+                    {% if form.avatar.errors %}
+                        <div class="text-danger small">{{ form.avatar.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Contacto Telefónico</label>
+                    {{ form.telefono }}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Código de Organización</label>
+                    {{ form.codigo_grupo }}
+                    <small class="text-muted">Si perteneces a un grupo, introduce su código de acceso.</small>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Biografía</label>
+                    {{ form.biografia }}
+                </div>
+
+                <button type="submit" class="btn btn-save">
+                    <i class="bi bi-check-lg"></i> Guardar Cambios
+                </button>
+
+                <a href="{% url 'profile' %}" class="btn-cancel">Cancelar y volver</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Pequeño script para desmarcar los iconos si el usuario elige un archivo manual
+    document.getElementById('file_input')?.addEventListener('change', function() {
+        document.querySelectorAll('.btn-check').forEach(radio => radio.checked = false);
+    });
+</script>
+{% endblock %}

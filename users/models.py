@@ -26,7 +26,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     telefono = models.CharField(max_length=20, blank=True, null=True)
     biografia = models.TextField(max_length=500, blank=True)
-    avatar = models.ImageField(upload_to='avatars/', default='avatars/default.png', blank=True)
+    avatar = models.ImageField(upload_to='avatars/', default='avatars/masculino.jpg', blank=True)
     direccion_contacto = models.CharField(max_length=255, blank=True)
 
     def __str__(self):

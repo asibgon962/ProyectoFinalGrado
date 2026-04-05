@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/perfil.css' %}">
+
+<div class="container py-5">
+    <div class="profile-container">
+        
+        <!-- ENCABEZADO -->
+        <div class="profile-header">
+            <div class="profile-avatar-center">
+                <div class="profile-avatar-wrapper">
+                    {% if profile.avatar %}
+                        <img src="{{ profile.avatar.url }}" alt="Ciudadano {{ profile.user.username }}" class="profile-avatar">
+                    {% else %}
+                        <div class="profile-avatar-placeholder">
+                            <i class="bi bi-person-badge"></i>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <h1 class="profile-name">{{ profile.user.username }}</h1>
+            <span class="profile-id">{{ profile.user.id_code|default:"SIN ID REGISTRADO" }}</span>
+        </div>
+
+        <!-- CUERPO -->
+        <div class="profile-body">
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Estado de Ciudadanía</span>
+                    <span class="info-value">
+                        {% if profile.user.is_active %}
+                            <i class="bi bi-shield-fill-check text-success me-2"></i> Activo
+                        {% else %}
+                            <i class="bi bi-shield-fill-exclamation text-danger me-2"></i> Inactivo
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">Organización / Grupo</span>
+                    <span class="info-value">
+                        {% if profile.user.organization %}
+                            <span class="org-badge">{{ profile.user.organization.nombre }}</span>
+                        {% else %}
+                            <span style="color: #666; font-style: italic;">Sin afiliación</span>
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="info-item item-alt">
+                    <span class="info-label">Contacto Telefónico</span>
+                    <span class="info-value">
+                        <i class="bi bi-telephone-fill me-2 color-gold"></i>
+                        {{ profile.telefono|default:"No registrado" }}
+                    </span>
+                </div>
+
+                <div class="info-item item-alt">
+                    <span class="info-label">Fecha de Registro</span>
+                    <span class="info-value">
+                        <i class="bi bi-journal-check me-2 color-gold"></i>
+                        {{ profile.user.date_joined|date:"d M, Y" }}
+                    </span>
+                </div>
+            </div>
+
+            {% if profile.biografia %}
+            <div class="biography-section">
+                <span class="info-label">Biografía del Ciudadano</span>
+                <p class="biography-text">
+                    {{ profile.biografia|linebreaksbr }}
+                </p>
+            </div>
+            {% endif %}
+
+            <a href="{% url 'editar_perfil' %}" class="btn-edit-profile">
+                <i class="bi bi-gear-fill me-2"></i> Editar Expediente
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

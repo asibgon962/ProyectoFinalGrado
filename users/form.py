@@ -2,6 +2,7 @@ import re
 from django import forms
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from .models import Profile, Organization
 
 User = get_user_model()
 
@@ -63,21 +64,18 @@ class RegistroUsuarioForm(forms.ModelForm):
 
     def clean_username(self):
         username = self.cleaned_data.get('username')
-        # Validación Nombre_Apellido
         if username and not re.match(r'^[a-zA-Z]+_[a-zA-Z]+$', username):
             raise ValidationError("El formato debe ser Nombre_Apellido (Ej: Juan_Perez).")
         return username
 
     def clean_id_code(self):
         id_code = self.cleaned_data.get('id_code')
-        # Validación # + 4 letras Mayúsculas
         if id_code and not re.match(r'^#[A-Z]{4}$', id_code):
             raise ValidationError("El ID debe empezar por # seguido de 4 letras MAYÚSCULAS.")
         return id_code
 
     def clean_telefono(self):
         telefono = self.cleaned_data.get('telefono')
-        # Validación solo números
         if telefono and not telefono.isdigit():
             raise ValidationError("El teléfono solo puede contener números.")
         return telefono
@@ -99,3 +97,44 @@ class RegistroUsuarioForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+
+
+class EditarPerfilForm(forms.ModelForm):
+    # Campo para editar el código de organización (vinculado al User)
+    codigo_grupo = forms.CharField(
+        max_length=50, 
+        required=False, 
+        label="Código de Organización/Empresa",
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Introduce el código...'})
+    )
+
+    # Opciones de avatar predeterminado
+    AVATAR_PREDETERMINADO_CHOICES = [
+        ('none', 'Mantener actual / Subir personalizado'),
+        ('masculino', 'Perfil Masculino'),
+        ('femenino', 'Perfil Femenino'),
+    ]
+    
+    avatar_option = forms.ChoiceField(
+        choices=AVATAR_PREDETERMINADO_CHOICES,
+        widget=forms.RadioSelect(attrs={'class': 'btn-check'}), # Clase para Bootstrap
+        initial='none',
+        required=False,
+    )
+
+    class Meta:
+        model = Profile
+        fields = ['avatar', 'telefono', 'biografia']
+        widgets = {
+            'avatar': forms.FileInput(attrs={'class': 'form-control', 'id': 'file_input'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-control'}),
+            'biografia': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+
+    def clean_telefono(self):
+        telefono = self.cleaned_data.get('telefono')
+        if telefono and not telefono.isdigit():
+            raise ValidationError("El teléfono solo puede contener números.")
+        if telefono and len(telefono) != 6:
+            raise ValidationError("El teléfono debe tener exactamente 6 dígitos.")
+        return telefono

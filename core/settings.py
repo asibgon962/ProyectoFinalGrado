@@ -127,3 +127,11 @@ STATICFILES_DIRS = [
 # Configuración de redirecciones para autenticación
 LOGIN_REDIRECT_URL = '/'  # Después de loguearse, el usuario va a la página de inicio
 LOGOUT_REDIRECT_URL = '/' # Después de desloguearse, el usuario va a la página de inicio
+
+import os
+
+# La carpeta física en tu ordenador/servidor
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# La URL que se verá en el navegador
+MEDIA_URL = '/media/'
