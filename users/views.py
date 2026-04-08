@@ -89,3 +89,12 @@ def editar_perfil_view(request):
         form = EditarPerfilForm(instance=profile, initial=inicial)
     
     return render(request, 'editar_perfil.html', {'form': form})
+
+def privacidad(request):
+    return render(request, 'privacidad.html')
+
+def terminos(request):
+    return render(request, 'terminos.html')
+
+def contacto(request):
+    return render(request, 'contacto.html')

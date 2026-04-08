@@ -21,6 +21,7 @@ from django.urls import path, include  # ¡Asegúrate de tener el include!
 from django.views.generic import TemplateView
 from catalog.views import home_view
 from orders.views import solicitar_servicio
+from users import views
 from users.views import register_view, profile_view, editar_perfil_view
 
 urlpatterns = [
@@ -31,6 +32,9 @@ urlpatterns = [
     path('solicitar/', solicitar_servicio, name='solicitar_servicio'),
     path('register/', register_view, name='register'),
     path('editar-perfil/', editar_perfil_view, name='editar_perfil'),
+    path('privacidad/', views.privacidad, name='privacidad'),
+    path('terminos/', views.terminos, name='terminos'),
+    path('contacto/', views.contacto, name='contacto'),
 ]
 
 if settings.DEBUG:
@@ -38,3 +42,5 @@ if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     # Sirve archivos estáticos (CSS, JS, imágenes de diseño en /static/)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+

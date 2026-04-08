@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row g-5">
+        <!-- Formulario de Contacto -->
+        <div class="col-lg-6">
+            <h1 class="display-5 text-gold mb-4">Contacto Exclusivo</h1>
+            <p class="text-gold-light mb-4">Si desea realizar una consulta especial o requiere asistencia personalizada, complete el siguiente formulario.</p>
+            
+            <form action="#" method="POST" class="main-container-lux p-4">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label text-gold">Nombre Completo</label>
+                    <input type="text" class="form-control bg-dark text-white border-secondary" placeholder="Su nombre...">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-gold">Correo Electrónico</label>
+                    <input type="email" class="form-control bg-dark text-white border-secondary" placeholder="nombre@ejemplo.com">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-gold">Asunto</label>
+                    <select class="form-select bg-dark text-white border-secondary">
+                        <option selected>Realizar pedido</option>
+                        <option>Eventos Corporativos</option>
+                        <option>Servicio de Transporte</option>
+                        <option>Otros</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-gold">Mensaje</label>
+                    <textarea class="form-control bg-dark text-white border-secondary" rows="4"></textarea>
+                </div>
+                <button type="submit" class="btn btn-koi-red w-100 py-2 fw-bold">ENVIAR SOLICITUD</button>
+            </form>
+        </div>
+
+        <!-- Preguntas Frecuentes (FAQ) -->
+        <div class="col-lg-6">
+            <h2 class="display-5 text-gold mb-4">Preguntas Frecuentes</h2>
+            
+            <div class="accordion" id="faqAccordion">
+                
+                <!-- Pregunta 1 -->
+                <div class="accordion-item bg-dark border-secondary">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed bg-dark text-gold" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                            ¿Cuál es el código de vestimenta?
+                        </button>
+                    </h2>
+                    <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-gold-light">
+                            Para mantener la atmósfera de exclusividad de Koi Enterprise, solicitamos a nuestros clientes un estilo <strong>Elegant Casual</strong> o superior.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pregunta 2 -->
+                <div class="accordion-item bg-dark border-secondary">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed bg-dark text-gold" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                            ¿Cómo funciona el servicio de transporte?
+                        </button>
+                    </h2>
+                    <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-gold-light">
+                            El servicio de transporte de lujo debe solicitarse con al menos 4 días de antelación a través de su panel de gestión o mediante este formulario de contacto.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pregunta 3 -->
+                <div class="accordion-item bg-dark border-secondary">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed bg-dark text-gold" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                            ¿Organizan eventos privados?
+                        </button>
+                    </h2>
+                    <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-gold-light">
+                            Sí, disponemos de espacios privados y servicios de catering personalizados para celebraciones corporativas y sociales de alto nivel.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Información Adicional -->
+            <div class="mt-5 p-4 border-start border-gold">
+                <h4 class="text-gold">Ubicación y Horario</h4>
+                <p class="text-gold-light small mb-0">Tug St, 12. Vespucci. Los Santos, EE.UU.</p>
+                <p class="text-gold-light small">Lunes a Domingo: 12:00 - 00:00</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
