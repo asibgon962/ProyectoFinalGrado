@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+
+from catalog.models import Plato
 # Importamos ambos formularios desde tu archivo .form
 from .form import RegistroUsuarioForm, EditarPerfilForm 
 from .models import Organization, Profile
@@ -98,3 +100,7 @@ def terminos(request):
 
 def contacto(request):
     return render(request, 'contacto.html')
+
+def servicios(request):
+    return render(request, 'servicios.html')
+

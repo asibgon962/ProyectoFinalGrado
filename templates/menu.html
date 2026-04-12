@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/menu.css' %}">
+{% endblock %}
+
+{% block content %}
+<div id="menu-wrapper" class="menu-bg-default">
+    
+    <section class="text-center mb-5 pt-5">
+        <h1 class="display-3 text-gold fw-bold">Nuestra Carta</h1>
+        <div class="d-flex justify-content-center">
+            <hr class="border-gold opacity-50 w-25">
+        </div>
+        <p class="lead text-gold-light mt-3">Koi Enterprise: Una selección exclusiva para paladares exigentes.</p>
+    </section>
+
+    <ul class="nav nav-pills justify-content-center mb-5" id="menuTab" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link menu-category-link active" 
+                    data-bs-toggle="pill" 
+                    data-bs-target="#cat-all" 
+                    type="button" 
+                    data-bg="default">Ver Todo</button>
+        </li>
+        {% for categoria in categorias %}
+        <li class="nav-item">
+            <button class="nav-link menu-category-link" 
+                    data-bs-toggle="pill" 
+                    data-bs-target="#cat-{{ categoria.id }}" 
+                    type="button" 
+                    data-bg="{{ categoria.nombre|slugify }}">
+                {{ categoria.nombre }}
+            </button>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <div class="tab-content container">
+        <div class="tab-pane fade show active" id="cat-all">
+            <div class="row g-4">
+                {% for plato in platos %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card plato-card">
+                            <div class="plato-img-container position-relative">
+                                {% if plato.imagen %}
+                                    <img src="{{ plato.imagen.url }}" class="plato-img" alt="{{ plato.nombre }}">
+                                {% else %}
+                                    <div class="bg-dark h-100 d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-egg-fried text-secondary fs-1"></i>
+                                    </div>
+                                {% endif %}
+                                {% if plato.es_destacado %}
+                                    <span class="position-absolute top-0 end-0 m-3 badge badge-destacado px-3 py-2 rounded-pill">DESTACADO</span>
+                                {% endif %}
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h4 class="text-gold mb-0 fs-5">{{ plato.nombre }}</h4>
+                                    <span class="precio-tag">{{ plato.precio_venta }}€</span>
+                                </div>
+                                <p class="text-secondary small mb-0">{{ plato.descripcion }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% for categoria in categorias %}
+        <div class="tab-pane fade" id="cat-{{ categoria.id }}">
+            <div class="row g-4">
+                {% for plato in categoria.platos.all %}
+                    {% if plato.disponible %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card plato-card">
+                            <div class="plato-img-container">
+                                {% if plato.imagen %}
+                                    <img src="{{ plato.imagen.url }}" class="plato-img" alt="{{ plato.nombre }}">
+                                {% endif %}
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h4 class="text-gold mb-0 fs-5">{{ plato.nombre }}</h4>
+                                    <span class="precio-tag">{{ plato.precio_venta }}€</span>
+                                </div>
+                                <p class="text-secondary small mt-2 mb-0">{{ plato.descripcion }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <section class="mt-5 py-5 text-center">
+        <a href="{% url 'solicitar_servicio' %}" class="btn btn-lux-red px-5 py-3 mt-4 fw-bold text-uppercase shadow-lg">RESERVAR MESA</a>
+    </section>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const buttons = document.querySelectorAll('.menu-category-link');
+        const wrapper = document.getElementById('menu-wrapper');
+
+        buttons.forEach(btn => {
+            btn.addEventListener('shown.bs.tab', function(e) {
+                const bgType = e.target.getAttribute('data-bg');
+                // Limpiamos clases anteriores que empiecen por menu-bg-
+                wrapper.className = wrapper.className.split(' ').filter(c => !c.startsWith('menu-bg-')).join(' ');
+                // Añadimos la nueva clase
+                wrapper.classList.add('menu-bg-' + bgType);
+            });
+        });
+    });
+</script>
+{% endblock %}

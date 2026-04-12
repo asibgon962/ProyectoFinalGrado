@@ -39,13 +39,13 @@
                     {% endif %}
 
                     <li class="nav-item">
-                        <a class="nav-link nav-link-lux" href="/">Menú</a>
+                        <a class="nav-link nav-link-lux" href="{% url 'menu' %}">Menú</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link nav-link-lux" href="#">Servicios</a>
+                        <a class="nav-link nav-link-lux" href="{% url 'servicios' %}">Servicios</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link nav-link-lux" href="#">Consultas</a>
+                        <a class="nav-link nav-link-lux" href="{% url 'contacto' %}">Consultas</a>
                     </li>
 
                     <li class="nav-item dropdown ms-lg-4">

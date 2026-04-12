@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <style>
+        .service-card {
+            transition: transform 0.3s ease, border-color 0.3s ease;
+            cursor: default;
+        }
+        .service-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--lux-gold) !important;
+        }
+        .icon-box {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            color: var(--lux-gold);
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<section class="text-center mb-5">
+    <h1 class="display-3 text-gold fw-bold">Nuestros Servicios</h1>
+    <p class="lead text-gold-light mx-auto" style="max-width: 700px;">
+        En Koi Enterprise, la excelencia no es una opción, es nuestro estándar. Ofrecemos soluciones integrales desde logística de alta capacidad hasta experiencias gastronómicas de élite.
+    </p>
+</section>
+
+<div class="row g-4">
+    <div class="col-md-6 col-lg-4">
+        <div class="card bg-dark text-white h-100 border-secondary service-card p-4">
+            <div class="icon-box text-center"><i class="bi bi-truck-front"></i></div>
+            <h3 class="text-gold text-center mb-3">Transporte Global</h3>
+            <p class="text-secondary small">Ofrecemos una red de transporte versátil adaptada a cada necesidad:</p>
+            <ul class="list-unstyled">
+                <li><i class="bi bi-check2-circle text-gold me-2"></i><strong>Transporte VIP:</strong> Traslados discretos y de lujo para clientes exigentes.</li>
+                <li><i class="bi bi-check2-circle text-gold me-2"></i><strong>Mercancías:</strong> Logística eficiente y segura para grandes volúmenes.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+        <div class="card bg-dark text-white h-100 border-secondary service-card p-4">
+            <div class="icon-box text-center"><i class="bi bi-box-seam"></i></div>
+            <h3 class="text-gold text-center mb-3">Abastecimiento</h3>
+            <p class="text-secondary small">Suministro premium para garantizar el flujo operativo de su entidad:</p>
+            <ul class="list-unstyled">
+                <li><i class="bi bi-check2-circle text-gold me-2"></i><strong>Negocios:</strong> Provisión de suministros y comida para empresas.</li>
+                <li><i class="bi bi-check2-circle text-gold me-2"></i><strong>Eventos:</strong> Logística alimentaria para celebraciones de gran escala.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+        <div class="card bg-dark text-white h-100 border-secondary service-card p-4">
+            <div class="icon-box text-center"><i class="bi bi-egg-fried"></i></div>
+            <h3 class="text-gold text-center mb-3">Restauración</h3>
+            <p class="text-secondary small">El alma culinaria de nuestra marca a su disposición:</p>
+            <ul class="list-unstyled">
+                <li><i class="bi bi-check2-circle text-gold me-2"></i><strong>Alta Cocina:</strong> Experiencia gastronómica en nuestro local físico.</li>
+                <li><i class="bi bi-check2-circle text-gold me-2"></i><strong>Catering:</strong> Llevamos la calidad Koi a su ubicación privada.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<section class="mt-5 py-5 border-top border-gold text-center">
+    <h2 class="text-gold mb-4">¿Necesita una solución a medida?</h2>
+    <p class="mb-4">Nuestro equipo de gestión está preparado para diseñar planes logísticos y gastronómicos personalizados.</p>
+    <a href="{% url 'solicitar_servicio' %}" class="btn btn-lux-outline-red px-5 py-3">SOLICITAR SERVICIO</a>
+</section>
+{% endblock %}

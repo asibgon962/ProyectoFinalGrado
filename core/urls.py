@@ -23,6 +23,7 @@ from catalog.views import home_view
 from orders.views import solicitar_servicio
 from users import views
 from users.views import register_view, profile_view, editar_perfil_view
+from catalog.views import menu_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -35,6 +36,8 @@ urlpatterns = [
     path('privacidad/', views.privacidad, name='privacidad'),
     path('terminos/', views.terminos, name='terminos'),
     path('contacto/', views.contacto, name='contacto'),
+    path('servicios/', views.servicios, name='servicios'),
+    path('menu/', menu_view, name='menu'),
 ]
 
 if settings.DEBUG:
