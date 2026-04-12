@@ -24,6 +24,7 @@ from orders.views import solicitar_servicio
 from users import views
 from users.views import register_view, profile_view, editar_perfil_view
 from catalog.views import menu_view
+from orders import views as orders_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -38,6 +39,9 @@ urlpatterns = [
     path('contacto/', views.contacto, name='contacto'),
     path('servicios/', views.servicios, name='servicios'),
     path('menu/', menu_view, name='menu'),
+    path('organizacion/', orders_views.panel_organizacion, name='mi_organizacion'),
+    path('organizacion/<int:solicitud_id>/', orders_views.panel_organizacion, name='mi_organizacion_chat'),
+    path('enviar-mensaje/<int:solicitud_id>/', orders_views.enviar_mensaje, name='enviar_mensaje'),
 ]
 
 if settings.DEBUG:

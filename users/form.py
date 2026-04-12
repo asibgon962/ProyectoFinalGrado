@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from .models import Profile, Organization
 
+
 User = get_user_model()
 
 class RegistroUsuarioForm(forms.ModelForm):

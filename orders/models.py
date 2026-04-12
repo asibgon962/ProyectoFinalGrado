@@ -18,35 +18,32 @@ class SolicitudServicio(models.Model):
         ('CANCELADO', 'Cancelado'),
     ]
 
-    usuario = models.ForeignKey(
-        settings.AUTH_USER_MODEL, 
-        on_delete=models.CASCADE, 
-        null=True, 
-        blank=True, 
-        related_name='solicitudes'
-    )
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='solicitudes')
+    organizacion = models.ForeignKey('users.Organization', on_delete=models.SET_NULL, null=True, blank=True, related_name='solicitudes_empresa')
     
-    # SOLUCIÓN CON LIBRERÍA DE TERCEROS
-    tipo_servicio = MultiSelectField(
-        choices=TIPO_CHOICES,
-        max_length=150,
-        verbose_name="Tipos de Servicio"
-    )
-    
+    tipo_servicio = MultiSelectField(choices=TIPO_CHOICES, max_length=150, verbose_name="Tipos de Servicio")
     nombre_entidad = models.CharField(max_length=200)
     fecha_entrega = models.DateField()
+    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='PENDIENTE')
     observaciones = models.TextField(blank=True, null=True)
     
+    # Campos booleanos para lógica de negocio
     requiere_productos = models.BooleanField(default=False)
-    productos_solicitados = models.ManyToManyField(Plato, blank=True)
-    
-    detalles_cantidades = models.JSONField(default=dict, blank=True)
-    
     requiere_transporte = models.BooleanField(default=False)
-    detalles_transporte = models.JSONField(default=dict, blank=True)
     
-    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='PENDIENTE')
-    creado_el = models.DateTimeField(auto_now_add=True)
+    # Datos en formato JSON para flexibilidad
+    detalles_cantidades = models.JSONField(default=dict, blank=True)
+    detalles_transporte = models.JSONField(default=dict, blank=True)
 
     def __str__(self):
-        return f"{self.nombre_entidad} - {self.estado}"
+        return f"{self.nombre_entidad} - {self.fecha_entrega}"
+
+class MensajeSolicitud(models.Model):
+    solicitud = models.ForeignKey(SolicitudServicio, on_delete=models.CASCADE, related_name='mensajes')
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    texto = models.TextField()
+    fecha_envio = models.DateTimeField(auto_now_add=True)
+    es_admin = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['fecha_envio']

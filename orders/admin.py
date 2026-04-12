@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import SolicitudServicio
+from .models import SolicitudServicio, MensajeSolicitud
 import json
 
 @admin.register(SolicitudServicio)
@@ -27,3 +27,7 @@ class SolicitudServicioAdmin(admin.ModelAdmin):
         return "N/A"
     
     mostrar_cantidades.short_description = "Productos y Cantidades"
+
+@admin.register(MensajeSolicitud)
+class MensajeSolicitudAdmin(admin.ModelAdmin):
+    list_display = ('solicitud', 'usuario', 'fecha_envio', 'es_admin')
