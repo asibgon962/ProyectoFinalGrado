@@ -45,10 +45,17 @@ class SolicitudServicioForm(forms.ModelForm):
         self.fields['detalles_cantidades'].initial = "{}"
         self.fields['detalles_transporte'].initial = "{}"
 
+    def clean_tipo_servicio(self):
+        """Convierte la lista de servicios en un string separado por comas."""
+        datos = self.cleaned_data.get('tipo_servicio')
+        if datos:
+            return ",".join(datos)
+        return ""
+
     def clean(self):
         cleaned_data = super().clean()
         
-        # Limpieza de JSON para evitar errores de tipo string
+        # Limpieza de JSON
         for field in ['detalles_cantidades', 'detalles_transporte']:
             value = cleaned_data.get(field)
             if isinstance(value, str) and value:
@@ -59,16 +66,13 @@ class SolicitudServicioForm(forms.ModelForm):
             elif not value:
                 cleaned_data[field] = {}
 
-        # Validación de rango de fecha (Mínimo 4 días, Máximo 30 días)
+        # Validación de rango de fecha
         fecha = cleaned_data.get('fecha_entrega')
         if fecha:
             hoy = timezone.now().date()
-            min_fecha = hoy + timedelta(days=4)
-            max_fecha = hoy + timedelta(days=30)
-            
-            if fecha < min_fecha:
+            if fecha < hoy + timedelta(days=4):
                 self.add_error('fecha_entrega', "La fecha debe tener al menos 4 días de antelación.")
-            elif fecha > max_fecha:
-                self.add_error('fecha_entrega', "La fecha no puede superar el mes de antelación (máximo 30 días).")
+            elif fecha > hoy + timedelta(days=30):
+                self.add_error('fecha_entrega', "La fecha no puede superar los 30 días.")
         
         return cleaned_data

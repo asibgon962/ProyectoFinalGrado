@@ -3,7 +3,6 @@ from django.conf import settings
 from catalog.models import Plato
 
 class SolicitudServicio(models.Model):
-    # Añadimos esta constante exactamente con este nombre para que el Form la encuentre
     TIPO_CHOICES = [
         ('EVENTO', 'Catering para Evento'),
         ('SUMINISTRO', 'Suministro a Restaurante'),
@@ -26,11 +25,10 @@ class SolicitudServicio(models.Model):
         related_name='solicitudes'
     )
     
-    # Usamos TIPO_CHOICES aquí también para ser coherentes
+    # Guardamos como CharField, pero el procesamiento lo hará el Form y el Admin
     tipo_servicio = models.CharField(
-        max_length=20, 
-        choices=TIPO_CHOICES, 
-        default='EVENTO'
+        max_length=150,
+        verbose_name="Tipos de Servicio"
     )
     
     nombre_entidad = models.CharField(max_length=200)
@@ -48,5 +46,11 @@ class SolicitudServicio(models.Model):
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='PENDIENTE')
     creado_el = models.DateTimeField(auto_now_add=True)
 
+    def get_servicios_list(self):
+        """Retorna una lista real de los códigos guardados."""
+        if not self.tipo_servicio:
+            return []
+        return [s.strip() for s in self.tipo_servicio.split(',') if s.strip()]
+
     def __str__(self):
-        return f"{self.nombre_entidad} - {self.get_tipo_servicio_display()}"
+        return f"{self.nombre_entidad} - {self.estado}"

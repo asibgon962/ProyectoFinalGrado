@@ -1,35 +1,33 @@
 from django.contrib import admin
 from .models import SolicitudServicio
-from catalog.models import Plato # <--- CAMBIO CLAVE: Importamos de catalog
+from catalog.models import Plato
 import json
 
 @admin.register(SolicitudServicio)
 class SolicitudServicioAdmin(admin.ModelAdmin):
-    list_display = ('nombre_entidad', 'tipo_servicio', 'fecha_entrega', 'mostrar_cantidades', 'estado')
-    list_filter = ('estado', 'tipo_servicio', 'fecha_entrega')
+    # Usamos mostrar_servicios en lugar del campo directo
+    list_display = ('nombre_entidad', 'mostrar_servicios', 'fecha_entrega', 'mostrar_cantidades', 'estado')
+    list_filter = ('estado', 'fecha_entrega')
     search_fields = ('nombre_entidad', 'usuario__username')
     
+    def mostrar_servicios(self, obj):
+        return obj.get_servicios_display()
+    mostrar_servicios.short_description = "Servicios"
+
     def mostrar_cantidades(self, obj):
         detalles = obj.detalles_cantidades
-        
-        # Si el dato en DB es un string, lo parseamos
         if isinstance(detalles, str):
-            try:
-                detalles = json.loads(detalles)
-            except:
-                return "Error de formato"
+            try: detalles = json.loads(detalles)
+            except: return "Error"
 
         if detalles and isinstance(detalles, dict):
             resumen = []
-            for plato_id, cantidad in detalles.items():
+            for p_id, cant in detalles.items():
                 try:
-                    # Buscamos el plato en el catálogo
-                    plato = Plato.objects.get(id=plato_id)
-                    resumen.append(f"{plato.nombre} (x{cantidad})")
-                except (Plato.DoesNotExist, ValueError):
-                    continue
+                    plato = Plato.objects.get(id=p_id)
+                    resumen.append(f"{plato.nombre} (x{cant})")
+                except: continue
             return ", ".join(resumen) or "Sin productos"
-            
         return "N/A"
     
-    mostrar_cantidades.short_description = "Productos y Cantidades"
+    mostrar_cantidades.short_description = "Productos"
