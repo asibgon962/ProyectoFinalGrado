@@ -115,28 +115,30 @@
     let carritoTransporte = {};
 
     $(document).ready(function() {
-        // --- 1. RESTRICCIÓN DE CALENDARIO (4 a 30 días) ---
         const hoy = new Date();
-        
-        // Calcular fecha mínima (hoy + 4 días)
         const fechaMin = new Date();
         fechaMin.setDate(hoy.getDate() + 4);
         const minStr = fechaMin.toISOString().split('T')[0];
         
-        // Calcular fecha máxima (hoy + 30 días)
         const fechaMax = new Date();
         fechaMax.setDate(hoy.getDate() + 30);
         const maxStr = fechaMax.toISOString().split('T')[0];
 
-        // Aplicar al input (Django genera el id id_fecha_entrega automáticamente)
         const $inputFecha = $('#id_fecha_entrega');
         $inputFecha.attr('min', minStr);
         $inputFecha.attr('max', maxStr);
 
-        // --- 2. INICIALIZACIÓN DE SELECT2 ---
+        // Bloquear envío si la fecha no cumple por si burlan el HTML5
+        $('#form-solicitud').on('submit', function(e) {
+            const fechaSeleccionada = $inputFecha.val();
+            if(!fechaSeleccionada || fechaSeleccionada < minStr || fechaSeleccionada > maxStr) {
+                e.preventDefault();
+                alert(`Por favor, selecciona una fecha válida entre ${minStr} y ${maxStr}.`);
+            }
+        });
+
         const $selectorServicios = $('#id_tipo_servicio');
         $selectorServicios.val(null); 
-        
         $selectorServicios.select2({
             placeholder: "Selecciona uno o varios servicios...",
             allowClear: true,
@@ -145,7 +147,6 @@
 
         $('#buscador-productos').select2({ width: '100%' });
 
-        // --- 3. EVENTOS DE INTERFAZ ---
         $selectorServicios.on('change', function() {
             const seleccionados = $(this).val() || [];
             if (seleccionados.includes('TRANSPORTE')) { $('#div-transporte-vip').fadeIn(); }
@@ -159,18 +160,20 @@
 
         $('#buscador-productos').on('select2:select', function (e) {
             const data = e.params.data.element.dataset;
-            const id = e.params.data.id;
-            if (!carrito[id]) {
-                carrito[id] = 1;
+            const htmlId = e.params.data.id; 
+            const nombrePlato = data.nombre; // AHORA USAMOS EL NOMBRE COMO IDENTIFICADOR
+
+            if (!carrito[nombrePlato]) {
+                carrito[nombrePlato] = 1;
                 const html = `
-                    <div class="item-pedido d-flex align-items-center justify-content-between flex-wrap" id="fila-${id}">
+                    <div class="item-pedido d-flex align-items-center justify-content-between flex-wrap" id="fila-${htmlId}">
                         <div class="d-flex align-items-center col-8">
                             <img src="${data.imagen}" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
-                            <span class="small text-white text-truncate">${data.nombre}</span>
+                            <span class="small text-white text-truncate">${nombrePlato}</span>
                         </div>
                         <div class="d-flex align-items-center justify-content-end col-4">
-                            <input type="number" value="1" min="1" class="form-control form-control-sm bg-dark text-white text-center me-1" style="width: 50px;" onchange="cambiarCantidad(${id}, this.value)">
-                            <button type="button" class="btn btn-sm text-danger p-0" onclick="eliminarItem(${id})">✕</button>
+                            <input type="number" value="1" min="1" class="form-control form-control-sm bg-dark text-white text-center me-1" style="width: 50px;" onchange="cambiarCantidad('${nombrePlato}', this.value)">
+                            <button type="button" class="btn btn-sm text-danger p-0" onclick="eliminarItem('${nombrePlato}', '${htmlId}')">✕</button>
                         </div>
                     </div>`;
                 $('#lista-pedido').append(html);
@@ -186,7 +189,7 @@
                 carritoTransporte[v] = 1;
                 $('#trans-vacio-msg').hide();
                 const html = `
-                    <div class="item-pedido d-flex align-items-center justify-content-between py-2 border-bottom border-secondary flex-wrap" id="fila-trans-${v}">
+                    <div class="item-pedido d-flex align-items-center justify-content-between py-2 border-bottom border-secondary flex-wrap" id="fila-trans-${v.replace(/\s+/g, '-')}">
                         <span class="text-white small col-8">${v}</span>
                         <div class="d-flex align-items-center justify-content-end col-4">
                             <input type="number" value="1" min="1" max="2" class="form-control form-control-sm bg-dark text-white text-center me-1" style="width: 50px;" onchange="cambiarCantTrans('${v}', this.value)">
@@ -199,22 +202,28 @@
         });
     });
 
-    // --- 4. FUNCIONES DE APOYO ---
     function actualizarInputOculto() { $('[name="detalles_cantidades"]').val(JSON.stringify(carrito)); }
     function actualizarInputTrans() { $('[name="detalles_transporte"]').val(JSON.stringify(carritoTransporte)); }
-    function cambiarCantidad(id, valor) { carrito[id] = parseInt(valor); actualizarInputOculto(); }
-    function cambiarCantTrans(v, valor) { carritoTransporte[v] = parseInt(valor); actualizarInputTrans(); }
+    
+    function cambiarCantidad(nombrePlato, valor) { 
+        carrito[nombrePlato] = parseInt(valor); 
+        actualizarInputOculto(); 
+    }
+    function cambiarCantTrans(v, valor) { 
+        carritoTransporte[v] = parseInt(valor); 
+        actualizarInputTrans(); 
+    }
 
-    function eliminarItem(id) {
-        delete carrito[id];
-        $(`#fila-${id}`).remove();
+    function eliminarItem(nombrePlato, htmlId) {
+        delete carrito[nombrePlato];
+        $(`#fila-${htmlId}`).remove();
         if (Object.keys(carrito).length === 0) { $('#vacio-msg').show(); $('[name="detalles_cantidades"]').val('{}'); }
         else { actualizarInputOculto(); }
     }
 
     function eliminarTrans(v) {
         delete carritoTransporte[v];
-        $(`#fila-trans-${v}`).remove();
+        $(`#fila-trans-${v.replace(/\s+/g, '-')}`).remove();
         if (Object.keys(carritoTransporte).length === 0) { $('#trans-vacio-msg').show(); $('[name="detalles_transporte"]').val('{}'); }
         else { actualizarInputTrans(); }
     }

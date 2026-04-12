@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from catalog.models import Plato
+from multiselectfield import MultiSelectField
 
 class SolicitudServicio(models.Model):
     TIPO_CHOICES = [
@@ -25,8 +26,9 @@ class SolicitudServicio(models.Model):
         related_name='solicitudes'
     )
     
-    # Guardamos como CharField, pero el procesamiento lo hará el Form y el Admin
-    tipo_servicio = models.CharField(
+    # SOLUCIÓN CON LIBRERÍA DE TERCEROS
+    tipo_servicio = MultiSelectField(
+        choices=TIPO_CHOICES,
         max_length=150,
         verbose_name="Tipos de Servicio"
     )
@@ -45,12 +47,6 @@ class SolicitudServicio(models.Model):
     
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='PENDIENTE')
     creado_el = models.DateTimeField(auto_now_add=True)
-
-    def get_servicios_list(self):
-        """Retorna una lista real de los códigos guardados."""
-        if not self.tipo_servicio:
-            return []
-        return [s.strip() for s in self.tipo_servicio.split(',') if s.strip()]
 
     def __str__(self):
         return f"{self.nombre_entidad} - {self.estado}"

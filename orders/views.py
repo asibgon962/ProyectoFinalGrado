@@ -6,29 +6,32 @@ from .forms import SolicitudServicioForm
 
 @login_required
 def solicitar_servicio(request):
+    # Excelente que filtres solo los disponibles
     platos = Plato.objects.filter(disponible=True)
     
     if request.method == 'POST':
-        form = SolicitudServicioForm(request.POST)
+        # CAMBIO CLAVE: Le pasamos 'user=request.user' al formulario
+        form = SolicitudServicioForm(request.POST, user=request.user)
+        
         if form.is_valid():
             solicitud = form.save(commit=False)
             solicitud.usuario = request.user 
             
-            # Convertimos ['EVENTO', 'TRANSPORTE'] en "EVENTO, TRANSPORTE"
-            servicios_lista = form.cleaned_data.get('tipo_servicio')
-            solicitud.tipo_servicio = ", ".join(servicios_lista)
+            # ELIMINADO: La conversión manual de 'tipo_servicio' ya no es necesaria.
+            # MultiSelectField de tu modelo se encarga de guardar la lista correctamente.
             
             solicitud.save()
             form.save_m2m() 
             
-            messages.success(request, "¡Solicitud enviada con éxito!")
+            messages.success(request, "Enviado")
             return redirect('home')
         else:
             # Esto ayuda a debugear en la terminal si algo falla
             print("Errores en el formulario:", form.errors)
             messages.error(request, "Hay errores en el formulario. Revisa los campos.")
     else:
-        form = SolicitudServicioForm()
+        # CAMBIO CLAVE: También pasamos el usuario cuando se carga el formulario vacío (GET)
+        form = SolicitudServicioForm(user=request.user)
     
     return render(request, 'orders/solicitud_form.html', {
         'form': form, 
