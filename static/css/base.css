@@ -8,9 +8,10 @@
     --lux-dark-gray: #151515;
     --lux-muted-gold: rgba(241, 226, 163, 0.6);
     --lux-faint-gold: rgba(241, 226, 163, 0.4);
+    --koi-red: #B81D24; /* Aseguramos que la variable koi-red esté aquí */
 }
 
-/* --- BASE --- */
+/* --- BASE Y TIPOGRAFÍA --- */
 body {
     font-family: 'Poppins', sans-serif;
     background-color: var(--lux-black);
@@ -33,101 +34,21 @@ h1, h2, h3, .navbar-brand {
     box-shadow: 0 15px 35px rgba(0,0,0,0.7);
 }
 
-/* --- COMPONENTES DE HOME.HTML --- */
-
-/* Hero Logo con brillo */
-section .hero-logo {
-    filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.3));
-    max-height: 450px; /* Evita que crezca infinitamente en pantallas enormes */
-    width: auto;
-    display: block;
-    margin: 0 auto;
-}
-
-/* Botón Principal Rojo */
-.btn-koi-red {
-    background-color: var(--lux-red);
-    color: var(--lux-white) !important;
-    border: none;
-    letter-spacing: 2px;
-    transition: all 0.3s ease;
-    border-radius: 4px;
-}
-
-.btn-koi-red:hover {
-    background-color: #d12a32;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(184, 29, 36, 0.4);
-}
-
-/* Botones Outline Dorados */
-.btn-outline-gold {
-    color: var(--lux-gold) !important;
-    border: 1px solid var(--lux-gold);
-    background: transparent;
-    transition: all 0.3s ease;
-}
-
-.btn-outline-gold:hover {
-    background-color: var(--lux-gold);
-    color: var(--lux-black) !important;
-}
-
-/* Tarjetas de Productos */
-.card.bg-dark {
-    background-color: #121212 !important;
-    border: 1px solid rgba(212, 175, 55, 0.2);
-    transition: transform 0.3s ease;
-    overflow: hidden; /* Asegura que la imagen no se salga de las esquinas redondeadas */
-}
-
-/* Forzar texto en blanco para el nombre y el precio */
-.card.bg-dark .card-title {
-    color: var(--lux-white) !important;
-    font-family: 'Poppins', sans-serif; /* O 'Playfair Display' si prefieres estilo serif */
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-
-.card.bg-dark .card-text {
-    color: rgba(255, 255, 255, 0.8) !important; /* Un blanco ligeramente transparente para el precio */
-    font-size: 1.1rem;
-}
-
-.card.bg-dark:hover {
-    transform: translateY(-5px);
-    border-color: var(--lux-gold);
-}
-
-/* Sección de Servicios Inferior */
-.bg-dark-soft {
-    background-color: #0d0d0d;
-}
-
-.border-gold {
-    border-color: var(--lux-gold) !important;
-}
-
 /* --- HEADER / NAVBAR --- */
 .navbar-lux {
     background-color: rgba(8, 8, 8, 0.98);
     border-bottom: 1px solid var(--lux-gold);
-    padding: 0.5rem 0; /* Un poco más estrecho para que sea más fino */
+    padding: 0.5rem 0;
 }
 
-/* Control específico para el logo del header */
 .navbar-brand img {
-    height: 60px; /* Ajusta este valor si lo quieres más pequeño o más grande */
+    height: 60px;
     width: auto;
     transition: transform 0.3s ease;
 }
 
 .navbar-brand img:hover {
     transform: scale(1.05);
-}
-
-.text-gold-brand {
-    color: var(--lux-gold) !important;
 }
 
 .nav-link-lux {
@@ -145,22 +66,9 @@ section .hero-logo {
     text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
 }
 
-/* --- APARTADO ILEGAL (ROJO) --- */
-.text-danger-lux {
-    color: var(--lux-red) !important;
-    text-shadow: 0 0 10px rgba(184, 29, 36, 0.3);
-    letter-spacing: 2px !important;
-    animation: glow-red 3s infinite alternate;
-}
-
-.text-danger-lux:hover {
-    color: #ff4d4d !important;
-    text-shadow: 0 0 15px rgba(184, 29, 36, 0.8);
-}
-
-@keyframes glow-red {
-    from { text-shadow: 0 0 5px rgba(184, 29, 36, 0.2); }
-    to { text-shadow: 0 0 15px rgba(184, 29, 36, 0.6); }
+/* Icono Menú Móvil Dorado */
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23D4AF37' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
 }
 
 /* --- DROPDOWN PERFIL --- */
@@ -169,203 +77,55 @@ section .hero-logo {
     border: 1px solid var(--lux-gold);
     border-radius: 8px;
     margin-top: 15px !important;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-
-.dropdown-header {
-    color: var(--lux-gold) !important;
-    font-weight: 600;
 }
 
 .dropdown-item {
     color: var(--lux-gold) !important;
-    padding: 10px 20px;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
+    transition: 0.3s;
 }
 
-.dropdown-item i {
-    color: var(--lux-gold) !important;
-}
-
-/* Estilo para items dorados en hover */
 .dropdown-item:hover {
     background-color: rgba(212, 175, 55, 0.1);
     color: var(--lux-white) !important;
 }
 
-/* BOTÓN CERRAR SESIÓN (ROJO) */
 .btn-logout-lux {
     color: var(--lux-red) !important;
-    border: 0;
     background: transparent;
+    border: 0;
     width: 100%;
     text-align: left;
     padding: 10px 20px;
-    transition: all 0.3s ease;
     font-weight: 600;
 }
 
-.btn-logout-lux i {
-    color: var(--lux-red) !important;
-}
+/* --- CLASES COMPARTIDAS (UTILITIES) --- */
+.bg-dark-soft { background-color: rgba(255, 255, 255, 0.03); }
+.border-gold { border-color: var(--lux-gold) !important; }
 
-.btn-logout-lux:hover {
-    background-color: var(--lux-red);
-    color: var(--lux-white) !important;
-}
-
-.btn-logout-lux:hover i {
-    color: var(--lux-white) !important;
-}
-
-.dropdown-divider {
-    border-top: 1px solid rgba(212, 175, 55, 0.2);
-}
-
-
-/* --- ESTILOS LEGALES --- */
-.legal-content {
-    line-height: 1.8;
-    font-size: 1.05rem;
-    text-align: justify;
-}
-
-.legal-content h3 {
-    margin-top: 2rem;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-}
-
-.legal-content ul {
-    list-style: none;
-    padding-left: 0;
-}
-
-.legal-content ul li::before {
-    content: "•";
-    color: var(--lux-gold);
-    display: inline-block; 
-    width: 1em;
-    margin-left: 1em;
-}
-
-.bg-dark-soft {
-    background-color: rgba(255, 255, 255, 0.03);
-}
-/* ================================================================
-   SECCIÓN DE CONTACTO Y FAQ - KOI ENTERPRISE
-   ================================================================ */
-
-/* --- FORMULARIO DE CONTACTO --- */
-
-/* Contenedor principal del formulario */
-.main-container-lux {
-    background-color: #111111;
-    border: 1px solid rgba(212, 175, 55, 0.1);
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-}
-
-/* Estilo de los Labels (Etiquetas) */
-.form-label {
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    margin-bottom: 0.5rem;
+.btn-outline-gold {
     color: var(--lux-gold) !important;
+    border: 1px solid var(--lux-gold);
+    background: transparent;
+    transition: all 0.3s ease;
 }
 
-/* Inputs, Textareas y Selects */
+.btn-outline-gold:hover {
+    background-color: var(--lux-gold);
+    color: var(--lux-black) !important;
+}
+
+/* Estilo para los formularios (Contacto/FAQ) */
 .form-control, .form-select {
     background-color: #1a1a1a !important;
     border: 1px solid #333 !important;
     color: #ffffff !important;
-    padding: 0.75rem 1rem;
-    transition: all 0.3s ease;
 }
 
-/* Color del placeholder (texto de ayuda dentro del input) */
-.form-control::placeholder {
-    color: #666 !important;
-}
-
-/* Estado Focus (Cuando haces clic para escribir) */
-.form-control:focus, .form-select:focus {
-    background-color: #1f1f1f !important;
-    border-color: var(--lux-gold) !important;
-    box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.15) !important;
-    outline: none;
-}
-
-/* Arreglo para el desplegable (Select) y sus opciones */
-.form-select option {
-    background-color: #1a1a1a;
-    color: #ffffff;
-}
-
-
-/* --- ACORDEÓN DE PREGUNTAS FRECUENTES (FAQ) --- */
-
-.accordion-item {
-    background-color: transparent !important;
-    border: 1px solid rgba(212, 175, 55, 0.1) !important;
-    margin-bottom: 1rem;
-    border-radius: 8px !important;
-    overflow: hidden;
-}
-
-/* Botón de la pregunta */
-.accordion-button {
-    background-color: #1a1a1a !important;
-    color: var(--lux-gold) !important;
-    font-weight: 600;
-    padding: 1.25rem;
-    border: none !important;
-}
-
-/* Cuando la pregunta está abierta */
-.accordion-button:not(.collapsed) {
-    background-color: rgba(212, 175, 55, 0.05) !important;
-    color: #ffffff !important;
-    box-shadow: none !important;
-}
-
-/* CONTENIDO DE LA RESPUESTA (IMPORTANTE) */
 .accordion-body {
     background-color: #111111 !important;
-    color: var(--lux-gold-light) !important; /* Dorado suave para lectura */
-    font-size: 0.95rem;
-    line-height: 1.6;
-    border-top: 1px solid rgba(212, 175, 55, 0.1);
+    color: var(--lux-gold) !important;
 }
-
-/* Icono de la flecha en Dorado */
-.accordion-button::after {
-    filter: brightness(0) saturate(100%) invert(84%) sepia(29%) saturate(765%) hue-rotate(357deg) brightness(91%) contrast(89%);
-}
-
-/* --- BOTÓN DE ENVÍO --- */
-.btn-koi-red {
-    background-color: var(--koi-red);
-    color: white;
-    border: none;
-    letter-spacing: 2px;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-}
-
-.btn-koi-red:hover {
-    background-color: #b30000;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(214, 30, 30, 0.3);
-}
-
-/* --- INFO ADICIONAL (UBICACIÓN) --- */
-.border-start.border-gold {
-    border-left: 3px solid var(--lux-gold) !important;
-    padding-left: 1.5rem;
-}
-
 
 /* --- FOOTER --- */
 .footer-lux {
@@ -375,41 +135,23 @@ section .hero-logo {
     margin-top: auto;
 }
 
-.footer-title {
-    font-family: 'Playfair Display', serif;
-    color: var(--lux-gold) !important;
-}
-
-.footer-subtitle {
-    color: var(--lux-muted-gold) !important;
-}
-
 .footer-link {
     color: var(--lux-gold-light) !important;
     text-decoration: none !important;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
+    transition: 0.3s;
 }
 
 .footer-link:hover {
     color: var(--lux-gold) !important;
-    text-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
 }
 
-.footer-blog-link {
-    color: var(--lux-gold) !important;
-    text-decoration: none !important;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
+/* Apartado Ilegal */
+.text-danger-lux {
+    color: var(--lux-red) !important;
+    animation: glow-red 3s infinite alternate;
 }
 
-.footer-blog-link:hover {
-    color: var(--lux-white) !important;
-    transform: translateX(-3px);
-}
-
-.footer-copyright {
-    color: var(--lux-faint-gold) !important;
+@keyframes glow-red {
+    from { text-shadow: 0 0 5px rgba(184, 29, 36, 0.2); }
+    to { text-shadow: 0 0 15px rgba(184, 29, 36, 0.6); }
 }

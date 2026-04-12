@@ -1,0 +1,70 @@
+/* --- SECCIÓN HERO --- */
+section .hero-logo {
+    filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.3));
+    max-height: 450px;
+    width: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Botón Circular Rojo Especial */
+.btn-lux-outline-red {
+    color: #ffffff !important;
+    background-color: transparent;
+    border: 2px solid var(--lux-red) !important;
+    border-radius: 50px !important;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: all 0.4s ease-in-out;
+}
+
+.btn-lux-outline-red:hover {
+    background-color: var(--lux-red);
+    transform: translateY(-3px);
+    box-shadow: 0 0 20px rgba(184, 29, 36, 0.6);
+}
+
+/* Botón Koi Red (Rectangular original) */
+.btn-koi-red {
+    background-color: var(--lux-red);
+    color: var(--lux-white) !important;
+    border: none;
+    letter-spacing: 2px;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+}
+
+/* --- TARJETAS DE PRODUCTOS --- */
+.card.bg-dark {
+    background-color: #121212 !important;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    transition: transform 0.3s ease;
+    overflow: hidden;
+}
+
+.card.bg-dark .card-title {
+    color: var(--lux-white) !important;
+    font-weight: 600;
+}
+
+.card.bg-dark:hover {
+    transform: translateY(-5px);
+    border-color: var(--lux-gold);
+}
+
+/* --- RESPONSIVE HOME --- */
+@media (max-width: 991.98px) {
+    .hero-section-lux {
+        padding-top: 1rem !important;
+    }
+
+    .hero-section-lux h1 {
+        font-size: 2.2rem !important;
+        margin-top: 1rem !important;
+    }
+
+    section .hero-logo {
+        max-height: 300px;
+        margin-top: 2rem;
+    }
+}

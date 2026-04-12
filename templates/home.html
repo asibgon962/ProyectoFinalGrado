@@ -1,15 +1,19 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+
 {% block content %}
-<section class="py-5 text-center border-bottom border-gold mb-5">
+<section class="py-5 text-center border-bottom border-gold mb-5 hero-section-lux">
     <div class="row align-items-center">
         <div class="col-lg-7">
             <h1 class="display-3 fw-bold mb-4">Una Experiencia Gastronómica Única</h1>
             <p class="lead text-gold-light mb-4">Descubra el arte culinario de Koi Enterprise. Una fusión de tradición y exclusividad diseñada para los paladares más exigentes.</p>
-            <a href="/restaurante/" class="btn btn-lg btn-koi-red px-5 py-3 fw-bold">VISITAR EL RESTAURANTE</a>
+            <a href="/restaurante/" class="btn btn-lg btn-lux-outline-red px-5 py-3 fw-bold">VISITAR EL RESTAURANTE</a>
         </div>
-        <div class="col-lg-5">
+        <div class="col-lg-5 mt-4 mt-lg-0">
             <img src="{% static 'images/logo.png' %}" class="img-fluid hero-logo" alt="Koi Logo">
         </div>
     </div>
@@ -17,34 +21,36 @@
 
 <section class="py-5 mb-5">
     <h2 class="text-center text-gold mb-4">Productos Destacados</h2>
-    <div class="row">
+    <div class="row g-4">
         {% for plato in platos %}
         <div class="col-md-4">
-            <div class="card bg-dark text-gold">
+            <div class="card bg-dark text-gold h-100">
                 <img src="{{ plato.imagen.url }}" class="card-img-top" alt="{{ plato.nombre }}">
-                <div class="card-body">
+                <div class="card-body text-center">
                     <h5 class="card-title">{{ plato.nombre }}</h5>
                     <p class="card-text">{{ plato.precio_venta }} €</p>
                 </div>
             </div>
         </div>
         {% empty %}
-        <p>Próximamente: Nuevas delicias de Koi Enterprise.</p>
+        <div class="col-12 text-center">
+            <p class="text-gold-light">Próximamente: Nuevas delicias de Koi Enterprise.</p>
+        </div>
         {% endfor %}
     </div>
 </section>
 
 <section class="py-5 bg-dark-soft rounded p-4 border border-secondary">
-    <div class="row g-4">
+    <div class="row g-4 text-center text-md-start">
         <div class="col-md-6">
-            <div class="p-4 border-start border-gold">
+            <div class="p-4 border-start border-gold h-100">
                 <h2 class="text-gold">Eventos Exclusivos</h2>
                 <p>Organizamos sus momentos más especiales con la distinción de nuestra marca. Desde cenas privadas hasta celebraciones.</p>
                 <a href="{% url 'solicitar_servicio' %}" class="btn btn-outline-gold">PLANIFICAR EVENTO</a>
             </div>
         </div>
         <div class="col-md-6">
-            <div class="p-4 border-start border-gold">
+            <div class="p-4 border-start border-gold h-100">
                 <h2 class="text-gold">Transporte de Lujo</h2>
                 <p>No se preocupe por el trayecto. Nuestro servicio de transporte privado le garantiza una llegada a la altura de la experiencia Koi.</p>
                 <a href="{% url 'solicitar_servicio' %}" class="btn btn-outline-gold">SOLICITAR TRANSPORTE</a>
