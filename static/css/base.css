@@ -66,6 +66,21 @@ h1, h2, h3, .navbar-brand {
     text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
 }
 
+/* Forzar el color dorado en el nombre de la marca */
+.text-gold-brand {
+    background: linear-gradient(to bottom, #F1E2A3 0%, #D4AF37 50%, #A67C00 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: var(--lux-gold) !important; /* Fallback */
+    display: inline-block;
+    text-shadow: 0px 2px 4px rgba(0,0,0,0.3); /* Le da relieve */
+}
+
+/* Quitar cualquier color heredado del enlace de Bootstrap */
+.navbar-brand:hover, .navbar-brand:focus {
+    color: inherit !important;
+}
+
 /* Icono Menú Móvil Dorado */
 .navbar-toggler-icon {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23D4AF37' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
@@ -76,7 +91,7 @@ h1, h2, h3, .navbar-brand {
     background-color: var(--lux-dark-gray);
     border: 1px solid var(--lux-gold);
     border-radius: 8px;
-    margin-top: 15px !important;
+    
 }
 
 .dropdown-item {
@@ -154,4 +169,43 @@ h1, h2, h3, .navbar-brand {
 @keyframes glow-red {
     from { text-shadow: 0 0 5px rgba(184, 29, 36, 0.2); }
     to { text-shadow: 0 0 15px rgba(184, 29, 36, 0.6); }
+}
+
+/* --- AJUSTES RESPONSIVE DEL DROPDOWN --- */
+
+/* 1. ORDENADOR / PORTÁTIL (Pantallas grandes) */
+@media (min-width: 992px) {
+    .dropdown-menu {
+        /* Esto empuja la caja más abajo del header. 
+           Aumenta a 30px o 35px si lo quieres aún más separado */
+        margin-top: 30px !important; 
+    }
+}
+
+/* 2. MÓVIL / TABLET (Pantallas pequeñas) */
+@media (max-width: 991.98px) {
+    /* Convierte el contenedor en una columna flexible y centra su contenido */
+    .navbar-nav .nav-item.dropdown {
+        display: flex;
+        flex-direction: column;
+        align-items: center; 
+        width: 100%;
+        margin-top: 10px; /* Un poco de respiro respecto a los otros enlaces */
+    }
+
+    /* Centra el icono y quita el borde azul de selección (focus) de Bootstrap */
+    .navbar-nav .nav-item.dropdown > a.nav-link {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        outline: none;
+        box-shadow: none;
+    }
+
+    /* Ajusta la caja desplegable para que quede centrada debajo del icono */
+    .dropdown-menu {
+        margin-top: 15px !important; /* Separación entre el icono y la caja */
+        width: 250px; /* Fija un ancho para que el texto interior siga alineado a la izquierda */
+        text-align: left; /* Mantiene la alineación original de tus textos */
+    }
 }
