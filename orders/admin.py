@@ -2,14 +2,19 @@ from django.contrib import admin
 from .models import SolicitudServicio, MensajeSolicitud
 import json
 
+class MensajeSolicitudInline(admin.TabularInline):
+    model = MensajeSolicitud
+    extra = 1
+    exclude = ('es_admin',)
+
 @admin.register(SolicitudServicio)
 class SolicitudServicioAdmin(admin.ModelAdmin):
     list_display = ('nombre_entidad', 'tipo_servicio', 'fecha_entrega', 'mostrar_cantidades', 'estado')
+    list_editable = ('estado',)
     list_filter = ('estado', 'fecha_entrega')
     search_fields = ('nombre_entidad', 'usuario__username')
-    
-    # Excluimos este campo para que no moleste en el admin, los datos reales van en el JSON
     exclude = ('productos_solicitados',)
+    inlines = [MensajeSolicitudInline]
     
     def mostrar_cantidades(self, obj):
         detalles = obj.detalles_cantidades
@@ -20,7 +25,6 @@ class SolicitudServicioAdmin(admin.ModelAdmin):
                 return "Error de formato"
 
         if detalles and isinstance(detalles, dict):
-            # Como ahora guardaremos el NOMBRE en el JSON desde el frontend, lo mostramos directo
             resumen = [f"{nombre_plato} (x{cantidad})" for nombre_plato, cantidad in detalles.items()]
             return ", ".join(resumen) or "Sin productos"
             
@@ -28,6 +32,25 @@ class SolicitudServicioAdmin(admin.ModelAdmin):
     
     mostrar_cantidades.short_description = "Productos y Cantidades"
 
-@admin.register(MensajeSolicitud)
-class MensajeSolicitudAdmin(admin.ModelAdmin):
-    list_display = ('solicitud', 'usuario', 'fecha_envio', 'es_admin')
+
+
+from .models import PedidoMercado, ItemPedidoMercado, MensajePedidoMercado
+
+class ItemPedidoMercadoInline(admin.TabularInline):
+    model = ItemPedidoMercado
+    readonly_fields = ('subtotal',)
+    extra = 0
+
+class MensajePedidoMercadoInline(admin.TabularInline):
+    model = MensajePedidoMercado
+    extra = 1
+    exclude = ('es_admin',)
+
+@admin.register(PedidoMercado)
+class PedidoMercadoAdmin(admin.ModelAdmin):
+    list_display = ('id', 'organizacion', 'fecha_pedido', 'estado', 'total')
+    list_editable = ('estado',)
+    list_filter = ('estado', 'fecha_pedido')
+    search_fields = ('organizacion__nombre', 'usuario__username')
+    inlines = [ItemPedidoMercadoInline, MensajePedidoMercadoInline]
+
