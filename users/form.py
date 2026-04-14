@@ -93,10 +93,19 @@ class RegistroUsuarioForm(forms.ModelForm):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data["password1"])
         user.id_code = self.cleaned_data.get('id_code')
-        user.telefono = self.cleaned_data.get('telefono')
-        user.codigo_empresa = self.cleaned_data.get('codigo_empresa')
+        
+        codigo_empresa = self.cleaned_data.get('codigo_empresa')
+        if codigo_empresa:
+            org = Organization.objects.filter(codigo_grupo=codigo_empresa).first()
+            if org:
+                user.organization = org
+                
         if commit:
             user.save()
+            profile = getattr(user, 'profile', None)
+            if profile:
+                profile.telefono = self.cleaned_data.get('telefono')
+                profile.save()
         return user
 
 
@@ -139,3 +148,10 @@ class EditarPerfilForm(forms.ModelForm):
         if telefono and len(telefono) != 6:
             raise ValidationError("El teléfono debe tener exactamente 6 dígitos.")
         return telefono
+
+from .models import MensajeContacto
+
+class ContactoForm(forms.ModelForm):
+    class Meta:
+        model = MensajeContacto
+        fields = ['nombre', 'email', 'asunto', 'mensaje']
