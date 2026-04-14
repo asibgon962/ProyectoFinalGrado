@@ -23,7 +23,15 @@ from catalog.views import home_view
 from orders.views import solicitar_servicio
 from users import views
 from users.views import register_view, profile_view, editar_perfil_view
-from catalog.views import menu_view
+from catalog.views import (
+    menu_view, 
+    mercado_negro_view, 
+    agregar_carrito, 
+    ver_carrito, 
+    vaciar_carrito, 
+    eliminar_item_carrito,
+    procesar_compra
+)
 from orders import views as orders_views
 
 urlpatterns = [
@@ -41,7 +49,17 @@ urlpatterns = [
     path('menu/', menu_view, name='menu'),
     path('organizacion/', orders_views.panel_organizacion, name='mi_organizacion'),
     path('organizacion/<int:solicitud_id>/', orders_views.panel_organizacion, name='mi_organizacion_chat'),
+    path('mis-gestiones/', orders_views.mis_gestiones, name='mis_gestiones'),
+    path('mis-gestiones/<int:solicitud_id>/', orders_views.mis_gestiones, name='mis_gestiones_chat'),
+    path('organizacion/mercado/<int:pedido_id>/', orders_views.panel_organizacion_mercado, name='mi_mercado_chat'),
     path('enviar-mensaje/<int:solicitud_id>/', orders_views.enviar_mensaje, name='enviar_mensaje'),
+    path('enviar-mensaje-mercado/<int:pedido_id>/', orders_views.enviar_mensaje_mercado, name='enviar_mensaje_mercado'),
+    path('mercado-negro/', mercado_negro_view, name='mercado_negro'),
+    path('mercado-negro/agregar/<int:producto_id>/', agregar_carrito, name='agregar_carrito'),
+    path('mercado-negro/eliminar/<int:producto_id>/', eliminar_item_carrito, name='eliminar_item_carrito'),
+    path('mercado-negro/carrito/', ver_carrito, name='ver_carrito'),
+    path('mercado-negro/vaciar-carrito/', vaciar_carrito, name='vaciar_carrito'),
+    path('mercado-negro/procesar/', procesar_compra, name='procesar_compra'),
 ]
 
 if settings.DEBUG:

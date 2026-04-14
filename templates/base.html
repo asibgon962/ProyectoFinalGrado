@@ -35,8 +35,16 @@
                     
                     {% if user.is_authenticated and user.organization and user.organization.es_ilegal %}
                     <li class="nav-item">
-                        <a class="nav-link nav-link-lux text-danger-lux fw-bold" href="#">
+                        <a class="nav-link nav-link-lux text-danger-lux fw-bold" href="{% url 'mercado_negro' %}">
                             <i class="bi bi-incognito me-1"></i> Mercado Negro
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-lux" href="{% url 'ver_carrito' %}" title="Ver Carrito">
+                            <i class="bi bi-cart-fill text-danger"></i>
+                            {% if request.session.cart %}
+                                <span class="badge bg-danger rounded-pill align-top" style="font-size: 0.65rem;">{{ request.session.cart|length }}</span>
+                            {% endif %}
                         </a>
                     </li>
                     {% endif %}
@@ -57,18 +65,18 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
                             {% if user.is_authenticated %}
-                                <li><h6 class="dropdown-header border-bottom border-gold opacity-50 pb-2 mb-2">{{ user.username }}</h6></li>
+                                <li><h6 class="dropdown-header border-bottom border-gold pb-2 mb-2" style="color: #e0e0e0 !important; opacity: 0.9;">{{ user.username }}</h6></li>
                                 
                                 <li><a class="dropdown-item" href="{% url 'profile' %}">
                                     <i class="bi bi-person-vcard me-2"></i>Mi Perfil
                                 </a></li>
 
-                                <li><a class="dropdown-item" href="#">
+                                <li><a class="dropdown-item" href="{% url 'mis_gestiones' %}">
                                     <i class="bi bi-archive me-2"></i>Mis Gestiones
                                 </a></li>
 
                                 {% if user.organization %}
-                                <li><a class="dropdown-item" href="#">
+                                <li><a class="dropdown-item" href="{% url 'mi_organizacion' %}">
                                     <i class="bi bi-building-fill-check me-2"></i>Mi Organización
                                 </a></li>
                                 {% endif %}
@@ -132,7 +140,7 @@
                 </div>
                 
                 <div class="col-md-4 text-center text-md-end">
-                    <a href="https://gtahub.gg/topic/56389/senketsu/2" target="_blank" class="footer-blog-link">
+                    <a href="https://gtahub.gg/topic/56389/senketsu/2" target="_blank" class="footer-link" style="text-decoration: none; color: #d4af37;">
                         <i class="bi bi-journal-bookmark-fill me-2"></i> Nuestro Blog
                     </a>
                 </div>

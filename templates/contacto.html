@@ -8,28 +8,62 @@
             <h1 class="display-5 text-gold mb-4">Contacto Exclusivo</h1>
             <p class="text-gold-light mb-4">Si desea realizar una consulta especial o requiere asistencia personalizada, complete el siguiente formulario.</p>
             
-            <form action="#" method="POST" class="main-container-lux p-4">
+            <style>
+                .form-control::placeholder,
+                .form-select::placeholder {
+                    color: rgba(255,255,255,0.6) !important;
+                }
+                .btn-koi-red {
+                    color: #fff !important; 
+                    background-color: #a82020;
+                }
+                .btn-koi-red:hover {
+                    color: #fff !important;
+                    background-color: #8b1818;
+                }
+                .accordion-button.collapsed {
+                    color: #d4af37 !important;
+                }
+                .accordion-button:not(.collapsed) {
+                    background-color: #212529 !important; /* bg-dark */
+                    color: #d4af37 !important; /* text-gold */
+                    box-shadow: none !important;
+                }
+                .accordion-button:focus {
+                    box-shadow: none !important;
+                    border-color: #d4af37 !important;
+                }
+                .form-select {
+                    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23d4af37' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+                }
+                .accordion-button::after {
+                    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23d4af37'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e") !important;
+                }
+            </style>
+            
+            <form action="{% url 'contacto' %}" method="POST" class="main-container-lux p-4">
                 {% csrf_token %}
                 <div class="mb-3">
                     <label class="form-label text-gold">Nombre Completo</label>
-                    <input type="text" class="form-control bg-dark text-white border-secondary" placeholder="Su nombre...">
+                    <input type="text" name="nombre" class="form-control bg-dark text-white border-secondary" value="{{ request.user.username }}" readonly required>
                 </div>
                 <div class="mb-3">
                     <label class="form-label text-gold">Correo Electrónico</label>
-                    <input type="email" class="form-control bg-dark text-white border-secondary" placeholder="nombre@ejemplo.com">
+                    <input type="email" name="email" class="form-control bg-dark text-white border-secondary" value="{{ request.user.email|default:'' }}" placeholder="Ingrese su correo para la respuesta" required>
                 </div>
                 <div class="mb-3">
                     <label class="form-label text-gold">Asunto</label>
-                    <select class="form-select bg-dark text-white border-secondary">
-                        <option selected>Realizar pedido</option>
-                        <option>Eventos Corporativos</option>
-                        <option>Servicio de Transporte</option>
-                        <option>Otros</option>
+                    <select name="asunto" class="form-select bg-dark fw-bold border-secondary" style="color: #d4af37 !important; background-color: #212529 !important;" required>
+                        <option value="Crear empresa">Crear empresa</option>
+                        <option value="Realizar pedido">Realizar pedido</option>
+                        <option value="Eventos Corporativos">Eventos Corporativos</option>
+                        <option value="Servicio de Transporte">Servicio de Transporte</option>
+                        <option value="Otros">Otros</option>
                     </select>
                 </div>
                 <div class="mb-4">
                     <label class="form-label text-gold">Mensaje</label>
-                    <textarea class="form-control bg-dark text-white border-secondary" rows="4"></textarea>
+                    <textarea name="mensaje" class="form-control bg-dark text-white border-secondary" rows="4" placeholder="Escribe tu mensaje aquí..." required></textarea>
                 </div>
                 <button type="submit" class="btn btn-koi-red w-100 py-2 fw-bold">ENVIAR SOLICITUD</button>
             </form>
