@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/perfil-organizacion.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-5">
+    <div class="chat-dashboard shadow-lg">
+        
+        <aside class="chat-sidebar">
+            <div class="org-profile-header">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-org me-3">
+                        <span class="badge rounded-circle p-3 fs-4" style="background-color: #b0b0b0 !important; color: #000 !important; font-weight: 900;">{{ request.user.username|slice:":1"|upper }}</span>
+                    </div>
+                    <div>
+                        <h6 class="text-gold mb-0 fw-bold">Mis Gestiones</h6>
+                        <small class="text-white-50">{{ request.user.username }}</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="order-list">
+                {% for sol in solicitudes %}
+                <a href="{% url 'mis_gestiones_chat' sol.id %}" 
+                   class="order-item {% if sol.id == solicitud_activa.id %}active{% endif %} {% if sol.estado == 'COMPLETADO' %}finalizado{% elif sol.estado == 'CANCELADO' %}cancelado{% endif %}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <span class="text-white fw-bold">{{ sol.nombre_entidad|truncatechars:20 }}</span>
+                        <small class="text-white">{{ sol.fecha_entrega|date:"d/m" }}</small>
+                    </div>
+                    <div class="mt-2 d-flex flex-column gap-1 align-items-start">
+                        <small class="text-white-50">{{ sol.get_tipo_servicio_display|slice:":20" }}...</small>
+                        <span class="badge {% if sol.estado == 'COMPLETADO' %}bg-success{% elif sol.estado == 'CANCELADO' %}bg-danger{% else %}bg-secondary{% endif %} p-1 w-100 text-truncate" style="font-size: 0.65rem;">
+                            {{ sol.get_estado_display }}
+                        </span>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </aside>
+
+        <main class="chat-main">
+            {% if solicitud_activa %}
+            <div class="chat-header p-3 border-bottom border-secondary d-flex justify-content-between align-items-center bg-dark">
+                <h6 class="text-gold mb-0">Chat del Pedido: {{ solicitud_activa.nombre_entidad }}</h6>
+                <small class="text-white-50">Finaliza: {{ solicitud_activa.fecha_entrega }}</small>
+            </div>
+
+            <div class="chat-messages-container" id="chatBox">
+                {% for msg in mensajes %}
+                <div class="d-flex flex-column {% if msg.usuario == request.user %}align-items-end{% else %}align-items-start{% endif %}">
+                    <small class="text-white-50 px-2 mb-1" style="font-size: 0.7rem;">
+                        {{ msg.usuario.username }} • {{ msg.fecha_envio|time:"H:i" }}
+                    </small>
+                    <div class="bubble {% if msg.usuario == request.user %}bubble-user{% else %}bubble-admin{% endif %}">
+                        {{ msg.texto }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="chat-footer">
+                {% if solicitud_activa.estado != 'COMPLETADO' %}
+                <form action="{% url 'enviar_mensaje' solicitud_activa.id %}" method="post" class="d-flex">
+                    {% csrf_token %}
+                    <input type="hidden" name="vuelve_a" value="mis_gestiones">
+                    <input type="text" name="mensaje" class="form-control me-3" style="background-color: #2b2b2b !important; color: #ffffff !important; border-color: #b0b0b0 !important;" placeholder="Escribe un mensaje..." required autocomplete="off">
+                    <button type="submit" class="btn" style="background-color: #b0b0b0 !important; border-color: #b0b0b0 !important; color: #000000 !important; font-size: 1.1rem; opacity: 1;"><i class="bi bi-send-fill" style="color: #000000 !important;"></i></button>
+                </form>
+                {% else %}
+                <div class="alert alert-secondary mb-0 py-2 text-center" style="font-size: 0.8rem;">
+                    Este pedido está finalizado. El chat está cerrado.
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="h-100 d-flex flex-column justify-content-center align-items-center text-muted">
+                <i class="bi bi-chat-left-dots fs-1 mb-3"></i>
+                <p>Selecciona un pedido para iniciar la gestión.</p>
+            </div>
+            {% endif %}
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const chatBox = document.getElementById('chatBox');
+    if(chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+</script>
+{% endblock %}

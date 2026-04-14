@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="display-5 text-danger mb-4 fw-bold"><i class="bi bi-cart-fill"></i> Carrito de Suministros</h1>
+
+    {% if items_carrito %}
+        <div class="table-responsive">
+            <table class="table table-dark table-hover border-danger align-middle">
+                <thead>
+                    <tr class="text-danger">
+                        <th scope="col">Material</th>
+                        <th scope="col" class="text-center">Importe Unit.</th>
+                        <th scope="col" class="text-center">Cant.</th>
+                        <th scope="col" class="text-end">Subtotal</th>
+                        <th scope="col" class="text-center">Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items_carrito %}
+                    <tr>
+                        <td class="text-white fw-bold">{{ item.nombre }}</td>
+                        <td class="text-center text-white-50">{{ item.precio|floatformat:2 }} €</td>
+                        <td class="text-center text-white-50">{{ item.cantidad }}</td>
+                        <td class="text-end text-gold fw-bold">{{ item.subtotal|floatformat:2 }} €</td>
+                        <td class="text-center">
+                            <a href="{% url 'eliminar_item_carrito' item.producto_id %}" class="btn btn-sm btn-outline-danger" title="Descartar producto individual">
+                                <i class="bi bi-trash-fill"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-end text-white fs-5">TOTAL:</td>
+                        <td class="text-end text-gold fs-4 fw-bold">{{ total|floatformat:2 }} €</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <a href="{% url 'vaciar_carrito' %}" class="btn btn-outline-danger btn-sm">
+                <i class="bi bi-exclamation-triangle"></i> Vaciar todo el carrito
+            </a>
+            <div class="d-flex gap-3">
+                <a href="{% url 'mercado_negro' %}" class="btn btn-outline-secondary text-white">Volver al Mercado</a>
+                <form action="{% url 'procesar_compra' %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger fw-bold px-4 border-dark shadow">CONFIRMAR PEDIDO</button>
+                </form>
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center text-white-50 py-5">
+            <i class="bi bi-cart-x" style="font-size: 5rem;"></i>
+            <h3 class="mt-4">Sin operaciones pendientes</h3>
+            <p>Retorna al mercado para adquirir materiales.</p>
+            <a href="{% url 'mercado_negro' %}" class="btn btn-danger text-white border-dark mt-3 px-4 fw-bold">Ir al Mercado Negro</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
