@@ -67,3 +67,46 @@ class PlatoIngrediente(models.Model):
 
     def __str__(self):
         return f"{self.cantidad} de {self.ingrediente.nombre} para {self.plato.nombre}"
+
+class CategoriaProducto(models.Model):
+    nombre = models.CharField(max_length=100)
+    orden = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name_plural = "Categorías de Productos (Mercado)"
+        ordering = ['orden']
+
+    def __str__(self):
+        return self.nombre
+
+class Producto(models.Model):
+    categoria = models.ForeignKey(CategoriaProducto, on_delete=models.SET_NULL, null=True, blank=True, related_name='productos')
+    nombre = models.CharField(max_length=150)
+    descripcion = models.TextField(blank=True)
+    precio_venta = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio de Venta (Mercado Negro)")
+    stock = models.IntegerField(default=0, verbose_name="Stock Disponible")
+    imagen = models.ImageField(upload_to='productos_mercado/', blank=True, null=True)
+    disponible = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.nombre
+
+    @property
+    def coste_total(self):
+        total = sum(item.importe_coste() for item in self.receta.all())
+        return round(total, 2)
+
+    @property
+    def beneficio(self):
+        return self.precio_venta - self.coste_total
+
+class ProductoIngrediente(models.Model):
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='receta')
+    ingrediente = models.ForeignKey(Ingrediente, on_delete=models.CASCADE)
+    cantidad = models.DecimalField(max_digits=10, decimal_places=3)
+
+    def importe_coste(self):
+        return self.cantidad * self.ingrediente.precio_coste_unidad
+
+    def __str__(self):
+        return f"{self.cantidad} de {self.ingrediente.nombre} para {self.producto.nombre}"
