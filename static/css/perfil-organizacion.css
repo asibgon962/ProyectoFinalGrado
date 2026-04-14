@@ -51,6 +51,11 @@
     background-color: rgba(0, 255, 0, 0.02);
 }
 
+.order-item.cancelado {
+    opacity: 0.6;
+    background-color: rgba(255, 0, 0, 0.05);
+}
+
 /* Área de Chat Derecha */
 .chat-main {
     flex-grow: 1;
@@ -96,4 +101,50 @@
     padding: 20px;
     background-color: #141414;
     border-top: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.chat-footer .form-control {
+    background-color: #2b2b2b !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(212, 175, 55, 0.5) !important;
+}
+
+.chat-footer .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Responsive Design para Móviles */
+@media (max-width: 991px) {
+    .chat-dashboard {
+        flex-direction: column;
+        height: 85vh; /* Se mantiene la altura, pero se divide */
+        margin-left: -1rem !important; /* Desborda el padding the main-container */
+        margin-right: -1rem !important;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+    }
+    
+    .chat-sidebar {
+        width: 100%;
+        flex: 0 0 35%; /* La lista de pedidos ocupa el 35% de la altura total */
+        min-height: 0;
+        max-height: 35%;
+        border-right: none;
+        border-bottom: 2px solid rgba(212, 175, 55, 0.4);
+    }
+    
+    .chat-main {
+        flex: 1; /* El chat ocupa el resto de la pantalla */
+        min-height: 0;
+        height: auto;
+    }
+
+    .org-profile-header {
+        padding: 10px;
+    }
+    
+    .order-item {
+        padding: 10px 15px;
+    }
 }

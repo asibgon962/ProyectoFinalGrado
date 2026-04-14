@@ -13,7 +13,7 @@
             <div class="org-profile-header">
                 <div class="d-flex align-items-center">
                     <div class="avatar-org me-3">
-                        <span class="badge rounded-circle bg-gold text-dark p-3 fs-4">{{ organizacion.nombre|slice:":1" }}</span>
+                        <span class="badge rounded-circle p-3 fs-4" style="background-color: #b0b0b0 !important; color: #000 !important; font-weight: 900;">{{ organizacion.nombre|slice:":1" }}</span>
                     </div>
                     <div>
                         <h6 class="text-gold mb-0 fw-bold">{{ organizacion.nombre }}</h6>
@@ -25,19 +25,39 @@
             <div class="order-list">
                 {% for sol in solicitudes %}
                 <a href="{% url 'mi_organizacion_chat' sol.id %}" 
-                   class="order-item {% if sol.id == solicitud_activa.id %}active{% endif %} {% if sol.estado == 'COMPLETADO' %}finalizado{% endif %}">
+                   class="order-item {% if sol.id == solicitud_activa.id %}active{% endif %} {% if sol.estado == 'COMPLETADO' %}finalizado{% elif sol.estado == 'CANCELADO' %}cancelado{% endif %}">
                     <div class="d-flex justify-content-between align-items-start">
                         <span class="text-white fw-bold">{{ sol.nombre_entidad|truncatechars:20 }}</span>
-                        <small class="text-gold">{{ sol.fecha_entrega|date:"d/m" }}</small>
+                        <small class="text-white">{{ sol.fecha_entrega|date:"d/m" }}</small>
                     </div>
-                    <div class="d-flex justify-content-between mt-1">
+                    <div class="mt-2 d-flex flex-column gap-1 align-items-start">
                         <small class="text-white-50">{{ sol.get_tipo_servicio_display|slice:":20" }}...</small>
-                        <span class="badge {% if sol.estado == 'COMPLETADO' %}bg-success{% else %}bg-secondary{% endif %} p-1" style="font-size: 0.6rem;">
+                        <span class="badge {% if sol.estado == 'COMPLETADO' %}bg-success{% elif sol.estado == 'CANCELADO' %}bg-danger{% else %}bg-secondary{% endif %} p-1 w-100 text-truncate" style="font-size: 0.65rem;">
                             {{ sol.get_estado_display }}
                         </span>
                     </div>
                 </a>
                 {% endfor %}
+
+                {% if pedidos_mercado %}
+                <div class="px-3 py-2 text-danger fw-bold border-bottom border-danger bg-dark" style="font-size: 0.75rem; letter-spacing: 1px;"><i class="bi bi-incognito"></i> TRANSACCIONES</div>
+                {% for pedido in pedidos_mercado %}
+                <a href="{% url 'mi_mercado_chat' pedido.id %}" style="text-decoration: none; display: block;" class="order-item {% if pedido_mercado_activo and pedido.id == pedido_mercado_activo.id %}bg-danger bg-opacity-25{% endif %} {% if pedido.estado == 'COMPLETADO' %}finalizado{% elif pedido.estado == 'CANCELADO' %}cancelado{% endif %}">
+                    <div style="border-left: 4px solid #a82020; background-color: rgba(168, 32, 32, 0.1); padding: 10px;">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <span class="text-danger fw-bold">ID Transacción #{{ pedido.id }}</span>
+                            <small class="text-white">{{ pedido.fecha_pedido|date:"d/m" }}</small>
+                        </div>
+                        <div class="mt-2 d-flex flex-column gap-1 align-items-start">
+                            <small class="text-white-50">Subtotal: {{ pedido.total }} €</small>
+                            <span class="badge w-100 text-truncate {% if pedido.estado == 'COMPLETADO' %}bg-success{% else %}bg-danger{% endif %} p-1" style="font-size: 0.65rem;">
+                                {{ pedido.get_estado_display }}
+                            </span>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+                {% endif %}
             </div>
         </aside>
 
@@ -65,12 +85,44 @@
                 {% if solicitud_activa.estado != 'COMPLETADO' %}
                 <form action="{% url 'enviar_mensaje' solicitud_activa.id %}" method="post" class="d-flex">
                     {% csrf_token %}
-                    <input type="text" name="mensaje" class="form-control bg-dark text-white border-gold shadow-none me-2" placeholder="Escribe un mensaje..." required autocomplete="off">
-                    <button type="submit" class="btn btn-gold text-dark"><i class="bi bi-send-fill"></i></button>
+                    <input type="text" name="mensaje" class="form-control me-3" style="background-color: #2b2b2b !important; color: #ffffff !important; border-color: #b0b0b0 !important;" placeholder="Escribe un mensaje..." required autocomplete="off">
+                    <button type="submit" class="btn" style="background-color: #b0b0b0 !important; border-color: #b0b0b0 !important; color: #000000 !important; font-size: 1.1rem; opacity: 1;"><i class="bi bi-send-fill" style="color: #000000 !important;"></i></button>
                 </form>
                 {% else %}
                 <div class="alert alert-secondary mb-0 py-2 text-center" style="font-size: 0.8rem;">
                     Este pedido está finalizado. El chat está cerrado.
+                </div>
+                {% endif %}
+            </div>
+            {% elif pedido_mercado_activo %}
+            <div class="chat-header p-3 border-bottom border-danger d-flex justify-content-between align-items-center bg-dark">
+                <h6 class="text-danger fw-bold mb-0"><i class="bi bi-incognito"></i> Transacción #{{ pedido_mercado_activo.id }} - Mercado Negro</h6>
+                <small class="text-white-50">Fecha: {{ pedido_mercado_activo.fecha_pedido|date:"d/m/Y" }}</small>
+            </div>
+
+            <div class="chat-messages-container" id="chatBox">
+                {% for msg in mensajes %}
+                <div class="d-flex flex-column {% if msg.usuario == request.user %}align-items-end{% else %}align-items-start{% endif %}">
+                    <small class="text-white-50 px-2 mb-1" style="font-size: 0.7rem;">
+                        {{ msg.usuario.username }} • {{ msg.fecha_envio|time:"H:i" }}
+                    </small>
+                    <div class="bubble {% if msg.usuario == request.user %}bg-danger text-white{% else %}bg-dark text-danger border border-danger{% endif %}" style="padding: 10px 15px; border-radius: 15px; max-width: 75%; margin-bottom: 10px;">
+                        {{ msg.texto }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="chat-footer">
+                {% if pedido_mercado_activo.estado != 'COMPLETADO' and pedido_mercado_activo.estado != 'CANCELADO' %}
+                <form action="{% url 'enviar_mensaje_mercado' pedido_mercado_activo.id %}" method="post" class="d-flex">
+                    {% csrf_token %}
+                    <input type="text" name="mensaje" class="form-control me-3" style="background-color: #2b2b2b !important; color: #ffffff !important; border-color: #dc3545 !important;" placeholder="Escribe al vendedor..." required autocomplete="off">
+                    <button type="submit" class="btn" style="background-color: #dc3545 !important; border-color: #dc3545 !important; color: #ffffff !important; font-size: 1.1rem; opacity: 1;"><i class="bi bi-send-fill" style="color: #ffffff !important;"></i></button>
+                </form>
+                {% else %}
+                <div class="alert alert-danger opacity-75 mb-0 py-2 text-center text-white" style="font-size: 0.8rem; background-color: rgba(220,53,69,0.2); border: 1px solid #dc3545;">
+                    Transacción finalizada/cancelada. Chat cifrado bloqueado.
                 </div>
                 {% endif %}
             </div>

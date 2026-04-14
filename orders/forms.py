@@ -61,8 +61,8 @@ class SolicitudServicioForm(forms.ModelForm):
             nombre_usuario = self.user.get_full_name() or self.user.username
             opciones_entidad.append((nombre_usuario, nombre_usuario))
             
-            if hasattr(self.user, 'perfil') and self.user.perfil.empresa:
-                nombre_empresa = self.user.perfil.empresa.nombre
+            if getattr(self.user, 'organization', None):
+                nombre_empresa = self.user.organization.nombre
                 opciones_entidad.append((nombre_empresa, nombre_empresa))
 
             self.fields['nombre_entidad'] = forms.ChoiceField(

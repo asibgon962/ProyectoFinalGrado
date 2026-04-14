@@ -1,10 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from catalog.models import Plato  
 from .forms import SolicitudServicioForm
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import SolicitudServicio, MensajeSolicitud
+from .models import SolicitudServicio, MensajeSolicitud, PedidoMercado
 
 @login_required
 def solicitar_servicio(request):
@@ -19,8 +18,10 @@ def solicitar_servicio(request):
             solicitud = form.save(commit=False)
             solicitud.usuario = request.user 
             
-            # ELIMINADO: La conversión manual de 'tipo_servicio' ya no es necesaria.
-            # MultiSelectField de tu modelo se encarga de guardar la lista correctamente.
+            # Asociar la organización si el usuario la seleccionó
+            if getattr(request.user, 'organization', None):
+                if form.cleaned_data.get('nombre_entidad') == request.user.organization.nombre:
+                    solicitud.organizacion = request.user.organization
             
             solicitud.save()
             form.save_m2m() 
@@ -39,10 +40,6 @@ def solicitar_servicio(request):
         'form': form, 
         'platos_disponibles': platos
     })
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from .models import SolicitudServicio, MensajeSolicitud
 
 @login_required
 def panel_organizacion(request, solicitud_id=None):
@@ -54,6 +51,7 @@ def panel_organizacion(request, solicitud_id=None):
 
     # Obtenemos todas las solicitudes de su empresa
     solicitudes = SolicitudServicio.objects.filter(organizacion=org).order_by('-fecha_entrega')
+    pedidos_mercado = PedidoMercado.objects.filter(organizacion=org).order_by('-fecha_pedido')
 
     solicitud_activa = None
     mensajes = []
@@ -70,6 +68,7 @@ def panel_organizacion(request, solicitud_id=None):
     return render(request, 'perfil-organizacion.html', {
         'organizacion': org,
         'solicitudes': solicitudes,
+        'pedidos_mercado': pedidos_mercado,
         'solicitud_activa': solicitud_activa,
         'mensajes': mensajes
     })
@@ -79,13 +78,81 @@ def enviar_mensaje(request, solicitud_id):
     if request.method == 'POST':
         solicitud = get_object_or_404(SolicitudServicio, id=solicitud_id)
         texto = request.POST.get('mensaje')
+        vuelve_a = request.POST.get('vuelve_a')
         
-        # Validación de seguridad: el usuario debe ser de la misma organización
-        if solicitud.organizacion == request.user.organization and texto:
+        # Validación de seguridad: el usuario debe ser de la misma organización, el autor, o admin
+        if ((solicitud.organizacion and solicitud.organizacion == getattr(request.user, 'organization', None)) or solicitud.usuario == request.user or request.user.is_staff) and texto:
             MensajeSolicitud.objects.create(
                 solicitud=solicitud,
                 usuario=request.user,
                 texto=texto,
                 es_admin=request.user.is_staff
             )
+            
+        if vuelve_a == 'mis_gestiones':
+            return redirect('mis_gestiones_chat', solicitud_id=solicitud_id)
     return redirect('mi_organizacion_chat', solicitud_id=solicitud_id)
+
+@login_required
+def panel_organizacion_mercado(request, pedido_id=None):
+    org = request.user.organization
+    if not org:
+        messages.warning(request, "No perteneces a ninguna organización.")
+        return redirect('home')
+
+    solicitudes = SolicitudServicio.objects.filter(organizacion=org).order_by('-fecha_entrega')
+    pedidos_mercado = PedidoMercado.objects.filter(organizacion=org).order_by('-fecha_pedido')
+
+    pedido_activo = None
+    mensajes = []
+
+    if pedido_id:
+        pedido_activo = get_object_or_404(PedidoMercado, id=pedido_id, organizacion=org)
+        mensajes = pedido_activo.mensajes.all()
+
+    return render(request, 'perfil-organizacion.html', {
+        'organizacion': org,
+        'solicitudes': solicitudes,
+        'pedidos_mercado': pedidos_mercado,
+        'pedido_mercado_activo': pedido_activo,
+        'mensajes': mensajes
+    })
+
+@login_required
+def enviar_mensaje_mercado(request, pedido_id):
+    if request.method == 'POST':
+        pedido = get_object_or_404(PedidoMercado, id=pedido_id)
+        texto = request.POST.get('mensaje')
+        from .models import MensajePedidoMercado
+        # Validación: comprador, organización o admin
+        if ((pedido.organizacion == getattr(request.user, 'organization', None)) or pedido.usuario == request.user or request.user.is_staff) and texto:
+            MensajePedidoMercado.objects.create(
+                pedido=pedido,
+                usuario=request.user,
+                texto=texto,
+                es_admin=request.user.is_staff
+            )
+    return redirect('mi_mercado_chat', pedido_id=pedido_id)
+
+@login_required
+def mis_gestiones(request, solicitud_id=None):
+    # Obtenemos todas las solicitudes del usuario
+    solicitudes = SolicitudServicio.objects.filter(usuario=request.user).order_by('-fecha_entrega')
+
+    solicitud_activa = None
+    mensajes = []
+
+    # Lógica para seleccionar qué chat mostrar
+    if solicitud_id:
+        solicitud_activa = get_object_or_404(SolicitudServicio, id=solicitud_id, usuario=request.user)
+    elif solicitudes.exists():
+        solicitud_activa = solicitudes.first()
+
+    if solicitud_activa:
+        mensajes = solicitud_activa.mensajes.all()
+
+    return render(request, 'mis-gestiones.html', {
+        'solicitudes': solicitudes,
+        'solicitud_activa': solicitud_activa,
+        'mensajes': mensajes
+    })
