@@ -40,4 +40,15 @@ def create_user_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
-    
+
+class MensajeContacto(models.Model):
+    nombre = models.CharField(max_length=150)
+    email = models.EmailField()
+    asunto = models.CharField(max_length=150)
+    mensaje = models.TextField()
+    fecha_envio = models.DateTimeField(auto_now_add=True)
+    contestado = models.BooleanField(default=False)
+    respuesta = models.TextField(blank=True, null=True, help_text="Escribe la respuesta aquí. Al guardar se enviará este texto por correo al usuario.")
+
+    def __str__(self):
+        return f"{self.asunto} - {self.email}"

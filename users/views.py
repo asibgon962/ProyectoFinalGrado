@@ -3,7 +3,9 @@ from django.contrib.auth.decorators import login_required
 
 from catalog.models import Plato
 # Importamos ambos formularios desde tu archivo .form
-from .form import RegistroUsuarioForm, EditarPerfilForm 
+from .form import RegistroUsuarioForm, EditarPerfilForm, ContactoForm
+from django.contrib import messages
+
 from .models import Organization, Profile
 
 # --- VISTA DE REGISTRO ---
@@ -98,7 +100,19 @@ def privacidad(request):
 def terminos(request):
     return render(request, 'terminos.html')
 
+@login_required
 def contacto(request):
+    if request.method == 'POST':
+        form = ContactoForm(request.POST)
+        if form.is_valid():
+            # Forzamos que el nombre coincida con el del usuario
+            msj = form.save(commit=False)
+            msj.nombre = request.user.username
+            msj.save()
+            messages.success(request, "Tu solicitud ha sido enviada correctamente. Te contactaremos pronto.")
+            return redirect('contacto')
+        else:
+            messages.error(request, "Hubo un error en tu formulario.")
     return render(request, 'contacto.html')
 
 def servicios(request):
