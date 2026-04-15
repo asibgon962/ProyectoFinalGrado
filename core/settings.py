@@ -151,6 +151,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 if os.environ.get('CLOUDINARY_URL'):
+    import urllib.parse as _urlparse
+    _cld = _urlparse.urlparse(os.environ['CLOUDINARY_URL'])
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': _cld.hostname,
+        'API_KEY': _cld.username,
+        'API_SECRET': _cld.password,
+    }
     INSTALLED_APPS += ['cloudinary_storage', 'cloudinary']
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
