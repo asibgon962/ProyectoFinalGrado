@@ -14,8 +14,3 @@ for i in 1 2 3 4 5; do
         sleep 10
     }
 done
-
-# TEMPORAL: limpiar BD y cargar datos locales en Neon (eliminar tras el primer deploy exitoso)
-echo "==> Limpiando BD y cargando datos locales..."
-python manage.py flush --no-input
-python manage.py loaddata datos_locales.json && echo "==> Datos cargados correctamente" || echo "==> ERROR en loaddata"
