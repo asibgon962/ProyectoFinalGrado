@@ -91,7 +91,7 @@ DATABASES = {
 }
 
 import dj_database_url
-db_from_env = dj_database_url.config(conn_max_age=600)
+db_from_env = dj_database_url.config(conn_max_age=0) # Must be 0 for Neon Serverless
 if db_from_env:
     DATABASES['default'].update(db_from_env)
 
@@ -137,6 +137,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Configuración de redirecciones para autenticación
 LOGIN_REDIRECT_URL = '/'  # Después de loguearse, el usuario va a la página de inicio
