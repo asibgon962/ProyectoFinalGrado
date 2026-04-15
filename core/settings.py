@@ -42,13 +42,10 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'cloudinary_storage',
     'django.contrib.staticfiles',
-    'cloudinary',
     'users',
     'catalog',
     'orders',
-
 ]
 
 MIDDLEWARE = [
@@ -139,7 +136,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Configuración de redirecciones para autenticación
 LOGIN_REDIRECT_URL = '/'  # Después de loguearse, el usuario va a la página de inicio
@@ -153,7 +150,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # La URL que se verá en el navegador
 MEDIA_URL = '/media/'
 
-if 'CLOUDINARY_URL' in os.environ:
+if os.environ.get('CLOUDINARY_URL'):
+    INSTALLED_APPS += ['cloudinary_storage', 'cloudinary']
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # Email configuration
