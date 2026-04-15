@@ -14,3 +14,7 @@ for i in 1 2 3 4 5; do
         sleep 10
     }
 done
+
+# TEMPORAL: cargar datos locales en Neon (eliminar tras el primer deploy exitoso)
+echo "==> Cargando datos en Neon..."
+python manage.py loaddata datos_locales.json && echo "==> Datos cargados" || echo "==> Advertencia: loaddata falló (puede que ya estén cargados)"
