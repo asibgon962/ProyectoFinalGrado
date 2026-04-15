@@ -41,21 +41,27 @@ class MensajeContactoAdmin(admin.ModelAdmin):
     readonly_fields = ('nombre', 'email', 'asunto', 'mensaje', 'fecha_envio', 'contestado')
 
     def get_form(self, request, obj=None, **kwargs):
-        if obj and not obj.respuesta and obj.asunto == "Crear empresa":
-            codigo = str(uuid.uuid4())[:8].upper()
-            obj.respuesta = f"Hola {obj.nombre},\n\nAtendiendo a tu solicitud, aquí tienes el código de tu nueva empresa para registrarte o vincularte:\nCódigo: {codigo}\n\nGracias por confiar en Koi Enterprise."
+        if obj and not obj.respuesta:
+            if obj.asunto == "Crear empresa":
+                codigo = str(uuid.uuid4())[:8].upper()
+                obj.respuesta = f"Hola {obj.nombre},\n\nAtendiendo a tu solicitud, aquí tienes el código de tu nueva empresa para registrarte o vincularte:\nCódigo: {codigo}\n\nGracias por confiar en Koi Enterprise."
+            else:
+                obj.respuesta = f"Hola {obj.nombre},\n\nGracias por ponerte en contacto con Koi Enterprise.\n\n[Escribe aquí tu respuesta]\n\nUn saludo,\nEl equipo de Koi Enterprise."
         return super().get_form(request, obj, **kwargs)
 
     def save_model(self, request, obj, form, change):
         if obj.respuesta and not obj.contestado:
-            send_mail(
-                subject=f"RE: {obj.asunto} - Koi Enterprise",
-                message=obj.respuesta,
-                from_email=None,
-                recipient_list=[obj.email],
-                fail_silently=False,
-            )
-            obj.contestado = True
-            self.message_user(request, "Correo de respuesta enviado en consola y marcado como contestado.")
+            try:
+                send_mail(
+                    subject=f"RE: {obj.asunto} - Koi Enterprise",
+                    message=obj.respuesta,
+                    from_email=None,
+                    recipient_list=[obj.email],
+                    fail_silently=False,
+                )
+                obj.contestado = True
+                self.message_user(request, f"✅ Correo enviado correctamente a {obj.email}.")
+            except Exception as e:
+                self.message_user(request, f"⚠️ Error al enviar el correo: {e}. Comprueba las variables EMAIL_HOST_USER y EMAIL_HOST_PASSWORD en Render.", level='warning')
         
-        super().save_model(request, obj, form, change)
+        super().save_model(request, obj, form, change)
