@@ -79,7 +79,7 @@
                             <select id="buscador-productos" class="form-select">
                                 <option value="">Buscar plato...</option>
                                 {% for plato in platos_disponibles %}
-                                    <option value="{{ plato.id }}" data-imagen="{{ plato.imagen.url }}" data-nombre="{{ plato.nombre }}">
+                                    <option value="{{ plato.id }}" data-imagen="{% if plato.imagen %}{{ plato.imagen.url }}{% endif %}" data-nombre="{{ plato.nombre }}">
                                         {{ plato.nombre }} ({{ plato.precio_venta }}€)
                                     </option>
                                 {% endfor %}
