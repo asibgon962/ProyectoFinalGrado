@@ -6,6 +6,7 @@ from .models import Categoria, Ingrediente, Plato, PlatoIngrediente, Producto, P
 class RecetaInline(admin.TabularInline):
     model = PlatoIngrediente
     extra = 1  # Muestra una fila vacía por defecto para añadir rápido
+    autocomplete_fields = ['ingrediente']
 
 @admin.register(Ingrediente)
 class IngredienteAdmin(admin.ModelAdmin):
@@ -39,6 +40,7 @@ class PlatoAdmin(admin.ModelAdmin):
 class ProductoIngredienteInline(admin.TabularInline):
     model = ProductoIngrediente
     extra = 1
+    autocomplete_fields = ['ingrediente']
 
 @admin.register(CategoriaProducto)
 class CategoriaProductoAdmin(admin.ModelAdmin):
