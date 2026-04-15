@@ -161,16 +161,9 @@ MEDIA_URL = '/media/'
 
 if os.environ.get('CLOUDINARY_URL'):
     import urllib.parse as _urlparse
-    _cld = _urlparse.urlparse(os.environ['CLOUDINARY_URL'])
-    CLOUDINARY_STORAGE = {
-        'CLOUD_NAME': _cld.hostname,
-        'API_KEY': _cld.username,
-        'API_SECRET': _cld.password,
-    }
-    INSTALLED_APPS += ['cloudinary_storage', 'cloudinary']
-    STORAGES['default'] = {
-        'BACKEND': 'cloudinary_storage.storage.MediaCloudinaryStorage',
-    }
+    _cld_name = _urlparse.urlparse(os.environ['CLOUDINARY_URL']).hostname
+    # Apuntar MEDIA_URL a Cloudinary directamente
+    MEDIA_URL = f'https://res.cloudinary.com/{_cld_name}/image/upload/'
 
 # Email configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
