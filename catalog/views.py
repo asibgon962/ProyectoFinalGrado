@@ -5,6 +5,9 @@ def home_view(request):
     platos_destacados = Plato.objects.filter(es_destacado=True, disponible=True)
     return render(request, 'home.html', {'platos': platos_destacados})
 
+def restaurante_view(request):
+    return render(request, 'restaurante.html')
+
 def menu_view(request):
     # 1. Traemos todas las categorías ordenadas según el campo 'orden' que definiste
     categorias = Categoria.objects.all().order_by('orden')

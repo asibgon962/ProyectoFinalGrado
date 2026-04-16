@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+.restaurante-hero {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("{% static 'images/restaurante_main.png' %}");
+    background-size: cover;
+    background-position: center;
+    padding: 100px 0;
+}
+.img-lux {
+    border: 2px solid #d4af37;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+.text-gold {
+    color: #d4af37 !important;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="restaurante-hero text-center mb-5">
+    <div class="container">
+        <h1 class="display-3 fw-bold text-gold mb-4">Nuestro Restaurante</h1>
+        <p class="lead text-light mb-4">Descubra una atmósfera inigualable donde el lujo y la gastronomía se encuentran.</p>
+    </div>
+</section>
+
+<div class="container py-5">
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6 order-md-2 mb-4 mb-md-0">
+            <img src="{% static 'images/restaurante_private.png' %}" class="img-fluid img-lux" alt="Comedor Privado">
+        </div>
+        <div class="col-md-6 order-md-1">
+            <h2 class="text-gold mb-3">La Experiencia Koi</h2>
+            <p class="text-light">En Koi Enterprise, nos enorgullece ofrecer más que una comida; ofrecemos una experiencia. Nuestro restaurante ha sido diseñado meticulosamente para brindar un ambiente de exclusividad, privacidad y elegancia absoluta. Cada detalle, desde la iluminación hasta la selección de nuestro mobiliario, refleja nuestro compromiso con la excelencia.</p>
+            <p class="text-light">Disfrute de nuestra alta cocina en nuestra sala principal o reserve uno de nuestros comedores privados para ocasiones especiales. En Koi, cada noche es una celebración del buen gusto.</p>
+            <a href="{% url 'menu' %}" class="btn btn-outline-gold mt-3">VER EL MENÚ</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
