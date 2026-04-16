@@ -4,13 +4,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Koi Enterprise - Luxury Gestión</title>
-    
+
+    {# ===== SEO TAGS ===== #}
+    <title>{% block page_title %}Koi Enterprise - Luxury Gestión y Gastronomía{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Koi Enterprise: alta gastronomía, eventos exclusivos y transporte de lujo. Vive una experiencia única diseñada para los paladares más exigentes.{% endblock %}">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://amalvarosg.tech{% block canonical_path %}/{% endblock %}">
+
+    {# Open Graph (WhatsApp, Facebook, LinkedIn) #}
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Koi Enterprise">
+    <meta property="og:title" content="{% block og_title %}Koi Enterprise - Luxury Gestión y Gastronomía{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Alta gastronomía, eventos exclusivos y transporte de lujo. Para los paladares más exigentes.{% endblock %}">
+    <meta property="og:image" content="https://amalvarosg.tech{% static 'images/logo.png' %}">
+    <meta property="og:url" content="https://amalvarosg.tech{% block og_url %}/{% endblock %}">
+    <meta name="twitter:card" content="summary_large_image">
+    {# ===== /SEO TAGS ===== #}
+
     <link rel="icon" type="image/png" href="{% static 'images/logo.png' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    
+
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
 
     {% block extra_css %}{% endblock %}

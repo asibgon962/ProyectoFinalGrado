@@ -1,6 +1,13 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block page_title %}Carta y Menú - Koi Enterprise | Alta Gastronomía{% endblock %}
+{% block meta_description %}Explora la carta de Koi Enterprise: platos de alta cocina, selecciones exclusivas por categoría y los mejores sabores diseñados para paladares exigentes.{% endblock %}
+{% block og_title %}Nuestra Carta - Koi Enterprise{% endblock %}
+{% block og_description %}Descubre nuestra selección gastronómica: platos de autor, postres exclusivos y mucho más en el menú de Koi Enterprise.{% endblock %}
+{% block og_url %}/menu/{% endblock %}
+{% block canonical_path %}/menu/{% endblock %}
+
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/menu.css' %}">
 {% endblock %}

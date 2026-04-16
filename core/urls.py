@@ -37,6 +37,8 @@ from orders import views as orders_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),
+    path('robots.txt', TemplateView.as_view(template_name='../static/robots.txt', content_type='text/plain')),
+    path('sitemap.xml', TemplateView.as_view(template_name='../static/sitemap.xml', content_type='application/xml')),
     path('', home_view, name='home'),
     path('restaurante/', restaurante_view, name='restaurante'),
     path('profile/', profile_view, name='profile'),
