@@ -7,19 +7,46 @@
 
     {# ===== SEO TAGS ===== #}
     <title>{% block page_title %}Koi Enterprise - Luxury Gestión y Gastronomía{% endblock %}</title>
-    <meta name="description" content="{% block meta_description %}Koi Enterprise: alta gastronomía, eventos exclusivos y transporte de lujo. Vive una experiencia única diseñada para los paladares más exigentes.{% endblock %}">
+    <meta name="description" content="{% block meta_description %}Koi Enterprise: restaurante de alta cocina, eventos privados y transporte de lujo en Los Santos. Reserva tu mesa o solicita un servicio a medida.{% endblock %}">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://amalvarosg.tech{% block canonical_path %}/{% endblock %}">
 
     {# Open Graph (WhatsApp, Facebook, LinkedIn) #}
-    <meta property="og:type" content="website">
+    <meta property="og:type" content="restaurant">
     <meta property="og:site_name" content="Koi Enterprise">
     <meta property="og:title" content="{% block og_title %}Koi Enterprise - Luxury Gestión y Gastronomía{% endblock %}">
-    <meta property="og:description" content="{% block og_description %}Alta gastronomía, eventos exclusivos y transporte de lujo. Para los paladares más exigentes.{% endblock %}">
-    <meta property="og:image" content="https://amalvarosg.tech{% static 'images/logo.png' %}">
+    <meta property="og:description" content="{% block og_description %}Alta cocina, eventos privados y transporte de lujo. Reserva en Koi Enterprise.{% endblock %}">
+    <meta property="og:image" content="https://amalvarosg.tech{% static 'images/restaurante_main.png' %}">
     <meta property="og:url" content="https://amalvarosg.tech{% block og_url %}/{% endblock %}">
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}Koi Enterprise{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Alta cocina, eventos privados y transporte de lujo.{% endblock %}">
     {# ===== /SEO TAGS ===== #}
+
+    {# ===== JSON-LD SCHEMA ===== #}
+    {% block schema_markup %}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Restaurant",
+      "name": "Koi Enterprise",
+      "url": "https://amalvarosg.tech",
+      "logo": "https://amalvarosg.tech{% static 'images/logo.png' %}",
+      "description": "Restaurante de alta cocina con eventos privados, transporte de lujo y gestión premium.",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Tug St, 12",
+        "addressLocality": "Vespucci",
+        "addressCountry": "US"
+      },
+      "openingHours": "Mo-Su 12:00-00:00",
+      "servesCuisine": "Alta Cocina",
+      "priceRange": "$$$$",
+      "sameAs": ["https://amalvarosg.tech"]
+    }
+    </script>
+    {% endblock schema_markup %}
+    {# ===== /JSON-LD SCHEMA ===== #}
 
     <link rel="icon" type="image/png" href="{% static 'images/logo.png' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">

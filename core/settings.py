@@ -148,8 +148,20 @@ STORAGES = {
 }
 
 # Configuración de redirecciones para autenticación
-LOGIN_REDIRECT_URL = '/'  # Después de loguearse, el usuario va a la página de inicio
-LOGOUT_REDIRECT_URL = '/' # Después de desloguearse, el usuario va a la página de inicio
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
+# Security headers (sólo en producción)
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 año
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
 
 import os
 

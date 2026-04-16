@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block page_title %}El Restaurante - Koi Enterprise | Alta Cocina de Lujo{% endblock %}
-{% block meta_description %}Conoce el restaurante de Koi Enterprise: un espacio de alta cocina con comedores privados, ambiente exclusivo y gastronomía de primer nivel.{% endblock %}
-{% block og_title %}El Restaurante Koi - Alta Cocina y Ambiente Exclusivo{% endblock %}
-{% block og_description %}Visita nuestro restaurante de alta cocina. Comedores privados, gastronomía de lujo y un ambiente único en Koi Enterprise.{% endblock %}
+{% block page_title %}El Restaurante - Koi Enterprise | Alta Cocina{% endblock %}
+{% block meta_description %}El restaurante de Koi Enterprise: mesas privadas, menú de autor y un ambiente cuidado al detalle. Abre de lunes a domingo de 12:00 a 00:00.{% endblock %}
+{% block og_title %}El Restaurante Koi - Alta Cocina{% endblock %}
+{% block og_description %}Mesas privadas, menú de autor y ambiente de lujo. Abre todos los días de 12:00 a 00:00 en Koi Enterprise.{% endblock %}
 {% block og_url %}/restaurante/{% endblock %}
 {% block canonical_path %}/restaurante/{% endblock %}
 
@@ -27,23 +27,36 @@
 </style>
 {% endblock %}
 
+    {% block schema_markup %}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {"@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://amalvarosg.tech/"},
+        {"@type": "ListItem", "position": 2, "name": "El Restaurante", "item": "https://amalvarosg.tech/restaurante/"}
+      ]
+    }
+    </script>
+    {% endblock schema_markup %}
+
 {% block content %}
-<section class="restaurante-hero text-center mb-5">
+<section class="restaurante-hero text-center mb-5" aria-label="Banner del restaurante Koi Enterprise">
     <div class="container">
         <h1 class="display-3 fw-bold text-gold mb-4">Nuestro Restaurante</h1>
-        <p class="lead text-light mb-4">Descubra una atmósfera inigualable donde el lujo y la gastronomía se encuentran.</p>
+        <p class="lead text-light mb-4">Un espacio donde la cocina de autor y el ambiente de lujo se dan la mano cada noche.</p>
     </div>
 </section>
 
 <div class="container py-5">
     <div class="row align-items-center mb-5">
         <div class="col-md-6 order-md-2 mb-4 mb-md-0">
-            <img src="{% static 'images/restaurante_private.png' %}" class="img-fluid img-lux" alt="Comedor Privado">
+            <img src="{% static 'images/restaurante_private.png' %}" class="img-fluid img-lux" alt="Comedor privado de Koi Enterprise" loading="lazy" width="600" height="400">
         </div>
         <div class="col-md-6 order-md-1">
             <h2 class="text-gold mb-3">La Experiencia Koi</h2>
-            <p class="text-light">En Koi Enterprise, nos enorgullece ofrecer más que una comida; ofrecemos una experiencia. Nuestro restaurante ha sido diseñado meticulosamente para brindar un ambiente de exclusividad, privacidad y elegancia absoluta. Cada detalle, desde la iluminación hasta la selección de nuestro mobiliario, refleja nuestro compromiso con la excelencia.</p>
-            <p class="text-light">Disfrute de nuestra alta cocina en nuestra sala principal o reserve uno de nuestros comedores privados para ocasiones especiales. En Koi, cada noche es una celebración del buen gusto.</p>
+            <p class="text-light">En Koi Enterprise, una cena no es solo comer. Es un momento que se recuerda. Nuestro restaurante lleva años sirviendo menús de autor en un espacio pensado para quienes buscan algo más que comida: silencio, atención al detalle y platos que sorprenden.</p>
+            <p class="text-light">Disponemos de comedores privados para ocasiones especiales y la sala principal para quienes prefieren el ambiente del salón. Abrimos todos los días de 12:00 a 00:00.</p>
             <a href="{% url 'menu' %}" class="btn btn-outline-gold mt-3">VER EL MENÚ</a>
         </div>
     </div>
