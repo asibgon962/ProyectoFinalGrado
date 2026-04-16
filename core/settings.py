@@ -22,8 +22,14 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'fallback-unsafe-key-do-not-use-in-prod')
+# SR-001 [INFORMATION DISCLOSURE] - SECRET_KEY nunca debe tener fallback hardcodeado
+# Si la variable no está definida, Django debe fallar en arranque, no usar una clave débil
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    raise RuntimeError(
+        "SECRET_KEY no está definida. "
+        "Añade SECRET_KEY a tus variables de entorno o al fichero .env"
+    )
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 't')
@@ -51,6 +57,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.middleware.gzip.GZipMiddleware',          # Compresión - debe ir antes de sessions
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -151,19 +158,60 @@ STORAGES = {
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-# Security headers (sólo en producción)
+# SR-003 [SESSION MANAGEMENT] - Configuración segura de sesiones (OWASP V3)
+SESSION_COOKIE_AGE = 7200          # 2 horas de inactividad máxima
+SESSION_COOKIE_HTTPONLY = True     # JS no puede leer la cookie de sesión
+SESSION_COOKIE_SAMESITE = 'Lax'   # Protege contra CSRF cross-site
+SESSION_SAVE_EVERY_REQUEST = False # No renueva sesión en cada petición (rendimiento)
+
+# SR-004 [SECURITY HEADERS] Solo en producción
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
-    SECURE_HSTS_SECONDS = 31536000  # 1 año
+    SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    CSRF_COOKIE_SAMESITE = 'Lax'
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
 
-import os
+
+# SR-002 [REPUDIATION / AUDIT LOGGING] - Logging de eventos de seguridad (OWASP V7)
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'security': {
+            'format': '[{levelname}] {asctime} | {name} | {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'security',
+        },
+    },
+    'loggers': {
+        'django.security': {          # Intentos CSRF, SuspiciousOperation, etc.
+            'handlers': ['console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'django.request': {           # Errores HTTP 4xx/5xx
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'koi.security': {             # Logger propio para eventos de la app
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
 
 # La carpeta física en tu ordenador/servidor
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
