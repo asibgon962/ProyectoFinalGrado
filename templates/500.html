@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Error 500 - Error Interno | Koi Enterprise{% endblock %}
+
+{% block content %}
+<div class="row align-items-center justify-content-center text-center py-5" style="min-height: 50vh;">
+    <div class="col-md-8 col-lg-6">
+        <h1 class="display-1 fw-bold mb-4" style="color: #D4AF37; font-family: 'Playfair Display', serif;">500</h1>
+        <h2 class="h3 fw-bold text-white mb-4">Error Interno del Servidor</h2>
+        <p class="lead text-light mb-5" style="opacity: 0.8;">
+            Ha ocurrido un problema inesperado en nuestros servidores. Nuestro equipo técnico ha sido notificado y estamos trabajando en ello.
+        </p>
+        <a href="{% url 'home' %}" class="btn btn-outline-warning btn-lg px-5 rounded-pill" style="border-color: #D4AF37; color: #D4AF37;">
+            Volver al Inicio
+        </a>
+    </div>
+</div>
+{% endblock %}
