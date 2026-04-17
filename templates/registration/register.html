@@ -79,7 +79,7 @@
     <div class="row justify-content-center">
         <div class="col-md-5">
             <div class="card-register p-4">
-                <h2 class="register-title">Registrarse</h2>
+                <h1 class="register-title h2">Registrarse</h1>
                 
                 <!-- novalidate es CLAVE para ver los errores de Django en lugar de los del navegador -->
                 <form method="POST" novalidate>
@@ -96,7 +96,7 @@
                         <span class="error-msg">{{ form.username.errors|striptags }}</span>
                     {% endif %}
                     <input type="text" name="username" class="register-input" 
-                           placeholder="Nombre_Apellido" 
+                           placeholder="Nombre_Apellido" aria-label="Nombre_Apellido"
                            value="{{ form.username.value|default:'' }}">
 
                     <!-- ID CODE (Actualizado de id_lipa a id_code) -->
@@ -104,7 +104,7 @@
                         <span class="error-msg">{{ form.id_code.errors|striptags }}</span>
                     {% endif %}
                     <input type="text" name="id_code" class="register-input" 
-                           placeholder="ID #CODE (Ej: #ABCD)" 
+                           placeholder="ID #CODE (Ej: #ABCD)" aria-label="ID CODE"
                            value="{{ form.id_code.value|default:'' }}">
 
                     <!-- Teléfono -->
@@ -112,7 +112,7 @@
                         <span class="error-msg">{{ form.telefono.errors|striptags }}</span>
                     {% endif %}
                     <input type="text" name="telefono" class="register-input" 
-                           placeholder="Número de Teléfono" 
+                           placeholder="Número de Teléfono" aria-label="Número de Teléfono"
                            value="{{ form.telefono.value|default:'' }}">
 
                     <!-- Código de Organización (Opcional) -->
@@ -120,12 +120,12 @@
                         <span class="error-msg">{{ form.codigo_empresa.errors|striptags }}</span>
                     {% endif %}
                     <input type="text" name="codigo_empresa" class="register-input" 
-                           placeholder="Código de Organización (Opcional)" 
+                           placeholder="Código de Organización (Opcional)" aria-label="Código de Organización"
                            value="{{ form.codigo_empresa.value|default:'' }}">
 
                     <!-- Contraseñas -->
-                    <input type="password" name="password1" class="register-input" placeholder="Contraseña">
-                    <input type="password" name="password2" class="register-input" placeholder="Confirmar Contraseña">
+                    <input type="password" name="password1" class="register-input" placeholder="Contraseña" aria-label="Contraseña">
+                    <input type="password" name="password2" class="register-input" placeholder="Confirmar Contraseña" aria-label="Confirmar Contraseña">
 
                     <button type="submit" class="btn-register">Enviar</button>
                 </form>
