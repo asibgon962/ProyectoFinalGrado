@@ -47,11 +47,23 @@ def agregar_carrito(request, producto_id):
     
     if request.method == 'POST':
         producto = get_object_or_404(Producto, id=producto_id)
-        cantidad = int(request.POST.get('cantidad', 1))
+        
+        try:
+            cantidad = int(request.POST.get('cantidad', 1))
+        except ValueError:
+            cantidad = 1
+            
+        if cantidad <= 0 or cantidad > 99:
+            messages.error(request, "Cantidad inválida. Operación cancelada por seguridad.")
+            return redirect('mercado_negro')
         
         cart = request.session.get('cart', {})
         if str(producto_id) in cart:
-            cart[str(producto_id)]['cantidad'] += cantidad
+            nueva_cantidad = cart[str(producto_id)]['cantidad'] + cantidad
+            if nueva_cantidad > 99:
+                 messages.error(request, "No puedes exceder el límite de 99 unidades por producto.")
+                 return redirect('mercado_negro')
+            cart[str(producto_id)]['cantidad'] = nueva_cantidad
         else:
             cart[str(producto_id)] = {
                 'nombre': producto.nombre,

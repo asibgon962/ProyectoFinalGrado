@@ -77,8 +77,11 @@ def panel_organizacion(request, solicitud_id=None):
 def enviar_mensaje(request, solicitud_id):
     if request.method == 'POST':
         solicitud = get_object_or_404(SolicitudServicio, id=solicitud_id)
-        texto = request.POST.get('mensaje')
+        texto = request.POST.get('mensaje', '').strip()
         vuelve_a = request.POST.get('vuelve_a')
+        
+        if texto and len(texto) > 1000:
+            texto = texto[:1000]
         
         # Validación de seguridad: el usuario debe ser de la misma organización, el autor, o admin
         if ((solicitud.organizacion and solicitud.organizacion == getattr(request.user, 'organization', None)) or solicitud.usuario == request.user or request.user.is_staff) and texto:
@@ -122,7 +125,11 @@ def panel_organizacion_mercado(request, pedido_id=None):
 def enviar_mensaje_mercado(request, pedido_id):
     if request.method == 'POST':
         pedido = get_object_or_404(PedidoMercado, id=pedido_id)
-        texto = request.POST.get('mensaje')
+        texto = request.POST.get('mensaje', '').strip()
+        
+        if texto and len(texto) > 1000:
+            texto = texto[:1000]
+            
         from .models import MensajePedidoMercado
         # Validación: comprador, organización o admin
         if ((pedido.organizacion == getattr(request.user, 'organization', None)) or pedido.usuario == request.user or request.user.is_staff) and texto:

@@ -19,7 +19,7 @@ def register_view(request):
             # 2. Sacamos los datos limpios del formulario
             id_form = form.cleaned_data.get('id_code')
             tel_form = form.cleaned_data.get('telefono')
-            cod_org = form.cleaned_data.get('codigo_empresa')
+            cod_org = form.cleaned_data.get('codigo_empresa', '').strip() if form.cleaned_data.get('codigo_empresa') else None
 
             # 3. Asignamos el ID Code al User
             user.id_code = id_form
@@ -65,7 +65,7 @@ def editar_perfil_view(request):
         form = EditarPerfilForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             # Lógica del Código de Empresa
-            nuevo_codigo = form.cleaned_data.get('codigo_grupo')
+            nuevo_codigo = form.cleaned_data.get('codigo_grupo', '').strip() if form.cleaned_data.get('codigo_grupo') else None
             if nuevo_codigo:
                 try:
                     org = Organization.objects.get(codigo_grupo=nuevo_codigo)
