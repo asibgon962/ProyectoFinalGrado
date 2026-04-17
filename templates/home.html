@@ -34,8 +34,8 @@
             <div class="card bg-dark text-gold h-100">
                 <img src="{{ plato.imagen.url }}" class="card-img-top" alt="{{ plato.nombre }}">
                 <div class="card-body text-center">
-                    <h5 class="card-title">{{ plato.nombre }}</h5>
-                    <p style="color: #d4af37 !important; font-weight: 900 !important; font-size: 1.5rem !important; text-shadow: 1px 1px 3px black;">{{ plato.precio_venta|floatformat:2 }} €</p>
+                    <h3 class="card-title h5">{{ plato.nombre }}</h3>
+                    <div style="color: #d4af37 !important; font-weight: 900 !important; font-size: 1.5rem !important; text-shadow: 1px 1px 3px black;">{{ plato.precio_venta|floatformat:2 }} €</div>
                 </div>
             </div>
         </div>
