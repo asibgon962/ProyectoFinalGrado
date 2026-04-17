@@ -77,6 +77,7 @@ urlpatterns = [
     path('mercado-negro/carrito/', ver_carrito, name='ver_carrito'),
     path('mercado-negro/vaciar-carrito/', vaciar_carrito, name='vaciar_carrito'),
     path('mercado-negro/procesar/', procesar_compra, name='procesar_compra'),
+    path('ping/', lambda r: HttpResponse("pong", content_type="text/plain"), name='ping'),
 ]
 
 if settings.DEBUG:
