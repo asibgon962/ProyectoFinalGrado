@@ -17,9 +17,8 @@ def menu_view(request):
     # 1. Traemos todas las categorías ordenadas según el campo 'orden' que definiste
     categorias = Categoria.objects.all().order_by('orden')
     
-    # 2. Traemos solo los platos que están marcados como disponibles
-    # Usamos prefetch_related para optimizar la carga de imágenes y categorías en una sola consulta
-    platos = Plato.objects.filter(disponible=True).select_related('categoria')
+    # 2. Traemos solo los platos que están marcados como disponibles y los ordenamos por el orden de la categoría
+    platos = Plato.objects.filter(disponible=True).select_related('categoria').order_by('categoria__orden', 'id')
 
     # 3. Banners activos del menú, accesibles desde el template por categoria_id
     banners_menu = BannerNormal.objects.filter(activo=True).select_related('categoria')
