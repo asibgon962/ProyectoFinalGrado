@@ -57,7 +57,31 @@
 
     {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
+    {# Farolillos Decorativos Laterales #}
+    <div class="lantern-layer" aria-hidden="true">
+        <!-- Izquierda -->
+        <div class="lantern lantern-left lantern-1" data-speed="0.2">
+            <img src="{% static 'images/farolillo.png' %}" alt="">
+        </div>
+        <div class="lantern lantern-left lantern-2" data-speed="0.5">
+            <img src="{% static 'images/farolillo.png' %}" alt="">
+        </div>
+        <div class="lantern lantern-left lantern-3" data-speed="0.3">
+            <img src="{% static 'images/farolillo.png' %}" alt="">
+        </div>
+
+        <!-- Derecha -->
+        <div class="lantern lantern-right lantern-1" data-speed="0.25">
+            <img src="{% static 'images/farolillo.png' %}" alt="">
+        </div>
+        <div class="lantern lantern-right lantern-2" data-speed="0.45">
+            <img src="{% static 'images/farolillo.png' %}" alt="">
+        </div>
+        <div class="lantern lantern-right lantern-3" data-speed="0.35">
+            <img src="{% static 'images/farolillo.png' %}" alt="">
+        </div>
+    </div>
 
     <nav class="navbar navbar-expand-lg navbar-lux sticky-top">
         <div class="container-fluid px-lg-5">
@@ -221,6 +245,20 @@
                     });
                 }, 10000);
             }
+        });
+
+        // --- EFECTO PARALLAX PARA FAROLILLOS ---
+        window.addEventListener('scroll', function() {
+            const lanterns = document.querySelectorAll('.lantern');
+            const scrolled = window.pageYOffset;
+            
+            lanterns.forEach(lantern => {
+                const speed = lantern.getAttribute('data-speed') || 0.2;
+                // Calculamos el desplazamiento vertical
+                const yPos = (scrolled * speed);
+                // Aplicamos la transformación (manteniendo el posible balanceo de CSS)
+                lantern.style.transform = `translateY(${yPos}px)`;
+            });
         });
     </script>
 </body>
