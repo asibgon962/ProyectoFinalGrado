@@ -221,12 +221,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 if os.environ.get('CLOUDINARY_URL'):
-    import urllib.parse as _urlparse
-    _cld_name = _urlparse.urlparse(os.environ['CLOUDINARY_URL']).hostname
-    # Apuntar MEDIA_URL a Cloudinary directamente
-    MEDIA_URL = f'https://res.cloudinary.com/{_cld_name}/image/upload/media/'
-    
-    # Configurar el almacenamiento para que use Cloudinary
+    # Al usar cloudinary-storage, no hace falta forzar MEDIA_URL de forma manual.
+    # El backend de almacenamiento ya se encarga de generar la URL completa.
     STORAGES["default"] = {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     }
