@@ -253,16 +253,26 @@
             }
         });
 
-        // --- EFECTO PARALLAX PARA FAROLILLOS ---
+        // --- EFECTO PARALLAX 3D PARA FAROLILLOS ---
         window.addEventListener('scroll', function() {
             const lanterns = document.querySelectorAll('.lantern');
             const scrolled = window.pageYOffset;
+            const viewportHeight = window.innerHeight;
             
             lanterns.forEach(lantern => {
-                const speed = lantern.getAttribute('data-speed') || 0.2;
-                // Calculamos el desplazamiento vertical
-                const yPos = (scrolled * speed);
-                // Aplicamos la transformación (manteniendo el posible balanceo de CSS)
+                const speedAttr = lantern.getAttribute('data-speed');
+                let speed = 0.1; // Default
+                
+                // Asignar velocidades según la clase de tamaño/profundidad
+                if (lantern.classList.contains('lantern-1')) speed = 0.25; // Primer plano (rápido)
+                if (lantern.classList.contains('lantern-2')) speed = 0.15; // Medio
+                if (lantern.classList.contains('lantern-3')) speed = 0.05; // Fondo (lento)
+                if (lantern.classList.contains('lantern-4')) speed = 0.12; // Medio-bajo
+                
+                // Calculamos el desplazamiento (hacia arriba para simular flotación)
+                const yPos = -(scrolled * speed);
+                
+                // Aplicamos la transformación
                 lantern.style.transform = `translateY(${yPos}px)`;
             });
         });
