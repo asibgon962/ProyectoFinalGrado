@@ -49,63 +49,100 @@
         {# ===== TAB: VER TODO ===== #}
         <div class="tab-pane fade show active" id="cat-all">
 
-            {# Banners generales (sin categoría) agrupados en un carrusel #}
-            {% with banners_all=banners_menu|dictsort:"orden" %}
+            {# Banners generales (sin categoría específica) #}
             {% if banners_menu %}
-            <div id="menuBannerAll" class="carousel slide banner-carousel mb-4" data-bs-ride="carousel" data-bs-interval="5000">
-                <div class="carousel-inner">
-                    {% for banner in banners_menu %}
-                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                        {% if banner.enlace %}<a href="{{ banner.enlace }}" class="banner-link d-block" target="_blank" rel="noopener">{% endif %}
-                        <div class="banner-card position-relative overflow-hidden rounded-3">
-                            {% if banner.imagen %}<img src="{{ banner.imagen.url }}" alt="{{ banner.titulo }}" class="banner-img w-100">{% endif %}
-                            {% if banner.titulo or banner.subtitulo %}
-                            <div class="banner-overlay d-flex flex-column justify-content-center">
-                                {% if banner.titulo %}<h3 class="banner-titulo">{{ banner.titulo }}</h3>{% endif %}
-                                {% if banner.subtitulo %}<p class="banner-subtitulo">{{ banner.subtitulo }}</p>{% endif %}
-                                {% if banner.categoria %}<span class="banner-cat-badge">{{ banner.categoria.nombre }}</span>{% endif %}
+            {% with has_general=False %}
+                {% for b in banners_menu %}{% if not b.categoria %}{% with has_general=True %}{% endwith %}{% endif %}{% endfor %}
+                
+                <div id="menuBannerAll" class="carousel slide banner-carousel mb-5" data-bs-ride="carousel" data-bs-interval="5000">
+                    <div class="carousel-inner">
+                        {% for banner in banners_menu %}
+                            {% if not banner.categoria %}
+                            <div class="carousel-item {% if forloop.first or not has_general %}active{% endif %}">
+                                {% if banner.enlace %}<a href="{{ banner.enlace }}" class="banner-link d-block" target="_blank" rel="noopener">{% endif %}
+                                <div class="banner-card position-relative overflow-hidden rounded-3">
+                                    {% if banner.imagen %}<img src="{{ banner.imagen.url }}" alt="{{ banner.titulo }}" class="banner-img w-100">{% endif %}
+                                    {% if banner.titulo or banner.subtitulo %}
+                                    <div class="banner-overlay d-flex flex-column justify-content-center">
+                                        {% if banner.titulo %}<h3 class="banner-titulo">{{ banner.titulo }}</h3>{% endif %}
+                                        {% if banner.subtitulo %}<p class="banner-subtitulo">{{ banner.subtitulo }}</p>{% endif %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% if banner.enlace %}</a>{% endif %}
                             </div>
                             {% endif %}
-                        </div>
-                        {% if banner.enlace %}</a>{% endif %}
+                        {% endfor %}
                     </div>
-                    {% endfor %}
+                    {% if banners_menu|length > 1 %}
+                    <button class="carousel-control-prev" type="button" data-bs-target="#menuBannerAll" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#menuBannerAll" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
+                    {% endif %}
                 </div>
-                {% if banners_menu|length > 1 %}
-                <button class="carousel-control-prev" type="button" data-bs-target="#menuBannerAll" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
-                <button class="carousel-control-next" type="button" data-bs-target="#menuBannerAll" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
-                {% endif %}
-            </div>
-            {% endif %}
             {% endwith %}
+            {% endif %}
 
-            <div class="row g-4">
-                {% for plato in platos %}
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card plato-card">
-                            <div class="plato-img-container position-relative">
-                                {% if plato.imagen %}
-                                    <img src="{{ plato.imagen.url }}" class="plato-img" alt="{{ plato.nombre }}">
-                                {% else %}
-                                    <div class="bg-dark h-100 d-flex align-items-center justify-content-center">
-                                        <i class="bi bi-egg-fried text-secondary fs-1"></i>
-                                    </div>
-                                {% endif %}
-                                {% if plato.es_destacado %}
-                                    <span class="position-absolute top-0 end-0 m-3 badge badge-destacado px-3 py-2 rounded-pill">DESTACADO</span>
-                                {% endif %}
-                            </div>
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h4 class="text-gold mb-0 fs-5">{{ plato.nombre }}</h4>
-                                    <span class="precio-tag">{{ plato.precio_venta }}€</span>
+            {# Agrupamiento por categorías con sus respectivos banners y productos #}
+            {% for categoria in categorias %}
+                {% if categoria.platos.all %}
+                <div class="category-block mb-5">
+                    
+                    {# Banner específico de esta categoría (si existe) #}
+                    {% for banner in banners_menu %}
+                        {% if banner.categoria_id == categoria.id %}
+                        <div class="mb-4">
+                            {% if banner.enlace %}<a href="{{ banner.enlace }}" class="banner-link d-block" target="_blank" rel="noopener">{% endif %}
+                            <div class="banner-card position-relative overflow-hidden rounded-3">
+                                {% if banner.imagen %}<img src="{{ banner.imagen.url }}" alt="{{ banner.titulo }}" class="banner-img w-100">{% endif %}
+                                {% if banner.titulo or banner.subtitulo %}
+                                <div class="banner-overlay d-flex flex-column justify-content-center">
+                                    {% if banner.titulo %}<h3 class="banner-titulo">{{ banner.titulo }}</h3>{% endif %}
+                                    {% if banner.subtitulo %}<p class="banner-subtitulo">{{ banner.subtitulo }}</p>{% endif %}
                                 </div>
-                                <p class="text-secondary small mb-0">{{ plato.descripcion }}</p>
+                                {% endif %}
                             </div>
+                            {% if banner.enlace %}</a>{% endif %}
                         </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    <div class="category-header mb-4">
+                        <h2 class="text-gold h3 text-uppercase mb-2">{{ categoria.nombre }}</h2>
+                        <div class="category-divider"></div>
                     </div>
-                {% endfor %}
-            </div>
+                    
+                    <div class="row g-4">
+                        {% for plato in categoria.platos.all %}
+                            {% if plato.disponible %}
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card plato-card">
+                                    <div class="plato-img-container position-relative">
+                                        {% if plato.imagen %}
+                                            <img src="{{ plato.imagen.url }}" class="plato-img" alt="{{ plato.nombre }}">
+                                        {% else %}
+                                            <div class="bg-dark h-100 d-flex align-items-center justify-content-center">
+                                                <i class="bi bi-egg-fried text-secondary fs-1"></i>
+                                            </div>
+                                        {% endif %}
+                                        {% if plato.es_destacado %}
+                                            <span class="position-absolute top-0 end-0 m-3 badge badge-destacado px-3 py-2 rounded-pill">DESTACADO</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h4 class="text-gold mb-0 fs-5">{{ plato.nombre }}</h4>
+                                            <span class="precio-tag">{{ plato.precio_venta }}€</span>
+                                        </div>
+                                        <p class="text-secondary small mb-0">{{ plato.descripcion }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
         </div>
 
         {# ===== TABS POR CATEGORÍA ===== #}
