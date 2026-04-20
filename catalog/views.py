@@ -1,9 +1,14 @@
 from django.shortcuts import render
-from .models import Plato, Categoria
+from .models import Plato, Categoria, BannerNormal, BannerMercadoNegro
 
 def home_view(request):
     platos_destacados = Plato.objects.filter(es_destacado=True, disponible=True)
-    return render(request, 'home.html', {'platos': platos_destacados})
+    # Banners generales (sin categoría) + todos los activos para el home
+    banners_home = BannerNormal.objects.filter(activo=True)
+    return render(request, 'home.html', {
+        'platos': platos_destacados,
+        'banners_home': banners_home,
+    })
 
 def restaurante_view(request):
     return render(request, 'restaurante.html')
@@ -15,11 +20,15 @@ def menu_view(request):
     # 2. Traemos solo los platos que están marcados como disponibles
     # Usamos prefetch_related para optimizar la carga de imágenes y categorías en una sola consulta
     platos = Plato.objects.filter(disponible=True).select_related('categoria')
+
+    # 3. Banners activos del menú, accesibles desde el template por categoria_id
+    banners_menu = BannerNormal.objects.filter(activo=True).select_related('categoria')
     
-    # 3. Enviamos los datos al template
+    # 4. Enviamos los datos al template
     context = {
         'categorias': categorias,
         'platos': platos,
+        'banners_menu': banners_menu,
     }
     
     return render(request, 'menu.html', context)
@@ -36,7 +45,12 @@ def mercado_negro_view(request):
     if getattr(request.user, 'organization', None) and request.user.organization.es_ilegal:
         categorias = CategoriaProducto.objects.all().order_by('orden')
         productos = Producto.objects.filter(disponible=True).select_related('categoria')
-        return render(request, 'mercado_negro.html', {'categorias': categorias, 'productos': productos})
+        banners_mercado = BannerMercadoNegro.objects.filter(activo=True).select_related('categoria')
+        return render(request, 'mercado_negro.html', {
+            'categorias': categorias,
+            'productos': productos,
+            'banners_mercado': banners_mercado,
+        })
     messages.error(request, "Acceso Denegado. Solo organizaciones autorizadas pueden acceder al Mercado Negro.")
     return redirect('/')
 

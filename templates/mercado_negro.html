@@ -5,8 +5,57 @@
     <h1 class="display-5 text-danger mb-4 fw-bold"><i class="bi bi-incognito"></i> Mercado Negro</h1>
     <p class="text-white-50 mb-5">Suministros exclusivos e indetectables. Todo pedido está sujeto a verificación.</p>
 
+    {# ===== BANNERS GENERALES (sin categoría) ===== #}
+    {% with banners_generales=banners_mercado %}
+    {% if banners_generales %}
+    <div id="mercadoBannerGeneral" class="carousel slide banner-carousel banner-mercado mb-5" data-bs-ride="carousel" data-bs-interval="5000">
+        <div class="carousel-inner">
+            {% for banner in banners_generales %}
+            {% if not banner.categoria %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                {% if banner.enlace %}<a href="{{ banner.enlace }}" class="banner-link d-block" target="_blank" rel="noopener">{% endif %}
+                <div class="banner-card position-relative overflow-hidden rounded-3">
+                    {% if banner.imagen %}<img src="{{ banner.imagen.url }}" alt="{{ banner.titulo }}" class="banner-img w-100">{% endif %}
+                    {% if banner.titulo or banner.subtitulo %}
+                    <div class="banner-overlay-mercado d-flex flex-column justify-content-center">
+                        {% if banner.titulo %}<h2 class="banner-titulo-mercado">{{ banner.titulo }}</h2>{% endif %}
+                        {% if banner.subtitulo %}<p class="banner-subtitulo-mercado">{{ banner.subtitulo }}</p>{% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% if banner.enlace %}</a>{% endif %}
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#mercadoBannerGeneral" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+        <button class="carousel-control-next" type="button" data-bs-target="#mercadoBannerGeneral" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
+    </div>
+    {% endif %}
+    {% endwith %}
+
     {% for categoria in categorias %}
     <div class="mb-5">
+
+        {# Banner específico de esta categoría del mercado negro #}
+        {% for banner in banners_mercado %}
+        {% if banner.categoria_id == categoria.id %}
+        <div class="mb-3">
+            {% if banner.enlace %}<a href="{{ banner.enlace }}" class="banner-link d-block" target="_blank" rel="noopener">{% endif %}
+            <div class="banner-card position-relative overflow-hidden rounded-3">
+                {% if banner.imagen %}<img src="{{ banner.imagen.url }}" alt="{{ banner.titulo }}" class="banner-img w-100">{% endif %}
+                {% if banner.titulo or banner.subtitulo %}
+                <div class="banner-overlay-mercado d-flex flex-column justify-content-center">
+                    {% if banner.titulo %}<h3 class="banner-titulo-mercado">{{ banner.titulo }}</h3>{% endif %}
+                    {% if banner.subtitulo %}<p class="banner-subtitulo-mercado">{{ banner.subtitulo }}</p>{% endif %}
+                </div>
+                {% endif %}
+            </div>
+            {% if banner.enlace %}</a>{% endif %}
+        </div>
+        {% endif %}
+        {% endfor %}
+
         <h3 class="text-gold border-bottom border-danger pb-2 mb-4">{{ categoria.nombre }}</h3>
         <div class="row row-cols-1 row-cols-md-3 g-4">
             {% for producto in productos %}

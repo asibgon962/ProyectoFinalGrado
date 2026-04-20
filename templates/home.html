@@ -26,6 +26,53 @@
     </div>
 </section>
 
+{% if banners_home %}
+<section class="banner-promo-section mb-5" aria-label="Banners promocionales">
+    <div id="homeBannerCarousel" class="carousel slide banner-carousel" data-bs-ride="carousel" data-bs-interval="5000">
+        <div class="carousel-inner">
+            {% for banner in banners_home %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                {% if banner.enlace %}
+                <a href="{{ banner.enlace }}" class="d-block banner-link" target="_blank" rel="noopener">
+                {% endif %}
+                    <div class="banner-card position-relative overflow-hidden rounded-3">
+                        {% if banner.imagen %}
+                        <img src="{{ banner.imagen.url }}" alt="{{ banner.titulo }}" class="banner-img w-100">
+                        {% endif %}
+                        {% if banner.titulo or banner.subtitulo %}
+                        <div class="banner-overlay d-flex flex-column justify-content-center">
+                            {% if banner.titulo %}<h2 class="banner-titulo">{{ banner.titulo }}</h2>{% endif %}
+                            {% if banner.subtitulo %}<p class="banner-subtitulo">{{ banner.subtitulo }}</p>{% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                {% if banner.enlace %}
+                </a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% if banners_home|length > 1 %}
+        <button class="carousel-control-prev" type="button" data-bs-target="#homeBannerCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Anterior</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#homeBannerCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Siguiente</span>
+        </button>
+        <div class="carousel-indicators">
+            {% for banner in banners_home %}
+            <button type="button" data-bs-target="#homeBannerCarousel" data-bs-slide-to="{{ forloop.counter0 }}"
+                {% if forloop.first %}class="active" aria-current="true"{% endif %}
+                aria-label="Banner {{ forloop.counter }}"></button>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+
 <section class="py-5 mb-5">
     <h2 class="text-center text-gold mb-4">Productos Destacados</h2>
     <div class="row g-4">

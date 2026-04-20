@@ -1,6 +1,10 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Categoria, Ingrediente, Plato, PlatoIngrediente, Producto, ProductoIngrediente, CategoriaProducto
+from .models import (
+    Categoria, Ingrediente, Plato, PlatoIngrediente,
+    Producto, ProductoIngrediente, CategoriaProducto,
+    BannerNormal, BannerMercadoNegro
+)
 
 # Esto permite añadir ingredientes dentro de la ficha del plato
 class RecetaInline(admin.TabularInline):
@@ -64,3 +68,37 @@ class ProductoAdmin(admin.ModelAdmin):
         color = "green" if beneficio > 0 else "red"
         return format_html('<b style="color: {};">{} €</b>', color, beneficio)
     get_beneficio.short_description = 'Margen Bruto'
+
+
+@admin.register(BannerNormal)
+class BannerNormalAdmin(admin.ModelAdmin):
+    list_display = ('titulo', 'categoria', 'activo', 'orden', 'preview_imagen')
+    list_editable = ('activo', 'orden')
+    list_filter = ('activo', 'categoria')
+    search_fields = ('titulo', 'subtitulo')
+
+    def preview_imagen(self, obj):
+        if obj.imagen:
+            return format_html(
+                '<img src="{}" style="height:50px;border-radius:4px;object-fit:cover;">',
+                obj.imagen.url
+            )
+        return "—"
+    preview_imagen.short_description = "Vista Previa"
+
+
+@admin.register(BannerMercadoNegro)
+class BannerMercadoNegroAdmin(admin.ModelAdmin):
+    list_display = ('titulo', 'categoria', 'activo', 'orden', 'preview_imagen')
+    list_editable = ('activo', 'orden')
+    list_filter = ('activo', 'categoria')
+    search_fields = ('titulo', 'subtitulo')
+
+    def preview_imagen(self, obj):
+        if obj.imagen:
+            return format_html(
+                '<img src="{}" style="height:50px;border-radius:4px;object-fit:cover;">',
+                obj.imagen.url
+            )
+        return "—"
+    preview_imagen.short_description = "Vista Previa"

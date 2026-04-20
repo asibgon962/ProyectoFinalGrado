@@ -45,7 +45,40 @@
     </ul>
 
     <div class="tab-content container">
+
+        {# ===== TAB: VER TODO ===== #}
         <div class="tab-pane fade show active" id="cat-all">
+
+            {# Banners generales (sin categoría) agrupados en un carrusel #}
+            {% with banners_all=banners_menu|dictsort:"orden" %}
+            {% if banners_menu %}
+            <div id="menuBannerAll" class="carousel slide banner-carousel mb-4" data-bs-ride="carousel" data-bs-interval="5000">
+                <div class="carousel-inner">
+                    {% for banner in banners_menu %}
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                        {% if banner.enlace %}<a href="{{ banner.enlace }}" class="banner-link d-block" target="_blank" rel="noopener">{% endif %}
+                        <div class="banner-card position-relative overflow-hidden rounded-3">
+                            {% if banner.imagen %}<img src="{{ banner.imagen.url }}" alt="{{ banner.titulo }}" class="banner-img w-100">{% endif %}
+                            {% if banner.titulo or banner.subtitulo %}
+                            <div class="banner-overlay d-flex flex-column justify-content-center">
+                                {% if banner.titulo %}<h3 class="banner-titulo">{{ banner.titulo }}</h3>{% endif %}
+                                {% if banner.subtitulo %}<p class="banner-subtitulo">{{ banner.subtitulo }}</p>{% endif %}
+                                {% if banner.categoria %}<span class="banner-cat-badge">{{ banner.categoria.nombre }}</span>{% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% if banner.enlace %}</a>{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if banners_menu|length > 1 %}
+                <button class="carousel-control-prev" type="button" data-bs-target="#menuBannerAll" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+                <button class="carousel-control-next" type="button" data-bs-target="#menuBannerAll" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
+                {% endif %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
             <div class="row g-4">
                 {% for plato in platos %}
                     <div class="col-md-6 col-lg-4">
@@ -75,8 +108,29 @@
             </div>
         </div>
 
+        {# ===== TABS POR CATEGORÍA ===== #}
         {% for categoria in categorias %}
         <div class="tab-pane fade" id="cat-{{ categoria.id }}">
+
+            {# Banner específico de esta categoría #}
+            {% for banner in banners_menu %}
+                {% if banner.categoria_id == categoria.id %}
+                <div class="mb-4">
+                    {% if banner.enlace %}<a href="{{ banner.enlace }}" class="banner-link d-block" target="_blank" rel="noopener">{% endif %}
+                    <div class="banner-card position-relative overflow-hidden rounded-3">
+                        {% if banner.imagen %}<img src="{{ banner.imagen.url }}" alt="{{ banner.titulo }}" class="banner-img w-100">{% endif %}
+                        {% if banner.titulo or banner.subtitulo %}
+                        <div class="banner-overlay d-flex flex-column justify-content-center">
+                            {% if banner.titulo %}<h3 class="banner-titulo">{{ banner.titulo }}</h3>{% endif %}
+                            {% if banner.subtitulo %}<p class="banner-subtitulo">{{ banner.subtitulo }}</p>{% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% if banner.enlace %}</a>{% endif %}
+                </div>
+                {% endif %}
+            {% endfor %}
+
             <div class="row g-4">
                 {% for plato in categoria.platos.all %}
                     {% if plato.disponible %}

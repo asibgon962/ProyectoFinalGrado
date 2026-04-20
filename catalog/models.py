@@ -110,3 +110,57 @@ class ProductoIngrediente(models.Model):
 
     def __str__(self):
         return f"{self.cantidad} de {self.ingrediente.nombre} para {self.producto.nombre}"
+
+
+class BannerNormal(models.Model):
+    """Banner visible en Home y en el Menú, filtrable por categoría de plato."""
+    titulo = models.CharField(max_length=200, blank=True)
+    subtitulo = models.CharField(max_length=300, blank=True)
+    imagen = models.ImageField(upload_to='banners/', blank=True, null=True)
+    categoria = models.ForeignKey(
+        Categoria,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text="Si se deja vacío, aparece en 'Ver Todo' y en Home.",
+        related_name='banners'
+    )
+    enlace = models.URLField(blank=True, help_text="URL opcional al hacer clic en el banner")
+    activo = models.BooleanField(default=True)
+    orden = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name = "Banner Normal"
+        verbose_name_plural = "Banners Normales"
+        ordering = ['orden']
+
+    def __str__(self):
+        cat = self.categoria.nombre if self.categoria else "General (Home & Todo)"
+        return f"[{cat}] {self.titulo or 'Sin título'}"
+
+
+class BannerMercadoNegro(models.Model):
+    """Banner visible en la página del Mercado Negro, filtrable por categoría de producto."""
+    titulo = models.CharField(max_length=200, blank=True)
+    subtitulo = models.CharField(max_length=300, blank=True)
+    imagen = models.ImageField(upload_to='banners_mercado/', blank=True, null=True)
+    categoria = models.ForeignKey(
+        CategoriaProducto,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text="Si se deja vacío, aparece al inicio de la página (sobre todas las categorías).",
+        related_name='banners'
+    )
+    enlace = models.URLField(blank=True, help_text="URL opcional al hacer clic en el banner")
+    activo = models.BooleanField(default=True)
+    orden = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name = "Banner Mercado Negro"
+        verbose_name_plural = "Banners Mercado Negro"
+        ordering = ['orden']
+
+    def __str__(self):
+        cat = self.categoria.nombre if self.categoria else "General (Portada)"
+        return f"[{cat}] {self.titulo or 'Sin título'}"
