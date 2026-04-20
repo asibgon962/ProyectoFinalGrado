@@ -225,6 +225,11 @@ if os.environ.get('CLOUDINARY_URL'):
     _cld_name = _urlparse.urlparse(os.environ['CLOUDINARY_URL']).hostname
     # Apuntar MEDIA_URL a Cloudinary directamente
     MEDIA_URL = f'https://res.cloudinary.com/{_cld_name}/image/upload/media/'
+    
+    # Configurar el almacenamiento para que use Cloudinary
+    STORAGES["default"] = {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    }
 
 # Email configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
