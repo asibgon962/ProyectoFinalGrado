@@ -20,8 +20,8 @@ def menu_view(request):
     # 2. Traemos solo los platos que están marcados como disponibles y los ordenamos por el orden de la categoría
     platos = Plato.objects.filter(disponible=True).select_related('categoria').order_by('categoria__orden', 'id')
 
-    # 3. Banners activos del menú, accesibles desde el template por categoria_id
-    banners_menu = BannerNormal.objects.filter(activo=True).select_related('categoria')
+    # 3. Banners activos del menú, excluyendo los marcados solo para home
+    banners_menu = BannerNormal.objects.filter(activo=True, solo_en_home=False).select_related('categoria')
     
     # 4. Enviamos los datos al template
     context = {

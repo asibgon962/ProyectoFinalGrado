@@ -125,6 +125,11 @@ class BannerNormal(models.Model):
         help_text="Si se deja vacío, aparece en 'Ver Todo' y en Home.",
         related_name='banners'
     )
+    solo_en_home = models.BooleanField(
+        default=False, 
+        verbose_name="Solo en Home", 
+        help_text="Si se marca, el banner solo aparecerá en la página principal y no en el menú general."
+    )
     enlace = models.URLField(blank=True, help_text="URL opcional al hacer clic en el banner")
     activo = models.BooleanField(default=True)
     orden = models.PositiveIntegerField(default=0)
