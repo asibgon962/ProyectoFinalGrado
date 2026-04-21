@@ -1,0 +1,101 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{% block extrajs %}
+    {{ block.super }}
+    {% if request.user.is_authenticated and request.user.is_staff %}
+        <style>
+            /* Estilo para que la campana quede bien alineada con el badge */
+            .navbar-badge {
+                font-size: .6rem;
+                font-weight: 300;
+                padding: 2px 4px;
+                position: absolute;
+                right: 5px;
+                top: 9px;
+            }
+            .notification-item {
+                white-space: normal;
+                word-wrap: break-word;
+            }
+            .notification-dropdown {
+                width: 300px;
+                max-height: 400px;
+                overflow-y: auto;
+            }
+        </style>
+
+        <template id="admin-notifications-template">
+            <li class="nav-item dropdown">
+                <a class="nav-link" data-toggle="dropdown" href="#" title="Notificaciones" aria-expanded="false">
+                    <i class="far fa-bell" style="font-size: 1.2em;"></i>
+                    {% if admin_notifications_count > 0 %}
+                        <span class="badge badge-danger navbar-badge">{{ admin_notifications_count }}</span>
+                    {% endif %}
+                </a>
+                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right notification-dropdown">
+                    <span class="dropdown-item dropdown-header">{{ admin_notifications_count|default:0 }} Notificaciones Nuevas</span>
+                    
+                    {% if admin_mensajes_contacto %}
+                        <div class="dropdown-divider"></div>
+                        <span class="dropdown-item dropdown-header bg-light"><strong>Mensajes de Contacto</strong></span>
+                        {% for msg in admin_mensajes_contacto %}
+                            <div class="dropdown-divider"></div>
+                            <a href="/admin/users/mensajecontacto/{{ msg.id }}/change/" class="dropdown-item notification-item">
+                                <i class="fas fa-envelope mr-2 text-info"></i> {{ msg.asunto|truncatechars:30 }}
+                                <br><small class="text-muted"><i class="far fa-clock mr-1"></i>{{ msg.fecha_envio|timesince }}</small>
+                            </a>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if admin_solicitudes %}
+                        <div class="dropdown-divider"></div>
+                        <span class="dropdown-item dropdown-header bg-light"><strong>Servicios (Eventos/Transporte)</strong></span>
+                        {% for sol in admin_solicitudes %}
+                            <div class="dropdown-divider"></div>
+                            <a href="/admin/orders/solicitudservicio/{{ sol.id }}/change/" class="dropdown-item notification-item">
+                                <i class="fas fa-concierge-bell mr-2 text-warning"></i> {{ sol.nombre_entidad|truncatechars:30 }}
+                                <br><small class="text-muted">Estado: {{ sol.get_estado_display }}</small>
+                            </a>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if admin_pedidos %}
+                        <div class="dropdown-divider"></div>
+                        <span class="dropdown-item dropdown-header bg-light"><strong>Pedidos de Mercado</strong></span>
+                        {% for ped in admin_pedidos %}
+                            <div class="dropdown-divider"></div>
+                            <a href="/admin/orders/pedidomercado/{{ ped.id }}/change/" class="dropdown-item notification-item">
+                                <i class="fas fa-shopping-cart mr-2 text-success"></i> Pedido #{{ ped.id }} ({{ ped.organizacion.nombre }})
+                                <br><small class="text-muted"><i class="far fa-clock mr-1"></i>{{ ped.fecha_pedido|timesince }}</small>
+                            </a>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if admin_notifications_count == 0 %}
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item text-center text-muted"><small>No hay notificaciones nuevas</small></a>
+                    {% endif %}
+                    
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item dropdown-footer text-center" onclick="$('.dropdown-menu').removeClass('show');">Cerrar</a>
+                </div>
+            </li>
+        </template>
+
+        <script>
+            $(document).ready(function() {
+                // Obtenemos el HTML renderizado de forma segura usando un <template> tag.
+                var notificationsHtml = $('#admin-notifications-template').html();
+                var userMenuLi = $('#jazzy-usermenu').parent();
+                
+                if(userMenuLi.length) {
+                    userMenuLi.before(notificationsHtml);
+                } else {
+                    // Fallback
+                    $('.navbar-nav.ml-auto').prepend(notificationsHtml);
+                }
+            });
+        </script>
+    {% endif %}
+{% endblock %}
