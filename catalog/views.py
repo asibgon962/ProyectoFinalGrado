@@ -165,9 +165,33 @@ def procesar_compra(request):
             
         pedido.total = total_pedido
         pedido.save()
-        
+
+        # --- Notificación Discord (aquí tenemos total e items correctos) ---
+        try:
+            from orders.utils import send_discord_notification
+            items_reales = pedido.items.select_related('producto').all()
+            lineas_items = "\n".join(
+                f"• {item.cantidad}x {item.producto.nombre if item.producto else '?'} — {item.precio_unitario} €"
+                for item in items_reales
+            )
+            title = f"📦 Nuevo Pedido Mercado Negro #{pedido.id}"
+            description = (
+                f"Se ha registrado una nueva venta para **{pedido.organizacion.nombre}**.\n\n"
+                f"**Productos solicitados:**\n{lineas_items or 'Sin detalle'}"
+            )
+            fields = [
+                {"name": "Solicitante", "value": pedido.usuario.username, "inline": True},
+                {"name": "Total Transacción", "value": f"{pedido.total} €", "inline": True},
+                {"name": "Estado", "value": pedido.get_estado_display(), "inline": True},
+            ]
+            admin_url = f"https://koienterprise.onrender.com/admin/orders/pedidomercado/{pedido.id}/change/"
+            send_discord_notification('mn', title, description, fields, url=admin_url)
+        except Exception:
+            pass  # Nunca bloquear la compra por un fallo de Discord
+        # ------------------------------------------------------------------
+
         request.session['cart'] = {}
         messages.success(request, "Pago procesado y pedido enviado a la red con éxito.")
         return redirect('mi_organizacion')
-        
+
     return redirect('ver_carrito')

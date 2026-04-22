@@ -131,41 +131,45 @@ def notificar_nueva_solicitud(sender, instance, created, **kwargs):
     if created:
         from .utils import send_discord_notification
         title = f"🚨 Nueva Solicitud de Servicio #{instance.id}"
-        description = f"**{instance.usuario.username}** ha creado una nueva solicitud de servicio."
-        
-        # Formatear tipos de servicio (es un MultiSelectField)
+
+        # Formatear tipos de servicio (MultiSelectField)
         tipos = ", ".join([dict(SolicitudServicio.TIPO_CHOICES).get(t, t) for t in instance.tipo_servicio])
-        
+
+        # --- Platos solicitados (detalles_cantidades = {"Nombre": cantidad}) ---
+        platos_str = ""
+        if instance.detalles_cantidades:
+            lineas = [f"• {nombre}: {cant} uds." for nombre, cant in instance.detalles_cantidades.items()]
+            platos_str = "\n".join(lineas)
+
+        # --- Transporte VIP (detalles_transporte = {"Tipo": cantidad}) ---
+        transporte_str = ""
+        if instance.detalles_transporte:
+            lineas_t = [f"• {tipo}: {cant}" for tipo, cant in instance.detalles_transporte.items()]
+            transporte_str = "\n".join(lineas_t)
+
+        # Construir descripción enriquecida
+        description = f"**{instance.usuario.username}** ha creado una nueva solicitud de servicio."
+        if platos_str:
+            description += f"\n\n**🍽️ Platos solicitados:**\n{platos_str}"
+        if transporte_str:
+            description += f"\n\n**🚗 Transporte VIP:**\n{transporte_str}"
+
         fields = [
             {"name": "Entidad / Evento", "value": instance.nombre_entidad, "inline": True},
             {"name": "Tipo de Servicio", "value": tipos, "inline": True},
             {"name": "Fecha Entrega", "value": str(instance.fecha_entrega), "inline": True},
         ]
-        
+
         if instance.organizacion:
             fields.append({"name": "Organización", "value": instance.organizacion.nombre, "inline": True})
 
-        # Intentar construir link al admin (ajustar dominio según entorno)
-        admin_url = f"https://proyecto-final-grado-koi.onrender.com/admin/orders/solicitudservicio/{instance.id}/change/"
-        
+        admin_url = f"https://koienterprise.onrender.com/admin/orders/solicitudservicio/{instance.id}/change/"
+
         send_discord_notification('servicios', title, description, fields, url=admin_url)
 
 @receiver(post_save, sender=PedidoMercado)
 def notificar_nuevo_pedido_mn(sender, instance, created, **kwargs):
-    if created:
-        from .utils import send_discord_notification
-        title = f"📦 Nuevo Pedido Mercado Negro #{instance.id}"
-        description = f"Se ha registrado una nueva venta para **{instance.organizacion.nombre}**."
-        
-        fields = [
-            {"name": "Solicitante", "value": instance.usuario.username, "inline": True},
-            {"name": "Total Transacción", "value": f"{instance.total} €", "inline": True},
-            {"name": "Estado", "value": instance.get_estado_display(), "inline": True},
-        ]
-
-        admin_url = f"https://proyecto-final-grado-koi.onrender.com/admin/orders/pedidomercado/{instance.id}/change/"
-        
-        send_discord_notification('mn', title, description, fields, url=admin_url)
+    pass  # Notificación movida a catalog/views.py::procesar_compra para que incluya total e items correctos
 
 # --- SEÑALES PARA WEBSOCKETS ---
 
