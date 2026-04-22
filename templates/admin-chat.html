@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    .admin-chat-container {
+        display: flex;
+        height: 80vh;
+        background: rgba(10, 10, 10, 0.95);
+        border: 1px solid #d4af37;
+        border-radius: 15px;
+        overflow: hidden;
+        margin-top: 20px;
+    }
+
+    .chat-sidebar {
+        width: 300px;
+        border-right: 1px solid #d4af37;
+        background: rgba(20, 20, 20, 0.8);
+        overflow-y: auto;
+    }
+
+    .chat-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sidebar-header {
+        padding: 15px;
+        background: #d4af37;
+        color: black;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .chat-item {
+        padding: 15px;
+        border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        cursor: pointer;
+        transition: 0.3s;
+        color: #fff;
+        text-decoration: none;
+        display: block;
+    }
+
+    .chat-item:hover {
+        background: rgba(212, 175, 55, 0.1);
+    }
+
+    .chat-item.active {
+        background: rgba(212, 175, 55, 0.2);
+        border-right: 3px solid #d4af37;
+    }
+
+    .chat-messages {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .chat-input-area {
+        padding: 20px;
+        background: rgba(20, 20, 20, 0.9);
+        border-top: 1px solid #d4af37;
+    }
+
+    .bubble {
+        padding: 10px 15px;
+        border-radius: 15px;
+        max-width: 75%;
+        word-wrap: break-word;
+    }
+
+    .bubble-admin {
+        background: #d4af37;
+        color: black;
+        align-self: flex-end;
+        border-bottom-right-radius: 2px;
+    }
+
+    .bubble-user {
+        background: #333;
+        color: #d4af37;
+        align-self: flex-start;
+        border-bottom-left-radius: 2px;
+        border: 1px solid #d4af37;
+    }
+
+    .badge-solicitud { background-color: #007bff; }
+    .badge-mercado { background-color: #dc3545; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-gold"><i class="fas fa-headset me-2"></i>Centro de Control de Chat (Admin)</h2>
+        <a href="{% url 'admin:index' %}" class="btn btn-outline-gold btn-sm">Volver al Panel Admin</a>
+    </div>
+
+    <div class="admin-chat-container">
+        <!-- Sidebar -->
+        <div class="chat-sidebar">
+            <div class="sidebar-header">CHATS ACTIVOS</div>
+            
+            <div class="p-2 bg-dark text-white-50" style="font-size: 0.8rem;">Solicitudes de Servicio</div>
+            {% for s in solicitudes %}
+            <a href="{% url 'admin_chat_detail' 'solicitud' s.id %}" class="chat-item {% if chat_type == 'solicitud' and chat_activo.id == s.id %}active{% endif %}">
+                <div class="d-flex justify-content-between">
+                    <strong>#{{ s.id }} {{ s.nombre_entidad }}</strong>
+                    <span class="badge badge-solicitud">S</span>
+                </div>
+                <small class="text-white-50">{{ s.usuario.username }}</small>
+            </a>
+            {% endfor %}
+
+            <div class="p-2 bg-dark text-white-50 mt-2" style="font-size: 0.8rem;">Pedidos Mercado Negro</div>
+            {% for m in pedidos_mercado %}
+            <a href="{% url 'admin_chat_detail' 'mercado' m.id %}" class="chat-item {% if chat_type == 'mercado' and chat_activo.id == m.id %}active{% endif %}">
+                <div class="d-flex justify-content-between">
+                    <strong>#{{ m.id }} Transacción</strong>
+                    <span class="badge badge-mercado">MN</span>
+                </div>
+                <small class="text-white-50">{{ m.usuario.username }}</small>
+            </a>
+            {% endfor %}
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="chat-main">
+            {% if chat_activo %}
+                <div class="p-3 border-bottom border-gold d-flex justify-content-between align-items-center bg-black">
+                    <div>
+                        <h5 class="mb-0 text-gold text-uppercase">Chat con: {{ chat_activo.usuario.username }}</h5>
+                        <small class="text-white-50">Gestionando {{ chat_type }}: #{{ chat_activo.id }}</small>
+                    </div>
+                    <span class="badge {% if chat_type == 'solicitud' %}badge-solicitud{% else %}badge-mercado{% endif %} p-2">
+                        {{ chat_activo.get_estado_display }}
+                    </span>
+                </div>
+
+                <div class="chat-messages" id="chat-box">
+                    {% for msg in mensajes %}
+                        <div class="d-flex flex-column {% if msg.es_admin %}align-items-end{% else %}align-items-start{% endif %}">
+                            <small class="text-white-50 px-2 mb-1" style="font-size: 0.7rem;">
+                                {{ msg.usuario.username }} • {{ msg.fecha_envio|date:"H:i" }}
+                            </small>
+                            <div class="bubble {% if msg.es_admin %}bubble-admin{% else %}bubble-user{% endif %}">
+                                {{ msg.texto }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="chat-input-area">
+                    <form id="msg-form" class="d-flex gap-2">
+                        <input type="text" name="mensaje" class="form-control bg-dark text-white border-gold" placeholder="Escribe al cliente..." required autocomplete="off">
+                        <button type="submit" class="btn btn-gold">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            {% else %}
+                <div class="flex-grow-1 d-flex flex-column align-items-center justify-content-center text-white-50">
+                    <i class="fas fa-comments fa-4x mb-3" style="color: #d4af37; opacity: 0.3;"></i>
+                    <p>Selecciona un chat de la lista para empezar a conversar en tiempo real.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if chat_activo %}
+<script>
+    const chatBox = document.getElementById('chat-box');
+    const msgForm = document.getElementById('msg-form');
+    const currentUser = "{{ request.user.username }}";
+    
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    let wsStart = window.location.protocol === "https:" ? "wss://" : "ws://";
+    let endpoint = "";
+
+    {% if chat_type == 'solicitud' %}
+        endpoint = wsStart + window.location.host + "/ws/chat/organizacion/{{ chat_activo.id }}/";
+    {% else %}
+        endpoint = wsStart + window.location.host + "/ws/chat/mercado/{{ chat_activo.id }}/";
+    {% endif %}
+
+    const socket = new WebSocket(endpoint);
+
+    socket.onopen = function() {
+        console.log("Admin conectado al chat en tiempo real.");
+    };
+
+    socket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        const isMe = data.username === currentUser;
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `d-flex flex-column ${isMe ? 'align-items-end' : 'align-items-start'}`;
+        
+        messageDiv.innerHTML = `
+            <small class="text-white-50 px-2 mb-1" style="font-size: 0.7rem;">
+                ${data.username} • ${data.fecha_envio}
+            </small>
+            <div class="bubble ${isMe ? 'bubble-admin' : 'bubble-user'}">
+                ${data.message}
+            </div>
+        `;
+        
+        chatBox.appendChild(messageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    };
+
+    socket.onclose = function() {
+        console.warn("Conexión perdida con el chat.");
+    };
+
+    msgForm.onsubmit = function(e) {
+        e.preventDefault();
+        const input = msgForm.querySelector('input[name="mensaje"]');
+        const message = input.value;
+        if (message.trim() !== "" && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({
+                'message': message
+            }));
+            input.value = '';
+        }
+    };
+</script>
+{% endif %}
+{% endblock %}

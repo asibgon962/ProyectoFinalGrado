@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from catalog.models import Plato  
+from django.contrib.admin.views.decorators import staff_member_required
 from .forms import SolicitudServicioForm
 from .models import SolicitudServicio, MensajeSolicitud, PedidoMercado
 
@@ -161,5 +161,29 @@ def mis_gestiones(request, solicitud_id=None):
     return render(request, 'mis-gestiones.html', {
         'solicitudes': solicitudes,
         'solicitud_activa': solicitud_activa,
+        'mensajes': mensajes
+    })
+
+@staff_member_required
+def admin_chat_dashboard(request, chat_type=None, object_id=None):
+    # Obtenemos todas las gestiones para el listado lateral
+    solicitudes = SolicitudServicio.objects.all().order_by('-fecha_entrega')
+    pedidos_mercado = PedidoMercado.objects.all().order_by('-fecha_pedido')
+
+    chat_activo = None
+    mensajes = []
+
+    if chat_type == 'solicitud' and object_id:
+        chat_activo = get_object_or_404(SolicitudServicio, id=object_id)
+        mensajes = chat_activo.mensajes.all()
+    elif chat_type == 'mercado' and object_id:
+        chat_activo = get_object_or_404(PedidoMercado, id=object_id)
+        mensajes = chat_activo.mensajes.all()
+
+    return render(request, 'admin-chat.html', {
+        'solicitudes': solicitudes,
+        'pedidos_mercado': pedidos_mercado,
+        'chat_activo': chat_activo,
+        'chat_type': chat_type,
         'mensajes': mensajes
     })

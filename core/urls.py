@@ -77,6 +77,8 @@ urlpatterns = [
     path('mercado-negro/carrito/', ver_carrito, name='ver_carrito'),
     path('mercado-negro/vaciar-carrito/', vaciar_carrito, name='vaciar_carrito'),
     path('mercado-negro/procesar/', procesar_compra, name='procesar_compra'),
+    path('admin-chat/', orders_views.admin_chat_dashboard, name='admin_chat_dashboard'),
+    path('admin-chat/<str:chat_type>/<int:object_id>/', orders_views.admin_chat_dashboard, name='admin_chat_detail'),
     path('ping/', lambda r: HttpResponse("pong", content_type="text/plain"), name='ping'),
 ]
 

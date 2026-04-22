@@ -139,6 +139,12 @@
                             {% if user.is_authenticated %}
                                 <li><h6 class="dropdown-header border-bottom border-gold pb-2 mb-2" style="color: #e0e0e0 !important; opacity: 0.9;">{{ user.username }}</h6></li>
                                 
+                                {% if user.is_staff %}
+                                <li><a class="dropdown-item fw-bold text-gold" href="{% url 'admin_chat_dashboard' %}" style="border: 1px solid #d4af37; border-radius: 5px; margin: 5px;">
+                                    <i class="bi bi-headset me-2"></i>Centro de Soporte
+                                </a></li>
+                                {% endif %}
+
                                 <li><a class="dropdown-item" href="{% url 'profile' %}">
                                     <i class="bi bi-person-vcard me-2"></i>Mi Perfil
                                 </a></li>
