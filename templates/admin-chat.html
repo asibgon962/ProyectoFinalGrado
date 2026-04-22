@@ -16,10 +16,11 @@
         <!-- Sidebar -->
         <div class="chat-sidebar">
             <div class="sidebar-header">CHATS ACTIVOS</div>
-            
+
             <div class="p-2 bg-dark text-white-50" style="font-size: 0.8rem;">Solicitudes de Servicio</div>
             {% for s in solicitudes %}
-            <a href="{% url 'admin_chat_detail' 'solicitud' s.id %}" class="chat-item {% if chat_type == 'solicitud' and chat_activo.id == s.id %}active{% endif %}">
+            <a href="{% url 'admin_chat_detail' 'solicitud' s.id %}"
+                class="chat-item {% if chat_type == 'solicitud' and chat_activo.id == s.id %}active{% endif %}">
                 <div class="d-flex justify-content-between">
                     <strong>#{{ s.id }} {{ s.nombre_entidad }}</strong>
                     <span class="badge badge-solicitud">S</span>
@@ -30,7 +31,8 @@
 
             <div class="p-2 bg-dark text-white-50 mt-2" style="font-size: 0.8rem;">Pedidos Mercado Negro</div>
             {% for m in pedidos_mercado %}
-            <a href="{% url 'admin_chat_detail' 'mercado' m.id %}" class="chat-item {% if chat_type == 'mercado' and chat_activo.id == m.id %}active{% endif %}">
+            <a href="{% url 'admin_chat_detail' 'mercado' m.id %}"
+                class="chat-item {% if chat_type == 'mercado' and chat_activo.id == m.id %}active{% endif %}">
                 <div class="d-flex justify-content-between">
                     <strong>#{{ m.id }} Transacción</strong>
                     <span class="badge badge-mercado">MN</span>
@@ -43,42 +45,46 @@
         <!-- Main Chat Area -->
         <div class="chat-main">
             {% if chat_activo %}
-                <div class="p-3 border-bottom border-gold d-flex justify-content-between align-items-center bg-black">
-                    <div>
-                        <h5 class="mb-0 text-gold text-uppercase">Chat con: {{ chat_activo.usuario.username }}</h5>
-                        <small class="text-white-50">Gestionando {{ chat_type }}: #{{ chat_activo.id }}</small>
+            <div class="p-3 border-bottom border-gold d-flex justify-content-between align-items-center bg-black">
+                <div>
+                    <h5 class="mb-0 text-gold text-uppercase">Chat con: {{ chat_activo.usuario.username }}</h5>
+                    <small class="text-white-50">Gestionando {{ chat_type }}: #{{ chat_activo.id }}</small>
+                </div>
+                <span
+                    class="badge {% if chat_type == 'solicitud' %}badge-solicitud{% else %}badge-mercado{% endif %} p-2">
+                    {{ chat_activo.get_estado_display }}
+                </span>
+            </div>
+
+            <div class="chat-messages" id="chat-box">
+                {% for msg in mensajes %}
+                <div
+                    class="d-flex flex-column {% if msg.es_admin %}align-items-end{% else %}align-items-start{% endif %}">
+                    <small class="text-white-50 px-2 mb-1" style="font-size: 0.7rem;">
+                        {{ msg.usuario.username }} • {{ msg.fecha_envio|date:"H:i" }}
+                    </small>
+                    <div class="bubble {% if msg.es_admin %}bubble-admin{% else %}bubble-user{% endif %}">
+                        {{ msg.texto }}
                     </div>
-                    <span class="badge {% if chat_type == 'solicitud' %}badge-solicitud{% else %}badge-mercado{% endif %} p-2">
-                        {{ chat_activo.get_estado_display }}
-                    </span>
                 </div>
+                {% endfor %}
+            </div>
 
-                <div class="chat-messages" id="chat-box">
-                    {% for msg in mensajes %}
-                        <div class="d-flex flex-column {% if msg.es_admin %}align-items-end{% else %}align-items-start{% endif %}">
-                            <small class="text-white-50 px-2 mb-1" style="font-size: 0.7rem;">
-                                {{ msg.usuario.username }} • {{ msg.fecha_envio|date:"H:i" }}
-                            </small>
-                            <div class="bubble {% if msg.es_admin %}bubble-admin{% else %}bubble-user{% endif %}">
-                                {{ msg.texto }}
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-
-                <div class="chat-input-area">
-                    <form id="msg-form" class="d-flex align-items-center">
-                        <input type="text" name="mensaje" class="form-control admin-chat-input flex-grow-1" placeholder="Escribe un mensaje al cliente aquí..." required autocomplete="off">
-                        <button type="submit" class="btn-admin-send" title="Enviar Mensaje">
-                            <i class="bi bi-send-fill"></i>
-                        </button>
-                    </form>
-                </div>
+            <div class="chat-input-area">
+                <form id="msg-form" class="d-flex align-items-center">
+                    <input type="text" name="mensaje" class="form-control admin-chat-input flex-grow-1"
+                        placeholder="Escribe un mensaje al cliente aquí..." required autocomplete="off">
+                    <button type="submit" class="btn-admin-send" title="Enviar Mensaje">
+                        <i class="bi bi-send-fill"></i>
+                    </button>
+                </form>
+            </div>
             {% else %}
-                <div class="flex-grow-1 d-flex flex-column align-items-center justify-content-center text-white" style="opacity: 0.6;">
-                    <i class="bi bi-chat-left-dots fa-4x mb-3" style="color: #d4af37; opacity: 1; font-size: 4rem;"></i>
-                    <p class="fs-4 fw-bold">Selecciona un chat de la lista para empezar a conversar en tiempo real.</p>
-                </div>
+            <div class="flex-grow-1 d-flex flex-column align-items-center justify-content-center text-white"
+                style="opacity: 0.6;">
+                <i class="bi bi-chat-left-dots fa-4x mb-3" style="color: #d4af37; opacity: 1; font-size: 4rem;"></i>
+                <p class="fs-4 fw-bold">Selecciona un pedido para iniciar la gestión.</p>
+            </div>
             {% endif %}
         </div>
     </div>
@@ -91,31 +97,31 @@
     const chatBox = document.getElementById('chat-box');
     const msgForm = document.getElementById('msg-form');
     const currentUser = "{{ request.user.username }}";
-    
+
     chatBox.scrollTop = chatBox.scrollHeight;
 
     let wsStart = window.location.protocol === "https:" ? "wss://" : "ws://";
     let endpoint = "";
 
     {% if chat_type == 'solicitud' %}
-        endpoint = wsStart + window.location.host + "/ws/chat/organizacion/{{ chat_activo.id }}/";
+    endpoint = wsStart + window.location.host + "/ws/chat/organizacion/{{ chat_activo.id }}/";
     {% else %}
-        endpoint = wsStart + window.location.host + "/ws/chat/mercado/{{ chat_activo.id }}/";
+    endpoint = wsStart + window.location.host + "/ws/chat/mercado/{{ chat_activo.id }}/";
     {% endif %}
 
     const socket = new WebSocket(endpoint);
 
-    socket.onopen = function() {
+    socket.onopen = function () {
         console.log("Admin conectado al chat en tiempo real.");
     };
 
-    socket.onmessage = function(e) {
+    socket.onmessage = function (e) {
         const data = JSON.parse(e.data);
         const isMe = data.username === currentUser;
-        
+
         const messageDiv = document.createElement('div');
         messageDiv.className = `d-flex flex-column ${isMe ? 'align-items-end' : 'align-items-start'}`;
-        
+
         messageDiv.innerHTML = `
             <small class="text-white-50 px-2 mb-1" style="font-size: 0.7rem;">
                 ${data.username} • ${data.fecha_envio}
@@ -124,16 +130,16 @@
                 ${data.message}
             </div>
         `;
-        
+
         chatBox.appendChild(messageDiv);
         chatBox.scrollTop = chatBox.scrollHeight;
     };
 
-    socket.onclose = function() {
+    socket.onclose = function () {
         console.warn("Conexión perdida con el chat.");
     };
 
-    msgForm.onsubmit = function(e) {
+    msgForm.onsubmit = function (e) {
         e.preventDefault();
         const input = msgForm.querySelector('input[name="mensaje"]');
         const message = input.value;
