@@ -2,8 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
+from django.http import HttpResponseForbidden, HttpResponseBadRequest
 from .forms import SolicitudServicioForm
 from .models import SolicitudServicio, MensajeSolicitud, PedidoMercado
+from .utils import verificar_token_accion
 from catalog.models import Plato
 
 @login_required
@@ -188,3 +190,53 @@ def admin_chat_dashboard(request, chat_type=None, object_id=None):
         'chat_type': chat_type,
         'mensajes': mensajes
     })
+
+
+# ── Acción de cambio de estado desde link firmado (Discord) ───────────────────
+
+TIPOS_VALIDOS = {
+    'solicitud': {
+        'model': SolicitudServicio,
+        'estados': ['ACEPTADO', 'EN_CAMINO', 'COMPLETADO', 'CANCELADO'],
+        'label': 'Solicitud de Servicio',
+    },
+    'mercado': {
+        'model': PedidoMercado,
+        'estados': ['ACEPTADO', 'EN_CAMINO', 'COMPLETADO', 'CANCELADO'],
+        'label': 'Pedido Mercado Negro',
+    },
+}
+
+def accion_estado(request, tipo, objeto_id, nuevo_estado):
+    """
+    Cambia el estado de un pedido/solicitud mediante un link firmado con HMAC.
+    No requiere autenticación; la seguridad la garantiza el token.
+    GET /orders/accion/<tipo>/<objeto_id>/<nuevo_estado>/?token=<hmac>
+    """
+    # 1. Validar tipo y estado
+    config = TIPOS_VALIDOS.get(tipo)
+    if not config:
+        return HttpResponseBadRequest("Tipo de objeto no reconocido.")
+
+    if nuevo_estado not in config['estados']:
+        return HttpResponseBadRequest("Estado no válido.")
+
+    # 2. Verificar token HMAC
+    token = request.GET.get('token', '')
+    if not verificar_token_accion(tipo, objeto_id, nuevo_estado, token):
+        return HttpResponseForbidden("Token inválido o manipulado. Acceso denegado.")
+
+    # 3. Obtener el objeto y aplicar el cambio
+    Model = config['model']
+    obj = get_object_or_404(Model, id=objeto_id)
+    estado_anterior = obj.get_estado_display()
+    obj.estado = nuevo_estado
+    obj.save()
+
+    # 4. Renderizar página de confirmación mínima
+    return render(request, 'orders/accion_confirmada.html', {
+        'tipo_label': config['label'],
+        'objeto_id': objeto_id,
+        'estado_anterior': estado_anterior,
+        'nuevo_estado': obj.get_estado_display(),
+    })

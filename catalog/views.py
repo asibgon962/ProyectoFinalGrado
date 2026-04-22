@@ -168,7 +168,7 @@ def procesar_compra(request):
 
         # --- Notificación Discord (aquí tenemos total e items correctos) ---
         try:
-            from orders.utils import send_discord_notification, formato_europeo
+            from orders.utils import send_discord_notification, formato_europeo, generar_links_accion
             items_reales = pedido.items.select_related('producto').all()
             lineas_items = "\n".join(
                 f"• {item.cantidad}x {item.producto.nombre if item.producto else '?'} — {formato_europeo(item.precio_unitario)} €"
@@ -184,6 +184,13 @@ def procesar_compra(request):
                 {"name": "Total Transacción", "value": f"{formato_europeo(pedido.total)} €", "inline": True},
                 {"name": "Estado", "value": pedido.get_estado_display(), "inline": True},
             ]
+
+            # ── Links de acción firmados ─────────────────────────────────────────
+            links = generar_links_accion('mercado', pedido.id)
+            links_texto = "  ·  ".join(f"[{l['label']}]({l['url']})" for l in links)
+            fields.append({"name": "⚡ Cambiar estado", "value": links_texto, "inline": False})
+            # ───────────────────────────────────────────────────────────────
+
             admin_url = f"https://koienterprise.onrender.com/admin/orders/pedidomercado/{pedido.id}/change/"
             send_discord_notification('mn', title, description, fields, url=admin_url)
         except Exception:

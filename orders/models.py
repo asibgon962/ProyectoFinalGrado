@@ -129,7 +129,7 @@ class MensajePedidoMercado(models.Model):
 @receiver(post_save, sender=SolicitudServicio)
 def notificar_nueva_solicitud(sender, instance, created, **kwargs):
     if created:
-        from .utils import send_discord_notification
+        from .utils import send_discord_notification, generar_links_accion
         title = f"🚨 Nueva Solicitud de Servicio #{instance.id}"
 
         # Formatear tipos de servicio (MultiSelectField)
@@ -162,6 +162,12 @@ def notificar_nueva_solicitud(sender, instance, created, **kwargs):
 
         if instance.organizacion:
             fields.append({"name": "Organización", "value": instance.organizacion.nombre, "inline": True})
+
+        # ── Links de acción firmados ──────────────────────────────────────────
+        links = generar_links_accion('solicitud', instance.id)
+        links_texto = "  ·  ".join(f"[{l['label']}]({l['url']})" for l in links)
+        fields.append({"name": "⚡ Cambiar estado", "value": links_texto, "inline": False})
+        # ─────────────────────────────────────────────────────────────────────
 
         admin_url = f"https://koienterprise.onrender.com/admin/orders/solicitudservicio/{instance.id}/change/"
 

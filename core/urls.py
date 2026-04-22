@@ -34,6 +34,7 @@ from catalog.views import (
     procesar_compra
 )
 from orders import views as orders_views
+from orders.views import accion_estado
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -68,6 +69,7 @@ urlpatterns = [
     path('mercado-negro/procesar/', procesar_compra, name='procesar_compra'),
     path('admin-chat/', orders_views.admin_chat_dashboard, name='admin_chat_dashboard'),
     path('admin-chat/<str:chat_type>/<int:object_id>/', orders_views.admin_chat_dashboard, name='admin_chat_detail'),
+    path('orders/accion/<str:tipo>/<int:objeto_id>/<str:nuevo_estado>/', accion_estado, name='accion_estado'),
     path('ping/', lambda r: HttpResponse("pong", content_type="text/plain"), name='ping'),
 ]
 
