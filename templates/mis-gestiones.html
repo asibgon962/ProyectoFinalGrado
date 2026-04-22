@@ -98,9 +98,13 @@
     const endpoint = wsStart + window.location.host + "/ws/chat/mis-gestiones/{{ solicitud_activa.id }}/";
     
     const socket = new WebSocket(endpoint);
-    const msgForm = document.querySelector('form[action*="enviar_mensaje/{{ solicitud_activa.id }}"]');
+
+    socket.onopen = function(e) {
+        console.log("DEBUG: Conexión WebSocket establecida con éxito (Mis Gestiones).");
+    };
 
     socket.onmessage = function(e) {
+        console.log("DEBUG: Mensaje recibido:", e.data);
         const data = JSON.parse(e.data);
         const isMe = data.username === currentUser;
         
@@ -121,19 +125,28 @@
     };
 
     socket.onclose = function(e) {
-        console.error('Chat socket closed unexpectedly');
+        console.warn('DEBUG: Conexión WebSocket cerrada en Mis Gestiones.');
+    };
+
+    socket.onerror = function(e) {
+        console.error('DEBUG: Error WebSocket:', e);
     };
 
     if (msgForm) {
         msgForm.onsubmit = function(e) {
-            e.preventDefault();
-            const messageInput = msgForm.querySelector('input[name="mensaje"]');
-            const message = messageInput.value;
-            if (message.trim() !== "") {
-                socket.send(JSON.stringify({
-                    'message': message
-                }));
-                messageInput.value = '';
+            if (socket.readyState === WebSocket.OPEN) {
+                e.preventDefault();
+                const messageInput = msgForm.querySelector('input[name="mensaje"]');
+                const message = messageInput.value;
+                if (message.trim() !== "") {
+                    console.log("DEBUG: Enviando por WS:", message);
+                    socket.send(JSON.stringify({
+                        'message': message
+                    }));
+                    messageInput.value = '';
+                }
+            } else {
+                console.warn("DEBUG: Socket cerrado. Usando envío tradicional (POST).");
             }
         };
     }

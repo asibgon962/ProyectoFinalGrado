@@ -158,7 +158,12 @@
 
     const socket = new WebSocket(endpoint);
 
+    socket.onopen = function(e) {
+        console.log("DEBUG: Conexión WebSocket establecida con éxito.");
+    };
+
     socket.onmessage = function(e) {
+        console.log("DEBUG: Mensaje recibido del servidor:", e.data);
         const data = JSON.parse(e.data);
         const isMe = data.username === currentUser;
         
@@ -189,19 +194,29 @@
     };
 
     socket.onclose = function(e) {
-        console.error('Chat socket closed unexpectedly');
+        console.warn('DEBUG: Conexión WebSocket cerrada. ¿Está el servidor configurado para ASGI/Daphne?');
+    };
+
+    socket.onerror = function(e) {
+        console.error('DEBUG: Error en la conexión WebSocket:', e);
     };
 
     if (msgForm) {
         msgForm.onsubmit = function(e) {
-            e.preventDefault();
-            const messageInput = msgForm.querySelector('input[name="mensaje"]');
-            const message = messageInput.value;
-            if (message.trim() !== "") {
-                socket.send(JSON.stringify({
-                    'message': message
-                }));
-                messageInput.value = '';
+            if (socket.readyState === WebSocket.OPEN) {
+                e.preventDefault();
+                const messageInput = msgForm.querySelector('input[name="mensaje"]');
+                const message = messageInput.value;
+                if (message.trim() !== "") {
+                    console.log("DEBUG: Enviando mensaje por WebSocket:", message);
+                    socket.send(JSON.stringify({
+                        'message': message
+                    }));
+                    messageInput.value = '';
+                }
+            } else {
+                console.warn("DEBUG: El WebSocket no está abierto. El mensaje se enviará por método tradicional (POST) y la página se refrescará.");
+                // No llamamos a e.preventDefault(), así que se envía por POST normal como fallback
             }
         };
     }
