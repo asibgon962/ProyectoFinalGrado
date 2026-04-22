@@ -2,6 +2,10 @@ from django.db import models
 from django.conf import settings
 from catalog.models import Plato
 from multiselectfield import MultiSelectField
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 
 class SolicitudServicio(models.Model):
     TIPO_CHOICES = [
@@ -119,3 +123,35 @@ class MensajePedidoMercado(models.Model):
 
     def __str__(self):
         return f"Mensaje en MN {self.pedido.id} por {self.usuario.username}"
+
+# --- SEÑALES PARA WEBSOCKETS ---
+
+@receiver(post_save, sender=MensajeSolicitud)
+def broadcast_mensaje_solicitud(sender, instance, created, **kwargs):
+    if created:
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f'chat_solicitud_{instance.solicitud.id}',
+            {
+                'type': 'chat_message',
+                'message': instance.texto,
+                'username': instance.usuario.username,
+                'es_admin': instance.es_admin,
+                'fecha_envio': instance.fecha_envio.strftime('%H:%M')
+            }
+        )
+
+@receiver(post_save, sender=MensajePedidoMercado)
+def broadcast_mensaje_mercado(sender, instance, created, **kwargs):
+    if created:
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f'chat_mercado_{instance.pedido.id}',
+            {
+                'type': 'chat_message',
+                'message': instance.texto,
+                'username': instance.usuario.username,
+                'es_admin': instance.es_admin,
+                'fecha_envio': instance.fecha_envio.strftime('%H:%M')
+            }
+        )

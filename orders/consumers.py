@@ -37,20 +37,8 @@ class ChatSolicitudConsumer(AsyncWebsocketConsumer):
         user_id = user.id
         es_admin = user.is_staff
 
-        # Guardar en base de datos de manera síncrona/segura
-        msg = await self.save_message(user_id, self.solicitud_id, message, es_admin)
-
-        # Enviar el mensaje al grupo (todos los conectados a la sala)
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'chat_message',
-                'message': message,
-                'username': user.username,
-                'es_admin': es_admin,
-                'fecha_envio': msg.fecha_envio.strftime('%H:%M')
-            }
-        )
+        # Guardar en base de datos (esto disparará la señal post_save que hace el broadcast)
+        await self.save_message(user_id, self.solicitud_id, message, es_admin)
 
     # Recibir el mensaje del grupo de canales e inyectarlo al websocket
     async def chat_message(self, event):
@@ -95,18 +83,8 @@ class ChatMercadoConsumer(AsyncWebsocketConsumer):
         user_id = user.id
         es_admin = user.is_staff
 
-        msg = await self.save_message(user_id, self.pedido_id, message, es_admin)
-
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'chat_message',
-                'message': message,
-                'username': user.username,
-                'es_admin': es_admin,
-                'fecha_envio': msg.fecha_envio.strftime('%H:%M')
-            }
-        )
+        # Guardar (dispara la señal)
+        await self.save_message(user_id, self.pedido_id, message, es_admin)
 
     async def chat_message(self, event):
         await self.send(text_data=json.dumps({
