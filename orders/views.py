@@ -233,7 +233,46 @@ def accion_estado(request, tipo, objeto_id, nuevo_estado):
     obj.estado = nuevo_estado
     obj.save()
 
-    # 4. Renderizar página de confirmación mínima
+    # 4. Notificar a Discord el cambio de estado
+    try:
+        from .utils import send_discord_notification, generar_links_accion
+
+        webhook_type = 'mn' if tipo == 'mercado' else 'servicios'
+
+        # Emojis por estado
+        EMOJI_ESTADO = {
+            'ACEPTADO':   '✅',
+            'EN_CAMINO':  '🚚',
+            'COMPLETADO': '✔️',
+            'CANCELADO':  '❌',
+        }
+        emoji = EMOJI_ESTADO.get(nuevo_estado, '🔄')
+
+        title = f"{emoji} Estado Actualizado — {config['label']} #{objeto_id}"
+        description = (
+            f"El estado ha cambiado de **{estado_anterior}** "
+            f"a **{obj.get_estado_display()}**."
+        )
+
+        # Construir campos con info del objeto
+        fields = [
+            {"name": "Estado anterior", "value": estado_anterior,          "inline": True},
+            {"name": "Estado nuevo",    "value": obj.get_estado_display(), "inline": True},
+        ]
+
+        # Añadir nuevos links de acción para los estados restantes
+        links = generar_links_accion(tipo, objeto_id)
+        # Filtrar el estado actual de los links
+        links_filtrados = [l for l in links if nuevo_estado not in l['url']]
+        if links_filtrados:
+            links_texto = "  ·  ".join(f"[{l['label']}]({l['url']})" for l in links_filtrados)
+            fields.append({"name": "⚡ Otros cambios", "value": links_texto, "inline": False})
+
+        send_discord_notification(webhook_type, title, description, fields)
+    except Exception:
+        pass  # Nunca bloquear la acción por un fallo de Discord
+
+    # 5. Renderizar página de confirmación mínima
     return render(request, 'orders/accion_confirmada.html', {
         'tipo_label': config['label'],
         'objeto_id': objeto_id,
