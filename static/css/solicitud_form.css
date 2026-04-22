@@ -69,6 +69,24 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     background-color: transparent !important;
 }
 
+/* Icono × grande (clear all) del multiselect → dorado */
+.select2-container--default .select2-selection--multiple .select2-selection__clear {
+    color: var(--gold) !important;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-top: 4px;
+    margin-right: 6px;
+}
+.select2-container--default .select2-selection--multiple .select2-selection__clear:hover {
+    color: #fff !important;
+}
+
+/* Icono × clear del single select */
+.select2-container--default .select2-selection--single .select2-selection__clear {
+    color: var(--gold) !important;
+    font-weight: bold;
+}
+
 /* Placeholder del campo de búsqueda dentro del multiselect */
 .select2-container--default .select2-selection--multiple .select2-search__field::placeholder {
     color: #aaa !important;
@@ -145,6 +163,15 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .select2-search--dropdown .select2-search__field::placeholder {
     color: #999 !important;
+}
+
+/* ================================================
+   TEXTO "SIN PRODUCTOS" VISIBLE
+   ================================================ */
+#vacio-msg p,
+#trans-vacio-msg {
+    color: #aaa !important;
+    font-style: italic;
 }
 
 /* ================================================
