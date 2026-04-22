@@ -48,7 +48,8 @@
                 <small class="text-white-50">Finaliza: {{ solicitud_activa.fecha_entrega }}</small>
             </div>
 
-            <div class="chat-messages-container" id="chatBox">
+            <div class="chat-messages-container" id="chatBox" 
+                 data-chat-id="{{ solicitud_activa.id }}">
                 {% for msg in mensajes %}
                 <div class="d-flex flex-column {% if msg.usuario == request.user %}align-items-end{% else %}align-items-start{% endif %}">
                     <small class="text-white-50 px-2 mb-1" style="font-size: 0.7rem;">
@@ -90,66 +91,73 @@
 <script>
     const chatBox = document.getElementById('chatBox');
     if(chatBox) chatBox.scrollTop = chatBox.scrollHeight;
-
-    // --- LÓGICA DE WEBSOCKETS ---
-    {% if solicitud_activa %}
-    const currentUser = "{{ request.user.username }}";
-    let wsStart = window.location.protocol === "https:" ? "wss://" : "ws://";
-    const endpoint = wsStart + window.location.host + "/ws/chat/mis-gestiones/{{ solicitud_activa.id }}/";
-    
-    const socket = new WebSocket(endpoint);
-
-    socket.onopen = function(e) {
-        console.log("DEBUG: Conexión WebSocket establecida con éxito (Mis Gestiones).");
-    };
-
-    socket.onmessage = function(e) {
-        console.log("DEBUG: Mensaje recibido:", e.data);
-        const data = JSON.parse(e.data);
-        const isMe = data.username === currentUser;
-        
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `d-flex flex-column ${isMe ? 'align-items-end' : 'align-items-start'}`;
-        
-        messageDiv.innerHTML = `
-            <small class="text-white-50 px-2 mb-1" style="font-size: 0.7rem;">
-                ${data.username} • ${data.fecha_envio}
-            </small>
-            <div class="bubble ${isMe ? 'bubble-user' : 'bubble-admin'}">
-                ${data.message}
-            </div>
-        `;
-        
-        chatBox.appendChild(messageDiv);
-        chatBox.scrollTop = chatBox.scrollHeight;
-    };
-
-    socket.onclose = function(e) {
-        console.warn('DEBUG: Conexión WebSocket cerrada en Mis Gestiones.');
-    };
-
-    socket.onerror = function(e) {
-        console.error('DEBUG: Error WebSocket:', e);
-    };
-
-    if (msgForm) {
-        msgForm.onsubmit = function(e) {
-            if (socket.readyState === WebSocket.OPEN) {
-                e.preventDefault();
-                const messageInput = msgForm.querySelector('input[name="mensaje"]');
-                const message = messageInput.value;
-                if (message.trim() !== "") {
-                    console.log("DEBUG: Enviando por WS:", message);
-                    socket.send(JSON.stringify({
-                        'message': message
-                    }));
-                    messageInput.value = '';
-                }
-            } else {
-                console.warn("DEBUG: Socket cerrado. Usando envío tradicional (POST).");
-            }
-        };
-    }
-    {% endif %}
 </script>
+
+{% if solicitud_activa %}
+<script>
+    // --- LÓGICA DE WEBSOCKETS ---
+    if (chatBox) {
+        const chatId = chatBox.dataset.chatId;
+        const currentUser = "{{ request.user.username }}";
+        let wsStart = window.location.protocol === "https:" ? "wss://" : "ws://";
+        const endpoint = wsStart + window.location.host + "/ws/chat/mis-gestiones/" + chatId + "/";
+        
+        const socket = new WebSocket(endpoint);
+
+        socket.onopen = function(e) {
+            console.log("DEBUG: Conexión WebSocket establecida con éxito (Mis Gestiones).");
+        };
+
+        socket.onmessage = function(e) {
+            console.log("DEBUG: Mensaje recibido:", e.data);
+            const data = JSON.parse(e.data);
+            const isMe = data.username === currentUser;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `d-flex flex-column ${isMe ? 'align-items-end' : 'align-items-start'}`;
+            
+            messageDiv.innerHTML = `
+                <small class="text-white-50 px-2 mb-1" style="font-size: 0.7rem;">
+                    ${data.username} • ${data.fecha_envio}
+                </small>
+                <div class="bubble ${isMe ? 'bubble-user' : 'bubble-admin'}">
+                    ${data.message}
+                </div>
+            `;
+            
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        };
+
+        socket.onclose = function(e) {
+            console.warn('DEBUG: Conexión WebSocket cerrada en Mis Gestiones.');
+        };
+
+        socket.onerror = function(e) {
+            console.error('DEBUG: Error WebSocket:', e);
+        };
+
+        // Obtenemos el formulario (el único en esta vista)
+        const msgForm = document.querySelector('form');
+        if (msgForm) {
+            msgForm.onsubmit = function(e) {
+                if (socket.readyState === WebSocket.OPEN) {
+                    e.preventDefault();
+                    const messageInput = msgForm.querySelector('input[name="mensaje"]');
+                    const message = messageInput.value;
+                    if (message.trim() !== "") {
+                        console.log("DEBUG: Enviando por WS:", message);
+                        socket.send(JSON.stringify({
+                            'message': message
+                        }));
+                        messageInput.value = '';
+                    }
+                } else {
+                    console.warn("DEBUG: Socket cerrado. Usando envío tradicional (POST).");
+                }
+            };
+        }
+    }
+</script>
+{% endif %}
 {% endblock %}

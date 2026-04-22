@@ -68,7 +68,9 @@
                 <small class="text-white-50">Finaliza: {{ solicitud_activa.fecha_entrega }}</small>
             </div>
 
-            <div class="chat-messages-container" id="chatBox">
+            <div class="chat-messages-container" id="chatBox"
+                 data-chat-id="{{ solicitud_activa.id }}"
+                 data-chat-type="solicitud">
                 {% for msg in mensajes %}
                 <div class="d-flex flex-column {% if msg.usuario == request.user %}align-items-end{% else %}align-items-start{% endif %}">
                     <small class="text-white-50 px-2 mb-1" style="font-size: 0.7rem;">
@@ -100,7 +102,9 @@
                 <small class="text-white-50">Fecha: {{ pedido_mercado_activo.fecha_pedido|date:"d/m/Y" }}</small>
             </div>
 
-            <div class="chat-messages-container" id="chatBox">
+            <div class="chat-messages-container" id="chatBox"
+                 data-chat-id="{{ pedido_mercado_activo.id }}"
+                 data-chat-type="mercado">
                 {% for msg in mensajes %}
                 <div class="d-flex flex-column {% if msg.usuario == request.user %}align-items-end{% else %}align-items-start{% endif %}">
                     <small class="text-white-50 px-2 mb-1" style="font-size: 0.7rem;">
@@ -141,85 +145,89 @@
 <script>
     const chatBox = document.getElementById('chatBox');
     if(chatBox) chatBox.scrollTop = chatBox.scrollHeight;
-
-    // --- LÓGICA DE WEBSOCKETS ---
-    {% if solicitud_activa or pedido_mercado_activo %}
-    const currentUser = "{{ request.user.username }}";
-    let wsStart = window.location.protocol === "https:" ? "wss://" : "ws://";
-    let endpoint = "";
-
-    {% if solicitud_activa %}
-        endpoint = wsStart + window.location.host + "/ws/chat/organizacion/{{ solicitud_activa.id }}/";
-        const msgForm = document.querySelector('form[action*="enviar_mensaje/{{ solicitud_activa.id }}"]');
-    {% elif pedido_mercado_activo %}
-        endpoint = wsStart + window.location.host + "/ws/chat/mercado/{{ pedido_mercado_activo.id }}/";
-        const msgForm = document.querySelector('form[action*="enviar_mensaje_mercado/{{ pedido_mercado_activo.id }}"]');
-    {% endif %}
-
-    const socket = new WebSocket(endpoint);
-
-    socket.onopen = function(e) {
-        console.log("DEBUG: Conexión WebSocket establecida con éxito.");
-    };
-
-    socket.onmessage = function(e) {
-        console.log("DEBUG: Mensaje recibido del servidor:", e.data);
-        const data = JSON.parse(e.data);
-        const isMe = data.username === currentUser;
-        
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `d-flex flex-column ${isMe ? 'align-items-end' : 'align-items-start'}`;
-        
-        let bubbleClass = "";
-        let bubbleStyle = "";
-        
-        {% if solicitud_activa %}
-            bubbleClass = `bubble ${isMe ? 'bubble-user' : 'bubble-admin'}`;
-        {% elif pedido_mercado_activo %}
-            bubbleClass = `bubble ${isMe ? 'bg-danger text-white' : 'bg-dark text-danger border border-danger'}`;
-            bubbleStyle = "padding: 10px 15px; border-radius: 15px; max-width: 75%; margin-bottom: 10px;";
-        {% endif %}
-
-        messageDiv.innerHTML = `
-            <small class="text-white-50 px-2 mb-1" style="font-size: 0.7rem;">
-                ${data.username} • ${data.fecha_envio}
-            </small>
-            <div class="${bubbleClass}" style="${bubbleStyle}">
-                ${data.message}
-            </div>
-        `;
-        
-        chatBox.appendChild(messageDiv);
-        chatBox.scrollTop = chatBox.scrollHeight;
-    };
-
-    socket.onclose = function(e) {
-        console.warn('DEBUG: Conexión WebSocket cerrada. ¿Está el servidor configurado para ASGI/Daphne?');
-    };
-
-    socket.onerror = function(e) {
-        console.error('DEBUG: Error en la conexión WebSocket:', e);
-    };
-
-    if (msgForm) {
-        msgForm.onsubmit = function(e) {
-            if (socket.readyState === WebSocket.OPEN) {
-                e.preventDefault();
-                const messageInput = msgForm.querySelector('input[name="mensaje"]');
-                const message = messageInput.value;
-                if (message.trim() !== "") {
-                    console.log("DEBUG: Enviando mensaje por WebSocket:", message);
-                    socket.send(JSON.stringify({
-                        'message': message
-                    }));
-                    messageInput.value = '';
-                }
-            } else {
-                console.warn("DEBUG: El WebSocket no está abierto. El mensaje se enviará por método tradicional (POST) y la página se refrescará.");
-                // No llamamos a e.preventDefault(), así que se envía por POST normal como fallback
-            }
-        };
-    }
-    {% endif %}
 </script>
+
+{% if solicitud_activa or pedido_mercado_activo %}
+<script>
+    // --- LÓGICA DE WEBSOCKETS ---
+    if (chatBox) {
+        const chatId = chatBox.dataset.chatId;
+        const chatType = chatBox.dataset.chatType;
+        const currentUser = "{{ request.user.username }}";
+        let wsStart = window.location.protocol === "https:" ? "wss://" : "ws://";
+        let endpoint = "";
+
+        if (chatType === 'solicitud') {
+            endpoint = wsStart + window.location.host + "/ws/chat/organizacion/" + chatId + "/";
+        } else {
+            endpoint = wsStart + window.location.host + "/ws/chat/mercado/" + chatId + "/";
+        }
+
+        const msgForm = document.querySelector('form[action*="/' + chatId + '/"]');
+        const socket = new WebSocket(endpoint);
+
+        socket.onopen = function(e) {
+            console.log("DEBUG: Conexión WebSocket establecida con éxito.");
+        };
+
+        socket.onmessage = function(e) {
+            console.log("DEBUG: Mensaje recibido del servidor:", e.data);
+            const data = JSON.parse(e.data);
+            const isMe = data.username === currentUser;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `d-flex flex-column ${isMe ? 'align-items-end' : 'align-items-start'}`;
+            
+            let bubbleClass = "";
+            let bubbleStyle = "";
+            
+            if (chatType === 'solicitud') {
+                bubbleClass = `bubble ${isMe ? 'bubble-user' : 'bubble-admin'}`;
+            } else {
+                bubbleClass = `bubble ${isMe ? 'bg-danger text-white' : 'bg-dark text-danger border border-danger'}`;
+                bubbleStyle = "padding: 10px 15px; border-radius: 15px; max-width: 75%; margin-bottom: 10px;";
+            }
+
+            messageDiv.innerHTML = `
+                <small class="text-white-50 px-2 mb-1" style="font-size: 0.7rem;">
+                    ${data.username} • ${data.fecha_envio}
+                </small>
+                <div class="${bubbleClass}" style="${bubbleStyle}">
+                    ${data.message}
+                </div>
+            `;
+            
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        };
+
+        socket.onclose = function(e) {
+            console.warn('DEBUG: Conexión WebSocket cerrada. ¿Está el servidor configurado para ASGI/Daphne?');
+        };
+
+        socket.onerror = function(e) {
+            console.error('DEBUG: Error en la conexión WebSocket:', e);
+        };
+
+        if (msgForm) {
+            msgForm.onsubmit = function(e) {
+                if (socket.readyState === WebSocket.OPEN) {
+                    e.preventDefault();
+                    const messageInput = msgForm.querySelector('input[name="mensaje"]');
+                    const message = messageInput.value;
+                    if (message.trim() !== "") {
+                        console.log("DEBUG: Enviando mensaje por WebSocket:", message);
+                        socket.send(JSON.stringify({
+                            'message': message
+                        }));
+                        messageInput.value = '';
+                    }
+                } else {
+                    console.warn("DEBUG: El WebSocket no está abierto. El mensaje se enviará por método tradicional (POST) y la página se refrescará.");
+                }
+            };
+        }
+    }
+</script>
+{% endif %}
 {% endblock %}
