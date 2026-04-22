@@ -260,7 +260,20 @@ JAZZMIN_SETTINGS = {
     "copyright": "Koi Enterprise",
     "topmenu_links": [
         {"name": "Sitio Web", "url": "home"},
+        {"name": "Centro de Chat", "url": "admin_chat_dashboard", "permissions": ["auth.view_user"]},
     ],
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "custom_links": {
+        "orders": [
+            {
+                "name": "💬 Chat en Vivo (Soporte)", 
+                "url": "admin_chat_dashboard", 
+                "icon": "fas fa-comments",
+                "permissions": ["auth.view_user"]
+            },
+        ],
+    },
     "icons": {
         "auth.user": "fas fa-user-shield",
         "auth.Group": "fas fa-users-cog",

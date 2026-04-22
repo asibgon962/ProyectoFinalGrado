@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.utils.html import format_html
+from django.urls import reverse
 from .models import SolicitudServicio, MensajeSolicitud
 import json
 
@@ -9,7 +11,8 @@ class MensajeSolicitudInline(admin.TabularInline):
 
 @admin.register(SolicitudServicio)
 class SolicitudServicioAdmin(admin.ModelAdmin):
-    list_display = ('nombre_entidad', 'tipo_servicio', 'fecha_entrega', 'mostrar_cantidades', 'estado')
+    list_display = ('id', 'nombre_entidad', 'tipo_servicio', 'fecha_entrega', 'mostrar_cantidades', 'estado', 'boton_chat')
+    list_display_links = ('id', 'nombre_entidad')
     list_editable = ('estado',)
     list_filter = ('estado', 'fecha_entrega')
     search_fields = ('nombre_entidad', 'usuario__username')
@@ -31,6 +34,12 @@ class SolicitudServicioAdmin(admin.ModelAdmin):
         return "N/A"
     
     mostrar_cantidades.short_description = "Productos y Cantidades"
+    
+    def boton_chat(self, obj):
+        url = reverse('admin_chat_detail', args=['solicitud', obj.id])
+        return format_html('<a class="button" href="{}" style="background: #d4af37; color: black; font-weight: bold; border-radius: 5px; padding: 4px 8px; text-decoration: none;">💬 Chat</a>', url)
+    
+    boton_chat.short_description = "Chat en Vivo"
 
 
 
@@ -48,9 +57,16 @@ class MensajePedidoMercadoInline(admin.TabularInline):
 
 @admin.register(PedidoMercado)
 class PedidoMercadoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'organizacion', 'fecha_pedido', 'estado', 'total')
+    list_display = ('id', 'organizacion', 'fecha_pedido', 'estado', 'total', 'boton_chat')
+    list_display_links = ('id', 'organizacion')
     list_editable = ('estado',)
     list_filter = ('estado', 'fecha_pedido')
     search_fields = ('organizacion__nombre', 'usuario__username')
     inlines = [ItemPedidoMercadoInline, MensajePedidoMercadoInline]
+
+    def boton_chat(self, obj):
+        url = reverse('admin_chat_detail', args=['mercado', obj.id])
+        return format_html('<a class="button" href="{}" style="background: #d4af37; color: black; font-weight: bold; border-radius: 5px; padding: 4px 8px; text-decoration: none;">💬 Chat</a>', url)
+    
+    boton_chat.short_description = "Chat en Vivo"
 
