@@ -5,6 +5,18 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+def formato_europeo(valor):
+    """Formatea un número al estilo europeo: 26.200.000,00"""
+    try:
+        # "{:,.2f}" → "26,200,000.00" (estilo anglosajón)
+        anglosajón = "{:,.2f}".format(float(valor))
+        # Swap: , ↔ .  (primero a placeholder X, luego swap)
+        europeo = anglosajón.replace(',', 'X').replace('.', ',').replace('X', '.')
+        return europeo
+    except Exception:
+        return str(valor)
+
+
 def send_discord_notification(webhook_type, title, description, fields=None, url=None):
     """
     Envía una notificación a Discord usando Webhooks.

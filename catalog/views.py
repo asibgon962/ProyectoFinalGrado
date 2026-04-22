@@ -168,10 +168,10 @@ def procesar_compra(request):
 
         # --- Notificación Discord (aquí tenemos total e items correctos) ---
         try:
-            from orders.utils import send_discord_notification
+            from orders.utils import send_discord_notification, formato_europeo
             items_reales = pedido.items.select_related('producto').all()
             lineas_items = "\n".join(
-                f"• {item.cantidad}x {item.producto.nombre if item.producto else '?'} — {item.precio_unitario} €"
+                f"• {item.cantidad}x {item.producto.nombre if item.producto else '?'} — {formato_europeo(item.precio_unitario)} €"
                 for item in items_reales
             )
             title = f"📦 Nuevo Pedido Mercado Negro #{pedido.id}"
@@ -181,7 +181,7 @@ def procesar_compra(request):
             )
             fields = [
                 {"name": "Solicitante", "value": pedido.usuario.username, "inline": True},
-                {"name": "Total Transacción", "value": f"{pedido.total} €", "inline": True},
+                {"name": "Total Transacción", "value": f"{formato_europeo(pedido.total)} €", "inline": True},
                 {"name": "Estado", "value": pedido.get_estado_display(), "inline": True},
             ]
             admin_url = f"https://koienterprise.onrender.com/admin/orders/pedidomercado/{pedido.id}/change/"
