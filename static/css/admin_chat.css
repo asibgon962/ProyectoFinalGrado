@@ -139,14 +139,66 @@
 .badge-solicitud { background-color: #007bff; }
 .badge-mercado { background-color: #dc3545; }
 
-/* Scrollbar personalizada */
-::-webkit-scrollbar {
-    width: 6px;
-}
-::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.2);
-}
-::-webkit-scrollbar-thumb {
-    background: #d4af37;
-    border-radius: 10px;
+/* Responsive Design para Móviles */
+@media (max-width: 991px) {
+    .admin-chat-container {
+        flex-direction: column;
+        height: 85vh; /* Se mantiene la altura, pero se divide */
+        margin-left: -1rem !important; /* Desborda el padding the main-container para móviles */
+        margin-right: -1rem !important;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        margin-top: 10px;
+    }
+    
+    .chat-sidebar {
+        width: 100%;
+        flex: 0 0 30%; /* La lista de chats ocupa el 30% de la altura total en móvil */
+        min-height: 0;
+        max-height: 30%;
+        border-right: none;
+        border-bottom: 2px solid rgba(212, 175, 55, 0.4);
+    }
+    
+    .chat-main {
+        flex: 1; /* El chat ocupa el resto de la pantalla */
+        min-height: 0;
+        height: auto;
+    }
+
+    .sidebar-header {
+        padding: 8px;
+        font-size: 0.9rem;
+    }
+    
+    .chat-item {
+        padding: 10px 15px;
+    }
+
+    .chat-messages {
+        padding: 15px;
+        gap: 10px;
+    }
+
+    .chat-input-area {
+        padding: 15px;
+    }
+
+    .btn-admin-send {
+        width: 50px;
+        height: 45px;
+        margin-left: 10px;
+    }
+
+    .bubble {
+        max-width: 85%; /* Burbujas un poco más anchas en móvil */
+    }
+
+    /* Ajuste de cabecera superior */
+    h2.text-gold {
+        font-size: 1.4rem;
+        text-align: center;
+        margin-bottom: 10px;
+    }
 }
