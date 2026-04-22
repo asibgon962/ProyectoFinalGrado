@@ -1,0 +1,152 @@
+/* Estilos específicos para el Dashboard de Chat del Administrador */
+
+.admin-chat-container {
+    display: flex;
+    height: 80vh;
+    background: rgba(10, 10, 10, 0.95);
+    border: 1px solid #d4af37;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+.chat-sidebar {
+    width: 300px;
+    border-right: 1px solid #d4af37;
+    background: rgba(20, 20, 20, 0.8);
+    overflow-y: auto;
+}
+
+.chat-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    padding: 15px;
+    background: #d4af37;
+    color: black;
+    font-weight: bold;
+    text-align: center;
+}
+
+.chat-item {
+    padding: 15px;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    cursor: pointer;
+    transition: 0.3s;
+    color: #fff;
+    text-decoration: none;
+    display: block;
+}
+
+.chat-item:hover {
+    background: rgba(212, 175, 55, 0.1);
+}
+
+.chat-item.active {
+    background: rgba(212, 175, 55, 0.2);
+    border-right: 3px solid #d4af37;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.chat-input-area {
+    padding: 25px;
+    background: rgba(20, 20, 20, 0.95);
+    border-top: 1px solid #d4af37;
+}
+
+/* Mejora del Input y Placeholder */
+.admin-chat-input {
+    background-color: #1a1a1a !important;
+    border: 1px solid #d4af37 !important;
+    color: white !important;
+    padding: 12px 15px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.admin-chat-input:focus {
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+    outline: none;
+}
+
+.admin-chat-input::placeholder {
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-style: italic;
+    opacity: 1; /* Para Firefox */
+}
+
+/* Mejora del Botón de Enviar */
+.btn-admin-send {
+    background-color: #d4af37 !important;
+    color: black !important;
+    width: 60px;
+    height: 50px;
+    border-radius: 10px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    margin-left: 15px; /* Separación del input */
+}
+
+.btn-admin-send:hover {
+    background-color: #f1c40f !important;
+    transform: scale(1.05);
+}
+
+.btn-admin-send i {
+    font-size: 1.4rem;
+}
+
+.bubble {
+    padding: 12px 18px;
+    border-radius: 18px;
+    max-width: 80%;
+    word-wrap: break-word;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.bubble-admin {
+    background: #d4af37;
+    color: black;
+    align-self: flex-end;
+    border-bottom-right-radius: 2px;
+}
+
+.bubble-user {
+    background: #2a2a2a;
+    color: #f1c40f;
+    align-self: flex-start;
+    border-bottom-left-radius: 2px;
+    border: 1px solid rgba(212, 175, 55, 0.4);
+}
+
+.badge-solicitud { background-color: #007bff; }
+.badge-mercado { background-color: #dc3545; }
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+::-webkit-scrollbar-thumb {
+    background: #d4af37;
+    border-radius: 10px;
+}

@@ -2,97 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
-<style>
-    .admin-chat-container {
-        display: flex;
-        height: 80vh;
-        background: rgba(10, 10, 10, 0.95);
-        border: 1px solid #d4af37;
-        border-radius: 15px;
-        overflow: hidden;
-        margin-top: 20px;
-    }
-
-    .chat-sidebar {
-        width: 300px;
-        border-right: 1px solid #d4af37;
-        background: rgba(20, 20, 20, 0.8);
-        overflow-y: auto;
-    }
-
-    .chat-main {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .sidebar-header {
-        padding: 15px;
-        background: #d4af37;
-        color: black;
-        font-weight: bold;
-        text-align: center;
-    }
-
-    .chat-item {
-        padding: 15px;
-        border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-        cursor: pointer;
-        transition: 0.3s;
-        color: #fff;
-        text-decoration: none;
-        display: block;
-    }
-
-    .chat-item:hover {
-        background: rgba(212, 175, 55, 0.1);
-    }
-
-    .chat-item.active {
-        background: rgba(212, 175, 55, 0.2);
-        border-right: 3px solid #d4af37;
-    }
-
-    .chat-messages {
-        flex: 1;
-        padding: 20px;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .chat-input-area {
-        padding: 20px;
-        background: rgba(20, 20, 20, 0.9);
-        border-top: 1px solid #d4af37;
-    }
-
-    .bubble {
-        padding: 10px 15px;
-        border-radius: 15px;
-        max-width: 75%;
-        word-wrap: break-word;
-    }
-
-    .bubble-admin {
-        background: #d4af37;
-        color: black;
-        align-self: flex-end;
-        border-bottom-right-radius: 2px;
-    }
-
-    .bubble-user {
-        background: #333;
-        color: #d4af37;
-        align-self: flex-start;
-        border-bottom-left-radius: 2px;
-        border: 1px solid #d4af37;
-    }
-
-    .badge-solicitud { background-color: #007bff; }
-    .badge-mercado { background-color: #dc3545; }
-</style>
+<link rel="stylesheet" href="{% static 'css/admin_chat.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -157,9 +67,9 @@
                 </div>
 
                 <div class="chat-input-area">
-                    <form id="msg-form" class="d-flex gap-2">
-                        <input type="text" name="mensaje" class="form-control bg-dark text-white border-gold" placeholder="Escribe al cliente..." required autocomplete="off">
-                        <button type="submit" class="btn btn-gold">
+                    <form id="msg-form" class="d-flex align-items-center">
+                        <input type="text" name="mensaje" class="form-control admin-chat-input flex-grow-1" placeholder="Escribe un mensaje al cliente aquí..." required autocomplete="off">
+                        <button type="submit" class="btn-admin-send" title="Enviar Mensaje">
                             <i class="fas fa-paper-plane"></i>
                         </button>
                     </form>
