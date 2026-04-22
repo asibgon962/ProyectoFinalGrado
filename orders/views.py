@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from .forms import SolicitudServicioForm
 from .models import SolicitudServicio, MensajeSolicitud, PedidoMercado
+from catalog.models import Plato
 
 @login_required
 def solicitar_servicio(request):
