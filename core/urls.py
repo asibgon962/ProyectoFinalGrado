@@ -39,19 +39,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),
     path('robots.txt', lambda r: HttpResponse(
-        "User-agent: *\nDisallow: /admin/\nDisallow: /accounts/\nDisallow: /mercado-negro/\nDisallow: /organizacion/\nDisallow: /mis-gestiones/\nDisallow: /editar-perfil/\nDisallow: /profile/\nDisallow: /solicitar/\nAllow: /\n\nSitemap: https://amalvarosg.tech/sitemap.xml",
+        "User-agent: *\nDisallow: /admin/\nDisallow: /accounts/\nDisallow: /mercado-negro/\nDisallow: /organizacion/\nDisallow: /mis-gestiones/\nDisallow: /editar-perfil/\nDisallow: /profile/\nDisallow: /solicitar/\nAllow: /",
         content_type="text/plain"
-    )),
-    path('sitemap.xml', lambda r: HttpResponse(
-        '<?xml version="1.0" encoding="UTF-8"?>\n'
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-        '  <url><loc>https://amalvarosg.tech/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>\n'
-        '  <url><loc>https://amalvarosg.tech/restaurante/</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>\n'
-        '  <url><loc>https://amalvarosg.tech/menu/</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>\n'
-        '  <url><loc>https://amalvarosg.tech/servicios/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>\n'
-        '  <url><loc>https://amalvarosg.tech/contacto/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>\n'
-        '</urlset>',
-        content_type="application/xml"
     )),
     path('', home_view, name='home'),
     path('restaurante/', restaurante_view, name='restaurante'),
