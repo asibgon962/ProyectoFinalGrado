@@ -1,128 +1,202 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estado Actualizado · Koi Enterprise</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+{% load static %}
+{% extends 'base.html' %}
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #0d0f13;
-            color: #e2e8f0;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-        }
+{% block page_title %}Estado Actualizado · Koi Enterprise{% endblock %}
+{% block meta_description %}Confirmación de cambio de estado del pedido.{% endblock %}
 
-        .card {
-            background: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 16px;
-            padding: 3rem 2.5rem;
-            max-width: 480px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 8px 40px rgba(0,0,0,.5);
-            animation: fadeUp .45s ease both;
-        }
+{% block extra_css %}
+<style>
+    /* ── Contenedor centrado ─────────────────────────────────────────────── */
+    .accion-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 55vh;
+        padding: 2rem 1rem;
+    }
 
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
+    /* ── Card principal ──────────────────────────────────────────────────── */
+    .accion-card {
+        background: linear-gradient(145deg, #121212, #050505);
+        border: 1px solid rgba(212, 175, 55, 0.25);
+        border-radius: 18px;
+        padding: 3.5rem 2.75rem;
+        max-width: 520px;
+        width: 100%;
+        text-align: center;
+        box-shadow:
+            0 0 0 1px rgba(212, 175, 55, 0.06),
+            0 20px 60px rgba(0, 0, 0, 0.75),
+            0 0 80px rgba(212, 175, 55, 0.04) inset;
+        animation: cardFadeUp .5s cubic-bezier(.22,1,.36,1) both;
+    }
 
-        .icon {
-            font-size: 3.5rem;
-            line-height: 1;
-            margin-bottom: 1.25rem;
-        }
+    @keyframes cardFadeUp {
+        from { opacity: 0; transform: translateY(28px) scale(.97); }
+        to   { opacity: 1; transform: translateY(0)   scale(1);    }
+    }
 
-        h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #f0f6fc;
-            margin-bottom: .5rem;
-        }
+    /* ── Icono ───────────────────────────────────────────────────────────── */
+    .accion-icon {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(212,175,55,.15), rgba(212,175,55,.05));
+        border: 1px solid rgba(212,175,55,.35);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+        animation: pulse-gold 3s ease-in-out infinite;
+    }
 
-        .badge-row {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            align-items: center;
-            margin: 1.5rem 0;
-            flex-wrap: wrap;
-        }
+    @keyframes pulse-gold {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(212,175,55,.25); }
+        50%       { box-shadow: 0 0 0 12px rgba(212,175,55,0); }
+    }
 
-        .badge {
-            padding: .35rem .85rem;
-            border-radius: 999px;
-            font-size: .85rem;
-            font-weight: 600;
-            letter-spacing: .02em;
-        }
+    /* ── Título ──────────────────────────────────────────────────────────── */
+    .accion-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.9rem;
+        color: var(--lux-gold-light);
+        margin-bottom: .5rem;
+        letter-spacing: .02em;
+    }
 
-        .badge-old  { background: #21262d; color: #8b949e; }
-        .badge-new  { background: #1f4a30; color: #3fb950; }
+    /* ── Separador dorado ────────────────────────────────────────────────── */
+    .gold-divider {
+        width: 60px;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--lux-gold), transparent);
+        margin: 1.25rem auto;
+        border: none;
+        opacity: .7;
+    }
 
-        .arrow { color: #484f58; font-size: 1.2rem; }
+    /* ── Badges de transición de estado ─────────────────────────────────── */
+    .estado-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin: 1.5rem 0;
+    }
 
-        .meta {
-            font-size: .85rem;
-            color: #6e7681;
-            margin-bottom: 2rem;
-        }
+    .estado-badge {
+        padding: .4rem 1rem;
+        border-radius: 999px;
+        font-family: 'Poppins', sans-serif;
+        font-size: .82rem;
+        font-weight: 600;
+        letter-spacing: .03em;
+        white-space: nowrap;
+    }
 
-        .meta strong { color: #8b949e; }
+    .estado-badge-old {
+        background: rgba(255,255,255,.05);
+        border: 1px solid rgba(255,255,255,.12);
+        color: rgba(255,255,255,.45);
+    }
 
-        .btn {
-            display: inline-block;
-            padding: .7rem 1.6rem;
-            border-radius: 8px;
-            font-size: .9rem;
-            font-weight: 600;
-            text-decoration: none;
-            background: linear-gradient(135deg, #d4af37, #b8860b);
-            color: #0d0f13;
-            transition: opacity .2s, transform .15s;
-        }
+    .estado-badge-new {
+        background: linear-gradient(135deg, rgba(212,175,55,.2), rgba(212,175,55,.1));
+        border: 1px solid rgba(212,175,55,.5);
+        color: var(--lux-gold);
+        box-shadow: 0 0 12px rgba(212,175,55,.15);
+    }
 
-        .btn:hover { opacity: .88; transform: translateY(-1px); }
+    .estado-arrow {
+        color: rgba(212,175,55,.4);
+        font-size: 1.1rem;
+    }
 
-        .logo {
-            font-size: .75rem;
-            color: #484f58;
-            margin-top: 2rem;
-            letter-spacing: .05em;
-            text-transform: uppercase;
-        }
-    </style>
-</head>
-<body>
-    <div class="card">
-        <div class="icon">⚡</div>
-        <h1>Estado Actualizado</h1>
+    /* ── Meta info ───────────────────────────────────────────────────────── */
+    .accion-meta {
+        font-family: 'Poppins', sans-serif;
+        font-size: .85rem;
+        color: rgba(241, 226, 163, 0.45);
+        margin-bottom: 2rem;
+        letter-spacing: .02em;
+    }
 
-        <div class="badge-row">
-            <span class="badge badge-old">{{ estado_anterior }}</span>
-            <span class="arrow">→</span>
-            <span class="badge badge-new">{{ nuevo_estado }}</span>
+    .accion-meta strong {
+        color: rgba(241,226,163,.7);
+        font-weight: 600;
+    }
+
+    /* ── Botón CTA ───────────────────────────────────────────────────────── */
+    .btn-accion {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .75rem 2rem;
+        border-radius: 10px;
+        font-family: 'Poppins', sans-serif;
+        font-size: .9rem;
+        font-weight: 600;
+        letter-spacing: .04em;
+        text-decoration: none;
+        background: linear-gradient(135deg, var(--lux-gold), #b8860b);
+        color: var(--lux-black) !important;
+        border: none;
+        transition: opacity .25s, transform .2s, box-shadow .25s;
+        box-shadow: 0 4px 20px rgba(212,175,55,.25);
+    }
+
+    .btn-accion:hover {
+        opacity: .88;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(212,175,55,.35);
+    }
+
+    /* ── Firma inferior ──────────────────────────────────────────────────── */
+    .accion-firma {
+        margin-top: 2rem;
+        font-family: 'Poppins', sans-serif;
+        font-size: .72rem;
+        color: rgba(212,175,55,.25);
+        letter-spacing: .1em;
+        text-transform: uppercase;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="accion-wrapper">
+    <div class="accion-card">
+
+        <!-- Icono -->
+        <div class="accion-icon" aria-hidden="true">⚡</div>
+
+        <!-- Título -->
+        <h1 class="accion-title">Estado Actualizado</h1>
+        <hr class="gold-divider">
+
+        <!-- Transición de estado -->
+        <div class="estado-row">
+            <span class="estado-badge estado-badge-old">{{ estado_anterior }}</span>
+            <span class="estado-arrow">
+                <i class="bi bi-arrow-right"></i>
+            </span>
+            <span class="estado-badge estado-badge-new">{{ nuevo_estado }}</span>
         </div>
 
-        <p class="meta">
-            <strong>{{ tipo_label }}</strong> #{{ objeto_id }}
+        <!-- Meta info -->
+        <p class="accion-meta">
+            <strong>{{ tipo_label }}</strong> &nbsp;·&nbsp; #{{ objeto_id }}
         </p>
 
-        <a href="https://koienterprise.onrender.com/admin/" class="btn">
+        <!-- CTA -->
+        <a href="https://koienterprise.onrender.com/admin/" class="btn-accion">
+            <i class="bi bi-grid-1x2-fill"></i>
             Ir al Panel de Control
         </a>
 
-        <p class="logo">Koi Enterprise · Centro de Control</p>
+        <!-- Firma -->
+        <p class="accion-firma">Koi Enterprise &mdash; Centro de Control</p>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}
