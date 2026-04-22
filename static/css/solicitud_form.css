@@ -1,72 +1,174 @@
 /* Estilos Globales del Formulario Logístico */
-:root { 
-    --gold: #d4af37; 
-    --dark-bg: #121212; 
+:root {
+    --gold: #d4af37;
+    --dark-bg: #121212;
 }
 
 .border-gold { border: 1px solid var(--gold) !important; }
-.text-gold { color: var(--gold) !important; }
-.btn-gold { background-color: var(--gold); color: black; font-weight: bold; border: none; transition: 0.3s; }
+.text-gold    { color: var(--gold) !important; }
+.btn-gold     { background-color: var(--gold); color: black; font-weight: bold; border: none; transition: 0.3s; }
 .btn-gold:hover { background-color: #b8962e; color: white; }
 
 /* Contenedores de listas dinámicas */
-#lista-pedido, #lista-transporte { 
-    min-height: 60px; 
-    border: 1px dashed #444; 
+#lista-pedido, #lista-transporte {
+    min-height: 60px;
+    border: 1px dashed #444;
 }
 
-.item-pedido { 
-    border-bottom: 1px solid #333; 
-    padding: 10px 5px; 
+.item-pedido {
+    border-bottom: 1px solid #333;
+    padding: 10px 5px;
 }
 
-/* Select2 Custom Dark Mode */
+/* ================================================
+   PLACEHOLDERS VISIBLES
+   ================================================ */
+::placeholder                { color: #aaa !important; opacity: 1 !important; }
+::-webkit-input-placeholder  { color: #aaa !important; }
+::-moz-placeholder           { color: #aaa !important; }
+
+/* ================================================
+   ICONO CALENDARIO (input[type=date]) EN DORADO
+   ================================================ */
+input[type="date"] {
+    color-scheme: dark;
+}
+
+/* Tiñe el picker-icon del color dorado en Chrome/Edge */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(70%) sepia(60%) saturate(400%) hue-rotate(5deg) brightness(110%);
+    cursor: pointer;
+    opacity: 1;
+}
+
+/* ================================================
+   SELECT2 - MULTISELECT (tipo de servicio)
+   ================================================ */
 .select2-container--default .select2-selection--multiple {
-    background-color: #222 !important; 
-    border: 1px solid var(--gold) !important; 
+    background-color: #222 !important;
+    border: 1px solid var(--gold) !important;
     min-height: 45px !important;
 }
 
+/* Tags seleccionados */
 .select2-container--default .select2-selection--multiple .select2-selection__choice {
-    background-color: var(--gold) !important; 
-    color: black !important; 
+    background-color: var(--gold) !important;
+    color: black !important;
     border: none !important;
     font-weight: bold;
 }
 
-.select2-dropdown { 
-    background-color: #222 !important; 
-    border: 1px solid var(--gold) !important; 
-    color: white; 
+/* Icono "×" dentro de cada tag → negro sobre dorado */
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    color: #000 !important;
+    font-weight: bold;
+    margin-right: 4px;
+}
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+    color: #fff !important;
+    background-color: transparent !important;
 }
 
+/* Placeholder del campo de búsqueda dentro del multiselect */
+.select2-container--default .select2-selection--multiple .select2-search__field::placeholder {
+    color: #aaa !important;
+}
 
+/* ================================================
+   SELECT2 - SINGLE (buscador de platos) DARK MODE
+   ================================================ */
+.select2-container--default .select2-selection--single {
+    background-color: #222 !important;
+    border: 1px solid var(--gold) !important;
+    color: #e0e0e0 !important;
+    height: 42px !important;
+    border-radius: 4px !important;
+}
 
-/* RESPONSIVE */
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #e0e0e0 !important;
+    line-height: 42px !important;
+    padding-left: 12px !important;
+}
 
-/* Tablet y superior: Alineación Entidad/Fecha */
+.select2-container--default .select2-selection--single .select2-selection__placeholder {
+    color: #aaa !important;
+}
+
+/* Flecha del dropdown en dorado */
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 42px !important;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+    border-color: var(--gold) transparent transparent transparent !important;
+}
+.select2-container--default.select2-container--open
+    .select2-selection--single .select2-selection__arrow b {
+    border-color: transparent transparent var(--gold) transparent !important;
+}
+
+/* ================================================
+   SELECT2 - DROPDOWN (lista desplegable compartida)
+   ================================================ */
+.select2-dropdown {
+    background-color: #1a1a1a !important;
+    border: 1px solid var(--gold) !important;
+    color: #e0e0e0 !important;
+}
+
+.select2-container--default .select2-results__option {
+    color: #e0e0e0 !important;
+    background-color: #1a1a1a !important;
+    padding: 8px 12px;
+}
+
+/* Opción resaltada (hover) */
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: var(--gold) !important;
+    color: #000 !important;
+}
+
+/* Opción ya seleccionada */
+.select2-container--default .select2-results__option[aria-selected=true] {
+    background-color: #2c2c2c !important;
+    color: var(--gold) !important;
+}
+
+/* Campo de búsqueda dentro del dropdown */
+.select2-search--dropdown .select2-search__field {
+    background-color: #2a2a2a !important;
+    border: 1px solid #555 !important;
+    color: #e0e0e0 !important;
+    outline: none !important;
+    border-radius: 3px;
+}
+
+.select2-search--dropdown .select2-search__field::placeholder {
+    color: #999 !important;
+}
+
+/* ================================================
+   RESPONSIVE
+   ================================================ */
 @media (min-width: 768px) {
     .row-responsive { display: flex; align-items: flex-end; }
 }
 
-/* Móvil S y ajustes generales de inputs */
 @media (max-width: 576px) {
     .card { padding: 1rem !important; }
     h2 { font-size: 1.4rem; }
-    
-    /* Forzar que el grupo de añadir transporte se apile si no cabe */
+
     .input-group-responsive {
         display: flex;
         flex-direction: column;
     }
-    .input-group-responsive .form-select, 
+    .input-group-responsive .form-select,
     .input-group-responsive .btn {
         width: 100% !important;
         margin-bottom: 8px;
         border-radius: 4px !important;
     }
 
-    /* Ajuste de textos para que no se pisen */
     .item-pedido span { font-size: 0.85rem; }
-    .item-pedido img { width: 35px !important; height: 35px !important; }
+    .item-pedido img  { width: 35px !important; height: 35px !important; }
 }
