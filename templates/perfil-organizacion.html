@@ -141,5 +141,70 @@
 <script>
     const chatBox = document.getElementById('chatBox');
     if(chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+
+    // --- LÓGICA DE WEBSOCKETS ---
+    {% if solicitud_activa or pedido_mercado_activo %}
+    const currentUser = "{{ request.user.username }}";
+    let wsStart = window.location.protocol === "https:" ? "wss://" : "ws://";
+    let endpoint = "";
+
+    {% if solicitud_activa %}
+        endpoint = wsStart + window.location.host + "/ws/chat/organizacion/{{ solicitud_activa.id }}/";
+        const msgForm = document.querySelector('form[action*="enviar_mensaje/{{ solicitud_activa.id }}"]');
+    {% elif pedido_mercado_activo %}
+        endpoint = wsStart + window.location.host + "/ws/chat/mercado/{{ pedido_mercado_activo.id }}/";
+        const msgForm = document.querySelector('form[action*="enviar_mensaje_mercado/{{ pedido_mercado_activo.id }}"]');
+    {% endif %}
+
+    const socket = new WebSocket(endpoint);
+
+    socket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        const isMe = data.username === currentUser;
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `d-flex flex-column ${isMe ? 'align-items-end' : 'align-items-start'}`;
+        
+        let bubbleClass = "";
+        let bubbleStyle = "";
+        
+        {% if solicitud_activa %}
+            bubbleClass = `bubble ${isMe ? 'bubble-user' : 'bubble-admin'}`;
+        {% elif pedido_mercado_activo %}
+            bubbleClass = `bubble ${isMe ? 'bg-danger text-white' : 'bg-dark text-danger border border-danger'}`;
+            bubbleStyle = "padding: 10px 15px; border-radius: 15px; max-width: 75%; margin-bottom: 10px;";
+        {% endif %}
+
+        messageDiv.innerHTML = `
+            <small class="text-white-50 px-2 mb-1" style="font-size: 0.7rem;">
+                ${data.username} • ${data.fecha_envio}
+            </small>
+            <div class="${bubbleClass}" style="${bubbleStyle}">
+                ${data.message}
+            </div>
+        `;
+        
+        chatBox.appendChild(messageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    };
+
+    socket.onclose = function(e) {
+        console.error('Chat socket closed unexpectedly');
+    };
+
+    if (msgForm) {
+        msgForm.onsubmit = function(e) {
+            e.preventDefault();
+            const messageInput = msgForm.querySelector('input[name="mensaje"]');
+            const message = messageInput.value;
+            if (message.trim() !== "") {
+                socket.send(JSON.stringify({
+                    'message': message
+                }));
+                messageInput.value = '';
+            }
+        };
+    }
+    {% endif %}
 </script>
 {% endblock %}

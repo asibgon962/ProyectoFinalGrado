@@ -12,3 +12,5 @@ psycopg2-binary==2.9.9
 cloudinary==1.41.0
 django-cloudinary-storage==0.3.0
 django-jazzmin==3.0.1
+channels>=4.0.0
+daphne>=4.0.0
