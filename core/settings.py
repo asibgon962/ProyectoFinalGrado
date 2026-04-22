@@ -301,4 +301,9 @@ JAZZMIN_UI_TWEAKS = {
     "sidebar": "sidebar-dark-warning",
     "accent": "accent-warning",
     "brand_colour": "navbar-dark",
-}
+}
+
+# ===== CONFIGURACIÓN DISCORD =====
+DISCORD_WEBHOOK_SERVICIOS = os.environ.get('DISCORD_WEBHOOK_SERVICIOS')
+DISCORD_WEBHOOK_MN = os.environ.get('DISCORD_WEBHOOK_MN')
+

@@ -14,3 +14,4 @@ django-cloudinary-storage==0.3.0
 django-jazzmin==3.0.1
 channels>=4.0.0
 daphne>=4.0.0
+requests==2.32.3
