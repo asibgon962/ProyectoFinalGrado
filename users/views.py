@@ -100,9 +100,12 @@ def privacidad(request):
 def terminos(request):
     return render(request, 'terminos.html')
 
-@login_required
 def contacto(request):
     if request.method == 'POST':
+        if not request.user.is_authenticated:
+            messages.error(request, "Debes iniciar sesión para enviar una consulta.")
+            return redirect('login')
+
         form = ContactoForm(request.POST)
         if form.is_valid():
             # Forzamos que el nombre coincida con el del usuario

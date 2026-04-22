@@ -49,6 +49,7 @@
                 }
             </style>
             
+            {% if user.is_authenticated %}
             <form action="{% url 'contacto' %}" method="POST" class="main-container-lux p-4">
                 {% csrf_token %}
                 <div class="mb-3">
@@ -75,6 +76,17 @@
                 </div>
                 <button type="submit" class="btn btn-koi-red w-100 py-2 fw-bold">ENVIAR SOLICITUD</button>
             </form>
+            {% else %}
+            <div class="main-container-lux p-5 text-center shadow-lg border border-gold">
+                <i class="bi bi-person-lock text-gold mb-3" style="font-size: 3rem;"></i>
+                <h3 class="text-gold mb-3">Acceso Exclusivo</h3>
+                <p class="text-white-50 mb-4">Para poder gestionar su consulta de forma oficial y vincularla a su cuenta de miembro, es necesario haber iniciado sesión.</p>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'login' %}?next={% url 'contacto' %}" class="btn btn-gold py-2 fw-bold text-black">INICIAR SESIÓN</a>
+                    <a href="{% url 'register' %}" class="btn btn-outline-gold py-2">REGISTRARSE AHORA</a>
+                </div>
+            </div>
+            {% endif %}
         </div>
 
         <!-- Preguntas Frecuentes (FAQ) -->
