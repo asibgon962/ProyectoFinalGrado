@@ -85,16 +85,43 @@
 
         <script>
             $(document).ready(function() {
-                // Obtenemos el HTML renderizado de forma segura usando un <template> tag.
+                // Notificaciones
                 var notificationsHtml = $('#admin-notifications-template').html();
                 var userMenuLi = $('#jazzy-usermenu').parent();
-                
                 if(userMenuLi.length) {
                     userMenuLi.before(notificationsHtml);
                 } else {
-                    // Fallback
                     $('.navbar-nav.ml-auto').prepend(notificationsHtml);
                 }
+
+                // Lógica del Botón Dinámico de Acciones
+                function updateActionButton() {
+                    var actionSelect = $('select[name="action"]');
+                    var submitBtn = $('button[name="index"][value="0"]');
+                    
+                    if (actionSelect.length && submitBtn.length) {
+                        var selectedOption = actionSelect.find('option:selected');
+                        var selectedValue = actionSelect.val();
+                        var selectedText = selectedOption.text();
+
+                        if (selectedValue === 'delete_selected') {
+                            submitBtn.text("Eliminar Seleccionados").removeClass('btn-primary btn-secondary').addClass('btn-danger shadow-sm');
+                        } else if (selectedValue) {
+                            var cleanText = selectedText.split('...')[0].trim();
+                            if (cleanText.length > 20) cleanText = "Ejecutar";
+                            submitBtn.text(cleanText).removeClass('btn-danger btn-secondary').addClass('btn-primary shadow-sm');
+                        } else {
+                            submitBtn.text("Ir").removeClass('btn-danger btn-primary').addClass('btn-secondary');
+                        }
+                    }
+                }
+
+                // Escuchar cambios (compatible con Select2 si Jazzmin lo usa)
+                $(document).on('change', 'select[name="action"]', updateActionButton);
+                
+                // Ejecutar al inicio y periódicamente por si se carga vía Ajax
+                updateActionButton();
+                setTimeout(updateActionButton, 1000);
             });
         </script>
     {% endif %}
