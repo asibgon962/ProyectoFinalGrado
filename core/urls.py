@@ -31,7 +31,10 @@ from catalog.views import (
     ver_carrito, 
     vaciar_carrito, 
     eliminar_item_carrito,
-    procesar_compra
+    procesar_compra,
+    aplicar_oferta_mercado,
+    aplicar_cupon,
+    aplicar_oferta_servicio
 )
 from orders import views as orders_views
 from orders.views import accion_estado
@@ -67,6 +70,9 @@ urlpatterns = [
     path('mercado-negro/carrito/', ver_carrito, name='ver_carrito'),
     path('mercado-negro/vaciar-carrito/', vaciar_carrito, name='vaciar_carrito'),
     path('mercado-negro/procesar/', procesar_compra, name='procesar_compra'),
+    path('mercado-negro/oferta/<int:oferta_id>/', aplicar_oferta_mercado, name='aplicar_oferta_mercado'),
+    path('mercado-negro/cupon/', aplicar_cupon, name='aplicar_cupon'),
+    path('servicio/oferta/<int:oferta_id>/', aplicar_oferta_servicio, name='aplicar_oferta_servicio'),
     path('admin-chat/', orders_views.admin_chat_dashboard, name='admin_chat_dashboard'),
     path('admin-chat/<str:chat_type>/<int:object_id>/', orders_views.admin_chat_dashboard, name='admin_chat_detail'),
     path('orders/accion/<str:tipo>/<int:objeto_id>/<str:nuevo_estado>/', accion_estado, name='accion_estado'),

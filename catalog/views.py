@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.views.decorators.cache import never_cache
-from .models import Plato, Categoria, BannerNormal, BannerMercadoNegro
+from .models import Plato, Categoria, BannerNormal, BannerMercadoNegro, OfertaMercado, OfertaServicio, Cupon
 
 @never_cache
 def home_view(request):
@@ -97,12 +97,12 @@ def ver_carrito(request):
     
     cart = request.session.get('cart', {})
     items_carrito = []
-    total = Decimal('0.00')
+    total_individual = Decimal('0.00')
     
     for p_id, item_data in cart.items():
         precio = Decimal(item_data['precio_venta'])
         subtotal = precio * item_data['cantidad']
-        total += subtotal
+        total_individual += subtotal
         items_carrito.append({
             'producto_id': p_id,
             'nombre': item_data['nombre'],
@@ -110,8 +110,102 @@ def ver_carrito(request):
             'cantidad': item_data['cantidad'],
             'subtotal': subtotal
         })
+
+    # --- Lógica de Ofertas Automáticas ---
+    oferta_aplicada = None
+    descuento_oferta = Decimal('0.00')
+    
+    # Prioridad 1: Oferta seleccionada por banner
+    oferta_id = request.session.get('oferta_id_mn')
+    if oferta_id:
+        oferta_aplicada = OfertaMercado.objects.filter(id=oferta_id, activo=True).first()
+    
+    # Prioridad 2: Detección automática si no hay una seleccionada
+    if not oferta_aplicada:
+        productos_en_carrito = set(cart.keys())
+        ofertas_auto = OfertaMercado.objects.filter(activo=True, auto_aplicar=True)
+        for off in ofertas_auto:
+            ids_oferta = set(str(p.id) for p in off.productos.all())
+            # Si todos los productos de la oferta están en el carrito (y tienen cantidad >= 1)
+            if ids_oferta.issubset(productos_en_carrito):
+                oferta_aplicada = off
+                break
+
+    if oferta_aplicada:
+        # Calculamos cuánto costarían esos productos por separado (solo 1 unidad de cada uno para el pack)
+        coste_base_pack = sum(p.precio_venta for p in oferta_aplicada.productos.all())
+        # El ahorro es la diferencia
+        descuento_oferta = coste_base_pack - oferta_aplicada.precio_total
+        if descuento_oferta < 0: descuento_oferta = Decimal('0.00')
+
+    # --- Lógica de Cupones ---
+    cupon_aplicado = None
+    descuento_cupon = Decimal('0.00')
+    cupon_id = request.session.get('cupon_id')
+    if cupon_id:
+        cupon_obj = Cupon.objects.filter(id=cupon_id).first()
+        if cupon_obj and cupon_obj.es_valido():
+            cupon_aplicado = cupon_obj
+            if cupon_obj.tipo == 'PORCENTAJE':
+                descuento_cupon = (total_individual - descuento_oferta) * (cupon_obj.valor / 100)
+            else:
+                descuento_cupon = cupon_obj.valor
+
+    total_final = total_individual - descuento_oferta - descuento_cupon
+    if total_final < 0: total_final = Decimal('0.00')
+
+    context = {
+        'items_carrito': items_carrito,
+        'total_individual': total_individual,
+        'descuento_oferta': descuento_oferta,
+        'oferta_aplicada': oferta_aplicada,
+        'cupon_aplicado': cupon_aplicado,
+        'descuento_cupon': descuento_cupon,
+        'total_final': total_final,
+    }
         
-    return render(request, 'carrito.html', {'items_carrito': items_carrito, 'total': total})
+    return render(request, 'carrito.html', context)
+
+@login_required
+def aplicar_oferta_mercado(request, oferta_id):
+    if not (getattr(request.user, 'organization', None) and request.user.organization.es_ilegal):
+        return redirect('/')
+    
+    oferta = get_object_or_404(OfertaMercado, id=oferta_id, activo=True)
+    cart = request.session.get('cart', {})
+    
+    # Añadimos los productos de la oferta (1 unidad de cada)
+    for producto in oferta.productos.all():
+        p_id = str(producto.id)
+        if p_id not in cart:
+            cart[p_id] = {
+                'nombre': producto.nombre,
+                'precio_venta': str(producto.precio_venta),
+                'cantidad': 1
+            }
+    
+    request.session['cart'] = cart
+    request.session['oferta_id_mn'] = oferta.id
+    messages.success(request, f"¡Oferta '{oferta.titulo}' aplicada al carrito!")
+    return redirect('ver_carrito')
+
+@login_required
+def aplicar_cupon(request):
+    if request.method == 'POST':
+        codigo = request.POST.get('codigo', '').strip().upper()
+        cupon = Cupon.objects.filter(codigo=codigo, activo=True).first()
+        if cupon and cupon.es_valido():
+            request.session['cupon_id'] = cupon.id
+            messages.success(request, f"Cupón '{codigo}' aplicado con éxito.")
+        else:
+            messages.error(request, "Cupón inválido, expirado o agotado.")
+    return redirect('ver_carrito')
+
+@login_required
+def aplicar_oferta_servicio(request, oferta_id):
+    oferta = get_object_or_404(OfertaServicio, id=oferta_id, activo=True)
+    # Redirigimos al formulario con la oferta en la URL
+    return redirect(f"/solicitar/?oferta_id={oferta.id}")
 
 @login_required
 def vaciar_carrito(request):
@@ -165,8 +259,39 @@ def procesar_compra(request):
             )
             total_pedido += precio * cantidad
             
-        pedido.total = total_pedido
+        # --- Gestión de Descuentos ---
+        descuento_total = Decimal('0.00')
+        oferta_id = request.session.get('oferta_id_mn')
+        oferta_obj = None
+        if oferta_id:
+            oferta_obj = OfertaMercado.objects.filter(id=oferta_id, activo=True).first()
+            if oferta_obj:
+                coste_base = sum(p.precio_venta for p in oferta_obj.productos.all())
+                descuento_total += (coste_base - oferta_obj.precio_total)
+
+        cupon_id = request.session.get('cupon_id')
+        cupon_obj = None
+        if cupon_id:
+            cupon_obj = Cupon.objects.filter(id=cupon_id).first()
+            if cupon_obj and cupon_obj.es_valido():
+                if cupon_obj.tipo == 'PORCENTAJE':
+                    descuento_total += (total_pedido - descuento_total) * (cupon_obj.valor / 100)
+                else:
+                    descuento_total += cupon_obj.valor
+                
+                # Consumir uso del cupón
+                cupon_obj.usos_actuales += 1
+                cupon_obj.save()
+
+        pedido.total = max(Decimal('0.00'), total_pedido - descuento_total)
+        pedido.descuento_total = descuento_total
+        pedido.oferta_aplicada = oferta_obj
+        pedido.cupon_aplicado = cupon_obj
         pedido.save()
+
+        # Limpiar sesión
+        request.session['oferta_id_mn'] = None
+        request.session['cupon_id'] = None
 
         # --- Notificación Discord (aquí tenemos total e items correctos) ---
         try:

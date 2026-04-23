@@ -32,8 +32,10 @@
         <div class="carousel-inner">
             {% for banner in banners_home %}
             <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                {% if banner.enlace %}
-                <a href="{{ banner.enlace }}" class="d-block banner-link" target="_blank" rel="noopener">
+                {% if banner.oferta %}
+                    <a href="{% url 'aplicar_oferta_servicio' banner.oferta.id %}" class="d-block banner-link">
+                {% elif banner.enlace %}
+                    <a href="{{ banner.enlace }}" class="d-block banner-link" target="_blank" rel="noopener">
                 {% endif %}
                     <div class="banner-card position-relative overflow-hidden rounded-3">
                         {% if banner.imagen %}
@@ -46,7 +48,7 @@
                         </div>
                         {% endif %}
                     </div>
-                {% if banner.enlace %}
+                {% if banner.oferta or banner.enlace %}
                 </a>
                 {% endif %}
             </div>

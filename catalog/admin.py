@@ -3,7 +3,7 @@ from django.utils.html import format_html
 from .models import (
     Categoria, Ingrediente, Plato, PlatoIngrediente,
     Producto, ProductoIngrediente, CategoriaProducto,
-    BannerNormal, BannerMercadoNegro
+    BannerNormal, BannerMercadoNegro, OfertaMercado, OfertaServicio, Cupon
 )
 
 # Esto permite añadir ingredientes dentro de la ficha del plato
@@ -72,9 +72,9 @@ class ProductoAdmin(admin.ModelAdmin):
 
 @admin.register(BannerNormal)
 class BannerNormalAdmin(admin.ModelAdmin):
-    list_display = ('titulo', 'categoria', 'activo', 'orden', 'preview_imagen')
+    list_display = ('titulo', 'categoria', 'oferta', 'activo', 'orden', 'preview_imagen')
     list_editable = ('activo', 'orden')
-    list_filter = ('activo', 'categoria')
+    list_filter = ('activo', 'categoria', 'oferta')
     search_fields = ('titulo', 'subtitulo')
 
     def preview_imagen(self, obj):
@@ -86,12 +86,30 @@ class BannerNormalAdmin(admin.ModelAdmin):
         return "—"
     preview_imagen.short_description = "Vista Previa"
 
+@admin.register(OfertaMercado)
+class OfertaMercadoAdmin(admin.ModelAdmin):
+    list_display = ('titulo', 'precio_total', 'activo', 'auto_aplicar')
+    filter_horizontal = ('productos',)
+    list_filter = ('activo', 'auto_aplicar')
+
+@admin.register(OfertaServicio)
+class OfertaServicioAdmin(admin.ModelAdmin):
+    list_display = ('titulo', 'precio_total', 'activo')
+    filter_horizontal = ('platos',)
+    list_filter = ('activo',)
+
+@admin.register(Cupon)
+class CuponAdmin(admin.ModelAdmin):
+    list_display = ('codigo', 'tipo', 'valor', 'usos_actuales', 'usos_maximos', 'activo')
+    list_filter = ('activo', 'tipo')
+    search_fields = ('codigo',)
+
 
 @admin.register(BannerMercadoNegro)
 class BannerMercadoNegroAdmin(admin.ModelAdmin):
-    list_display = ('titulo', 'categoria', 'activo', 'orden', 'preview_imagen')
+    list_display = ('titulo', 'categoria', 'oferta', 'activo', 'orden', 'preview_imagen')
     list_editable = ('activo', 'orden')
-    list_filter = ('activo', 'categoria')
+    list_filter = ('activo', 'categoria', 'oferta')
     search_fields = ('titulo', 'subtitulo')
 
     def preview_imagen(self, obj):

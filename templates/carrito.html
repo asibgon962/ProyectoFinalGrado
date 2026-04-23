@@ -33,23 +33,60 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="3" class="text-end text-white fs-5">TOTAL:</td>
-                        <td class="text-end text-gold fs-4 fw-bold">{{ total|floatformat:2 }} €</td>
+                        <td colspan="3" class="text-end text-white-50">Subtotal acumulado:</td>
+                        <td class="text-end text-white fw-bold">{{ total_individual|floatformat:2 }} €</td>
+                        <td></td>
+                    </tr>
+                    {% if oferta_aplicada %}
+                    <tr class="border-0">
+                        <td colspan="3" class="text-end text-success">
+                            <i class="bi bi-patch-check-fill"></i> Oferta aplicada: {{ oferta_aplicada.titulo }}
+                        </td>
+                        <td class="text-end text-success">-{{ descuento_oferta|floatformat:2 }} €</td>
+                        <td></td>
+                    </tr>
+                    {% endif %}
+                    {% if cupon_aplicado %}
+                    <tr class="border-0">
+                        <td colspan="3" class="text-end text-info">
+                            <i class="bi bi-ticket-perforated-fill"></i> Cupón: {{ cupon_aplicado.codigo }}
+                        </td>
+                        <td class="text-end text-info">-{{ descuento_cupon|floatformat:2 }} €</td>
+                        <td></td>
+                    </tr>
+                    {% endif %}
+                    <tr class="border-top border-danger">
+                        <td colspan="3" class="text-end text-white fs-4 fw-bold">TOTAL A PAGAR:</td>
+                        <td class="text-end text-gold fs-3 fw-bold">{{ total_final|floatformat:2 }} €</td>
                         <td></td>
                     </tr>
                 </tfoot>
             </table>
         </div>
 
-        <div class="d-flex justify-content-between mt-4 align-items-center">
-            <a href="{% url 'vaciar_carrito' %}" class="btn btn-outline-danger btn-sm">
-                <i class="bi bi-exclamation-triangle"></i> Vaciar todo el carrito
-            </a>
-            <div class="d-flex gap-3">
-                <a href="{% url 'mercado_negro' %}" class="btn btn-outline-secondary text-white">Volver al Mercado</a>
-                <form action="{% url 'procesar_compra' %}" method="POST">
+        <div class="row mt-4 g-4">
+            <div class="col-md-6">
+                <div class="card bg-dark border-secondary p-3">
+                    <h6 class="text-white mb-3">¿Tienes un código de descuento?</h6>
+                    <form action="{% url 'aplicar_cupon' %}" method="POST" class="d-flex gap-2">
+                        {% csrf_token %}
+                        <input type="text" name="codigo" class="form-control form-control-sm bg-black text-white border-secondary" placeholder="Ingresa tu cupón..." required>
+                        <button type="submit" class="btn btn-outline-gold btn-sm px-3">Canjear</button>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex flex-column align-items-end justify-content-center">
+                <div class="d-flex gap-3 mb-2">
+                    <a href="{% url 'vaciar_carrito' %}" class="btn btn-outline-danger btn-sm">
+                        <i class="bi bi-exclamation-triangle"></i> Vaciar Carrito
+                    </a>
+                    <a href="{% url 'mercado_negro' %}" class="btn btn-outline-light btn-sm">Continuar Comprando</a>
+                </div>
+                <form action="{% url 'procesar_compra' %}" method="POST" class="w-100 text-end">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-danger fw-bold px-4 border-dark shadow">CONFIRMAR PEDIDO</button>
+                    <button type="submit" class="btn btn-danger fw-bold px-5 py-2 border-dark shadow-lg">
+                        CONFIRMAR Y FINALIZAR PEDIDO <i class="bi bi-check2-all ms-2"></i>
+                    </button>
                 </form>
             </div>
         </div>

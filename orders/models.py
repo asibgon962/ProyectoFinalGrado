@@ -35,9 +35,23 @@ class SolicitudServicio(models.Model):
     requiere_productos = models.BooleanField(default=False)
     requiere_transporte = models.BooleanField(default=False)
     
-    # Datos en formato JSON para flexibilidad
     detalles_cantidades = models.JSONField(default=dict, blank=True)
     detalles_transporte = models.JSONField(default=dict, blank=True)
+
+    oferta_aplicada = models.ForeignKey(
+        'catalog.OfertaServicio', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='solicitudes'
+    )
+    precio_fijo = models.DecimalField(
+        max_digits=12, 
+        decimal_places=2, 
+        null=True, 
+        blank=True, 
+        help_text="Si viene de una oferta, este será el precio final acordado."
+    )
 
     def __str__(self):
         return f"{self.nombre_entidad} - {self.fecha_entrega}"
@@ -71,6 +85,22 @@ class PedidoMercado(models.Model):
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='PENDIENTE')
     total = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     stock_descontado = models.BooleanField(default=False)
+
+    oferta_aplicada = models.ForeignKey(
+        'catalog.OfertaMercado', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='pedidos'
+    )
+    cupon_aplicado = models.ForeignKey(
+        'catalog.Cupon', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='pedidos'
+    )
+    descuento_total = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
 
     def clean(self):
         super().clean()

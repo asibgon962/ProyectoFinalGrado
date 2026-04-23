@@ -6,42 +6,57 @@ from django.http import HttpResponseForbidden, HttpResponseBadRequest
 from .forms import SolicitudServicioForm
 from .models import SolicitudServicio, MensajeSolicitud, PedidoMercado
 from .utils import verificar_token_accion
-from catalog.models import Plato
+from catalog.models import Plato, OfertaServicio
 
 @login_required
 def solicitar_servicio(request):
     # Excelente que filtres solo los disponibles
     platos = Plato.objects.filter(disponible=True)
     
+    oferta_id = request.GET.get('oferta_id')
+    oferta_obj = None
+    if oferta_id:
+        oferta_obj = OfertaServicio.objects.filter(id=oferta_id, activo=True).first()
+
     if request.method == 'POST':
-        # CAMBIO CLAVE: Le pasamos 'user=request.user' al formulario
         form = SolicitudServicioForm(request.POST, user=request.user)
         
         if form.is_valid():
             solicitud = form.save(commit=False)
             solicitud.usuario = request.user 
             
-            # Asociar la organización si el usuario la seleccionó
             if getattr(request.user, 'organization', None):
                 if form.cleaned_data.get('nombre_entidad') == request.user.organization.nombre:
                     solicitud.organizacion = request.user.organization
             
+            # Aplicar oferta si existe (la traemos de un campo oculto o la volvemos a buscar)
+            post_oferta_id = request.POST.get('oferta_aplicada_id')
+            if post_oferta_id:
+                off = OfertaServicio.objects.filter(id=post_oferta_id, activo=True).first()
+                if off:
+                    solicitud.oferta_aplicada = off
+                    solicitud.precio_fijo = off.precio_total
+
             solicitud.save()
             form.save_m2m() 
             
-            messages.success(request, "Enviado")
+            messages.success(request, "Solicitud enviada con éxito.")
             return redirect('home')
         else:
-            # Esto ayuda a debugear en la terminal si algo falla
-            print("Errores en el formulario:", form.errors)
             messages.error(request, "Hay errores en el formulario. Revisa los campos.")
     else:
-        # CAMBIO CLAVE: También pasamos el usuario cuando se carga el formulario vacío (GET)
-        form = SolicitudServicioForm(user=request.user)
+        # Pre-seleccionar platos si hay oferta
+        initial_data = {}
+        if oferta_obj:
+            initial_data['platos'] = oferta_obj.platos.all()
+            messages.info(request, f"Se ha aplicado la oferta: {oferta_obj.titulo}")
+
+        form = SolicitudServicioForm(user=request.user, initial=initial_data)
     
     return render(request, 'orders/solicitud_form.html', {
         'form': form, 
-        'platos_disponibles': platos
+        'platos_disponibles': platos,
+        'oferta_obj': oferta_obj
     })
 
 @login_required

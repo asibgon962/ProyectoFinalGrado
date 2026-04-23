@@ -13,7 +13,11 @@
             {% for banner in banners_generales %}
             {% if not banner.categoria %}
             <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                {% if banner.enlace %}<a href="{{ banner.enlace }}" class="banner-link d-block" target="_blank" rel="noopener">{% endif %}
+                {% if banner.oferta %}
+                    <a href="{% url 'aplicar_oferta_mercado' banner.oferta.id %}" class="banner-link d-block">
+                {% elif banner.enlace %}
+                    <a href="{{ banner.enlace }}" class="banner-link d-block" target="_blank" rel="noopener">
+                {% endif %}
                 <div class="banner-card position-relative overflow-hidden rounded-3">
                     {% if banner.imagen %}<img src="{{ banner.imagen.url }}" alt="{{ banner.titulo }}" class="banner-img w-100">{% endif %}
                     {% if banner.titulo or banner.subtitulo %}
@@ -23,7 +27,7 @@
                     </div>
                     {% endif %}
                 </div>
-                {% if banner.enlace %}</a>{% endif %}
+                {% if banner.oferta or banner.enlace %}</a>{% endif %}
             </div>
             {% endif %}
             {% endfor %}
@@ -41,7 +45,11 @@
         {% for banner in banners_mercado %}
         {% if banner.categoria_id == categoria.id %}
         <div class="mb-3">
-            {% if banner.enlace %}<a href="{{ banner.enlace }}" class="banner-link d-block" target="_blank" rel="noopener">{% endif %}
+            {% if banner.oferta %}
+                <a href="{% url 'aplicar_oferta_mercado' banner.oferta.id %}" class="banner-link d-block">
+            {% elif banner.enlace %}
+                <a href="{{ banner.enlace }}" class="banner-link d-block" target="_blank" rel="noopener">
+            {% endif %}
             <div class="banner-card position-relative overflow-hidden rounded-3">
                 {% if banner.imagen %}<img src="{{ banner.imagen.url }}" alt="{{ banner.titulo }}" class="banner-img w-100">{% endif %}
                 {% if banner.titulo or banner.subtitulo %}
@@ -51,7 +59,7 @@
                 </div>
                 {% endif %}
             </div>
-            {% if banner.enlace %}</a>{% endif %}
+            {% if banner.oferta or banner.enlace %}</a>{% endif %}
         </div>
         {% endif %}
         {% endfor %}

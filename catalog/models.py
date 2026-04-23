@@ -143,9 +143,81 @@ class BannerNormal(models.Model):
         verbose_name_plural = "Banners Normales"
         ordering = ['orden']
 
+    oferta = models.ForeignKey(
+        'OfertaServicio', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='banners',
+        help_text="Si se selecciona una oferta, al clicar el banner se pre-seleccionarán los platos de la oferta."
+    )
+
     def __str__(self):
         cat = self.categoria.nombre if self.categoria else "General (Home & Todo)"
         return f"[{cat}] {self.titulo or 'Sin título'}"
+
+class OfertaMercado(models.Model):
+    titulo = models.CharField(max_length=200)
+    descripcion = models.TextField(blank=True)
+    productos = models.ManyToManyField(Producto, related_name='ofertas')
+    precio_total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio Total Pack")
+    activo = models.BooleanField(default=True)
+    auto_aplicar = models.BooleanField(
+        default=False, 
+        verbose_name="Auto-aplicar",
+        help_text="Si el usuario añade estos productos manualmente al carrito, se aplicará el descuento automáticamente."
+    )
+
+    class Meta:
+        verbose_name = "Oferta Mercado Negro"
+        verbose_name_plural = "Ofertas Mercado Negro"
+
+    def __str__(self):
+        return f"{self.titulo} ({self.precio_total}€)"
+
+class OfertaServicio(models.Model):
+    titulo = models.CharField(max_length=200)
+    descripcion = models.TextField(blank=True)
+    platos = models.ManyToManyField(Plato, related_name='ofertas')
+    precio_total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio Total Pack")
+    activo = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = "Oferta de Servicio/Platos"
+        verbose_name_plural = "Ofertas de Servicio/Platos"
+
+    def __str__(self):
+        return f"{self.titulo} ({self.precio_total}€)"
+
+class Cupon(models.Model):
+    TIPO_CHOICES = [
+        ('PORCENTAJE', 'Porcentaje (%)'),
+        ('FIJO', 'Importe Fijo (€)'),
+    ]
+    codigo = models.CharField(max_length=50, unique=True, verbose_name="Código del Cupón")
+    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, default='PORCENTAJE')
+    valor = models.DecimalField(max_digits=10, decimal_places=2, help_text="Ej: 10 para 10% o 10€")
+    activo = models.BooleanField(default=True)
+    usos_maximos = models.PositiveIntegerField(default=1, help_text="Cuántas veces se puede usar en total")
+    usos_actuales = models.PositiveIntegerField(default=0)
+    fecha_expiracion = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Cupón"
+        verbose_name_plural = "Cupones"
+
+    def __str__(self):
+        return f"{self.codigo} (-{self.valor}{'%' if self.tipo == 'PORCENTAJE' else '€'})"
+
+    def es_valido(self):
+        from django.utils import timezone
+        if not self.activo:
+            return False
+        if self.usos_actuales >= self.usos_maximos:
+            return False
+        if self.fecha_expiracion and self.fecha_expiracion < timezone.now():
+            return False
+        return True
 
 
 class BannerMercadoNegro(models.Model):
@@ -169,6 +241,15 @@ class BannerMercadoNegro(models.Model):
         verbose_name = "Banner Mercado Negro"
         verbose_name_plural = "Banners Mercado Negro"
         ordering = ['orden']
+
+    oferta = models.ForeignKey(
+        'OfertaMercado', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='banners',
+        help_text="Si se selecciona una oferta, al clicar el banner se añadirán los productos al carrito con precio especial."
+    )
 
     def __str__(self):
         cat = self.categoria.nombre if self.categoria else "General (Portada)"
