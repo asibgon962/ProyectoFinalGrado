@@ -87,6 +87,10 @@ class Producto(models.Model):
     stock = models.IntegerField(default=0, verbose_name="Stock Disponible")
     imagen = models.ImageField(upload_to='productos_mercado/', blank=True, null=True)
     disponible = models.BooleanField(default=True)
+ 
+    class Meta:
+        verbose_name = "Producto (Mercado)"
+        verbose_name_plural = "Productos (Mercado)"
 
     def __str__(self):
         return self.nombre
