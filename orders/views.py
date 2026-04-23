@@ -43,7 +43,7 @@ def solicitar_servicio(request):
             cupon_id = request.POST.get('cupon_id')
             if cupon_id:
                 cp = Cupon.objects.filter(id=cupon_id, activo=True).first()
-                if cp and cp.es_valido():
+                if cp and cp.es_valido(request.user):
                     solicitud.cupon_aplicado = cp
                     # El descuento_total se calculará en base al total enviado o lo dejamos para que se vea en el admin
                     # Por ahora lo guardamos para referencia

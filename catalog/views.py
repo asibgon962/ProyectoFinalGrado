@@ -162,7 +162,7 @@ def ver_carrito(request):
     cupon_id = request.session.get('cupon_id')
     if cupon_id:
         cupon_obj = Cupon.objects.filter(id=cupon_id).first()
-        if cupon_obj and cupon_obj.es_valido():
+        if cupon_obj and cupon_obj.es_valido(request.user):
             cupon_aplicado = cupon_obj
             if cupon_obj.tipo == 'PORCENTAJE':
                 descuento_cupon = (total_individual - descuento_oferta) * (cupon_obj.valor / 100)
