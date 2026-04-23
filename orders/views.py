@@ -6,7 +6,7 @@ from django.http import HttpResponseForbidden, HttpResponseBadRequest
 from .forms import SolicitudServicioForm
 from .models import SolicitudServicio, MensajeSolicitud, PedidoMercado
 from .utils import verificar_token_accion
-from catalog.models import Plato, OfertaServicio
+from catalog.models import Plato, OfertaServicio, Cupon
 
 @login_required
 def solicitar_servicio(request):
@@ -38,6 +38,19 @@ def solicitar_servicio(request):
                     solicitud.precio_fijo = off.precio_total
 
             solicitud.save()
+            
+            # Aplicar cupón si existe
+            cupon_id = request.POST.get('cupon_id')
+            if cupon_id:
+                cp = Cupon.objects.filter(id=cupon_id, activo=True).first()
+                if cp and cp.es_valido():
+                    solicitud.cupon_aplicado = cp
+                    # El descuento_total se calculará en base al total enviado o lo dejamos para que se vea en el admin
+                    # Por ahora lo guardamos para referencia
+                    solicitud.save()
+                    cp.usos_actuales += 1
+                    cp.save()
+
             form.save_m2m() 
             
             messages.success(request, "Solicitud enviada con éxito.")

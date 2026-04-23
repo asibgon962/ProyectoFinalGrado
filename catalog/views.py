@@ -1,6 +1,20 @@
 from django.shortcuts import render
 from django.views.decorators.cache import never_cache
 from .models import Plato, Categoria, BannerNormal, BannerMercadoNegro, OfertaMercado, OfertaServicio, Cupon
+from django.http import JsonResponse
+
+def validar_cupon_ajax(request):
+    codigo = request.GET.get('codigo', '').strip().upper()
+    cupon = Cupon.objects.filter(codigo=codigo, activo=True).first()
+    if cupon and cupon.es_valido():
+        return JsonResponse({
+            'valido': True,
+            'id': cupon.id,
+            'tipo': cupon.tipo,
+            'valor': float(cupon.valor),
+            'mensaje': f"Cupón '{codigo}' aplicado con éxito."
+        })
+    return JsonResponse({'valido': False, 'mensaje': 'Cupón inválido, expirado o agotado.'})
 
 @never_cache
 def home_view(request):

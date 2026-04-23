@@ -118,6 +118,16 @@
 
                     {{ form.detalles_cantidades }}
                     {{ form.detalles_transporte }}
+                    <input type="hidden" name="cupon_id" id="id_cupon_aplicado">
+
+                    <div class="mb-4">
+                        <label class="text-gold fw-bold mb-2">Cupón de Descuento</label>
+                        <div class="input-group">
+                            <input type="text" id="input-cupon" class="form-control bg-dark text-white border-secondary" placeholder="Introduce tu código...">
+                            <button type="button" id="btn-validar-cupon" class="btn btn-outline-gold">Validar</button>
+                        </div>
+                        <div id="msg-cupon" class="small mt-1"></div>
+                    </div>
 
                     <button type="submit" class="btn btn-gold w-100 p-3 shadow text-uppercase">Confirmar y Enviar</button>
                 </form>
@@ -132,6 +142,7 @@
 <script>
     let carrito = {};
     let carritoTransporte = {};
+    let cuponActivo = null;
 
     // --- Cargar Oferta Inicial si existe (limpio para el editor) ---
     const ofertaInfo = document.getElementById('data-oferta-config');
@@ -270,6 +281,35 @@
                 actualizarInputTrans();
             }
         });
+
+        // --- Lógica de Cupones ---
+        $('#btn-validar-cupon').on('click', function() {
+            const codigo = $('#input-cupon').val().trim();
+            if (!codigo) return;
+
+            $.ajax({
+                url: '{% url "validar_cupon_ajax" %}',
+                data: { 'codigo': codigo },
+                success: function(data) {
+                    const $msg = $('#msg-cupon');
+                    if (data.valido) {
+                        cuponActivo = data;
+                        $('#id_cupon_aplicado').val(data.id);
+                        $msg.text(data.mensaje).removeClass('text-danger').addClass('text-success');
+                        $('#input-cupon').prop('readonly', true);
+                        $('#btn-validar-cupon').prop('disabled', true);
+                    } else {
+                        cuponActivo = null;
+                        $('#id_cupon_aplicado').val('');
+                        $msg.text(data.mensaje).removeClass('text-success').addClass('text-danger');
+                    }
+                    calcularTotal();
+                },
+                error: function() {
+                    alert("Error al validar el cupón.");
+                }
+            });
+        });
     });
 
     function actualizarInputOculto() { 
@@ -336,7 +376,24 @@
             $('#alerta-oferta-visual').fadeOut();
         }
         
-        $('#precio-total-display').text(total.toLocaleString('es-ES', { minimumFractionDigits: 2 }) + '€');
+        // --- Aplicar Descuento de Cupón ---
+        if (cuponActivo) {
+            let descuento = 0;
+            if (cuponActivo.tipo === 'PORCENTAJE') {
+                descuento = total * (cuponActivo.valor / 100);
+            } else {
+                descuento = cuponActivo.valor;
+            }
+            total = Math.max(0, total - descuento);
+            
+            // Añadir info de descuento en el display si quieres
+            $('#precio-total-display').html(`
+                <span class="text-muted small text-decoration-line-through me-2">${(total + descuento).toLocaleString('es-ES', { minimumFractionDigits: 2 })}€</span>
+                ${total.toLocaleString('es-ES', { minimumFractionDigits: 2 })}€
+            `);
+        } else {
+            $('#precio-total-display').text(total.toLocaleString('es-ES', { minimumFractionDigits: 2 }) + '€');
+        }
     }
 
     function cambiarCantidad(nombrePlato, valor) { 

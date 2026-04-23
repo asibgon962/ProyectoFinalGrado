@@ -34,7 +34,8 @@ from catalog.views import (
     procesar_compra,
     aplicar_oferta_mercado,
     aplicar_cupon,
-    aplicar_oferta_servicio
+    aplicar_oferta_servicio,
+    validar_cupon_ajax
 )
 from orders import views as orders_views
 from orders.views import accion_estado
@@ -72,6 +73,7 @@ urlpatterns = [
     path('mercado-negro/procesar/', procesar_compra, name='procesar_compra'),
     path('mercado-negro/oferta/<int:oferta_id>/', aplicar_oferta_mercado, name='aplicar_oferta_mercado'),
     path('mercado-negro/cupon/', aplicar_cupon, name='aplicar_cupon'),
+    path('validar-cupon-ajax/', validar_cupon_ajax, name='validar_cupon_ajax'),
     path('servicio/oferta/<int:oferta_id>/', aplicar_oferta_servicio, name='aplicar_oferta_servicio'),
     path('admin-chat/', orders_views.admin_chat_dashboard, name='admin_chat_dashboard'),
     path('admin-chat/<str:chat_type>/<int:object_id>/', orders_views.admin_chat_dashboard, name='admin_chat_detail'),

@@ -53,6 +53,15 @@ class SolicitudServicio(models.Model):
         help_text="Si viene de una oferta, este será el precio final acordado."
     )
 
+    cupon_aplicado = models.ForeignKey(
+        'catalog.Cupon', 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='solicitudes'
+    )
+    descuento_total = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+
     def __str__(self):
         return f"{self.nombre_entidad} - {self.fecha_entrega}"
 
