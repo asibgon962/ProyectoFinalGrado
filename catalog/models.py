@@ -159,13 +159,12 @@ class BannerNormal(models.Model):
 class OfertaMercado(models.Model):
     titulo = models.CharField(max_length=200)
     descripcion = models.TextField(blank=True)
-    productos = models.ManyToManyField(Producto, related_name='ofertas')
     precio_total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio Total Pack")
     activo = models.BooleanField(default=True)
     auto_aplicar = models.BooleanField(
         default=False, 
         verbose_name="Auto-aplicar",
-        help_text="Si el usuario añade estos productos manualmente al carrito, se aplicará el descuento automáticamente."
+        help_text="Si el usuario añade estos productos manualmente al carrito (en las cantidades indicadas), se aplicará el descuento automáticamente."
     )
 
     class Meta:
@@ -175,10 +174,17 @@ class OfertaMercado(models.Model):
     def __str__(self):
         return f"{self.titulo} ({self.precio_total}€)"
 
+class ItemOfertaMercado(models.Model):
+    oferta = models.ForeignKey(OfertaMercado, related_name='items', on_delete=models.CASCADE)
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.cantidad}x {self.producto.nombre}"
+
 class OfertaServicio(models.Model):
     titulo = models.CharField(max_length=200)
     descripcion = models.TextField(blank=True)
-    platos = models.ManyToManyField(Plato, related_name='ofertas')
     precio_total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio Total Pack")
     activo = models.BooleanField(default=True)
 
@@ -188,6 +194,14 @@ class OfertaServicio(models.Model):
 
     def __str__(self):
         return f"{self.titulo} ({self.precio_total}€)"
+
+class ItemOfertaServicio(models.Model):
+    oferta = models.ForeignKey(OfertaServicio, related_name='items', on_delete=models.CASCADE)
+    plato = models.ForeignKey(Plato, on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.cantidad}x {self.plato.nombre}"
 
 class Cupon(models.Model):
     TIPO_CHOICES = [

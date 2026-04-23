@@ -3,7 +3,8 @@ from django.utils.html import format_html
 from .models import (
     Categoria, Ingrediente, Plato, PlatoIngrediente,
     Producto, ProductoIngrediente, CategoriaProducto,
-    BannerNormal, BannerMercadoNegro, OfertaMercado, OfertaServicio, Cupon
+    BannerNormal, BannerMercadoNegro, OfertaMercado, OfertaServicio, Cupon,
+    ItemOfertaMercado, ItemOfertaServicio
 )
 
 # Esto permite añadir ingredientes dentro de la ficha del plato
@@ -86,17 +87,27 @@ class BannerNormalAdmin(admin.ModelAdmin):
         return "—"
     preview_imagen.short_description = "Vista Previa"
 
+class ItemOfertaMercadoInline(admin.TabularInline):
+    model = ItemOfertaMercado
+    extra = 1
+    autocomplete_fields = ['producto']
+
 @admin.register(OfertaMercado)
 class OfertaMercadoAdmin(admin.ModelAdmin):
     list_display = ('titulo', 'precio_total', 'activo', 'auto_aplicar')
-    filter_horizontal = ('productos',)
     list_filter = ('activo', 'auto_aplicar')
+    inlines = [ItemOfertaMercadoInline]
+
+class ItemOfertaServicioInline(admin.TabularInline):
+    model = ItemOfertaServicio
+    extra = 1
+    autocomplete_fields = ['plato']
 
 @admin.register(OfertaServicio)
 class OfertaServicioAdmin(admin.ModelAdmin):
     list_display = ('titulo', 'precio_total', 'activo')
-    filter_horizontal = ('platos',)
     list_filter = ('activo',)
+    inlines = [ItemOfertaServicioInline]
 
 @admin.register(Cupon)
 class CuponAdmin(admin.ModelAdmin):

@@ -35,7 +35,7 @@
                         {# Contenedor de datos de la oferta para evitar errores de sintaxis en el JS #}
                         <div id="data-oferta-config" style="display:none;" 
                              data-activa="true"
-                             data-platos='[{% for p in oferta_obj.platos.all %}{"nombre": "{{ p.nombre }}", "id": "{{ p.id }}", "imagen": "{% if p.imagen %}{{ p.imagen.url }}{% endif %}"}{% if not forloop.last %},{% endif %}{% endfor %}]'>
+                             data-platos='[{% for item in oferta_obj.items.all %}{"nombre": "{{ item.plato.nombre }}", "id": "{{ item.plato.id }}", "imagen": "{% if item.plato.imagen %}{{ item.plato.imagen.url }}{% endif %}", "cantidad": {{ item.cantidad }}}{% if not forloop.last %},{% endif %}{% endfor %}]'>
                         </div>
                         <div class="alert alert-info border-gold bg-black text-gold mb-4 text-center">
                             <i class="bi bi-gift-fill me-2"></i> <strong>Oferta Activa:</strong> {{ oferta_obj.titulo }}<br>
@@ -134,7 +134,7 @@
         try {
             listaPlatosOferta = JSON.parse(ofertaInfo.dataset.platos);
             listaPlatosOferta.forEach(p => {
-                carrito[p.nombre] = 1;
+                carrito[p.nombre] = p.cantidad; // Usamos la cantidad de la oferta
             });
         } catch (e) { console.error("Error cargando oferta", e); }
     }
@@ -183,7 +183,7 @@
 
             // Renderizar el carrito visualmente
             listaPlatosOferta.forEach(p => {
-                renderizarItemCarrito(p.nombre, p.id, p.imagen);
+                renderizarItemCarrito(p.nombre, p.id, p.imagen, p.cantidad);
             });
             actualizarInputOculto();
         }
@@ -207,14 +207,14 @@
             const nombrePlato = data.nombre; 
 
             if (!carrito[nombrePlato]) {
-                renderizarItemCarrito(nombrePlato, htmlId, data.imagen);
+                renderizarItemCarrito(nombrePlato, htmlId, data.imagen, 1);
                 actualizarInputOculto();
             }
             $(this).val(null).trigger('change');
         });
 
-        function renderizarItemCarrito(nombre, id, imagenUrl) {
-            carrito[nombre] = 1;
+        function renderizarItemCarrito(nombre, id, imagenUrl, cantidad) {
+            carrito[nombre] = cantidad;
             const html = `
                 <div class="item-pedido d-flex align-items-center justify-content-between flex-wrap" id="fila-${id}">
                     <div class="d-flex align-items-center col-8">
@@ -222,7 +222,7 @@
                         <span class="small text-white text-truncate">${nombre}</span>
                     </div>
                     <div class="d-flex align-items-center justify-content-end col-4">
-                        <input type="number" value="1" min="1" class="form-control form-control-sm bg-dark text-white text-center me-1" style="width: 50px;" onchange="cambiarCantidad('${nombre}', this.value)">
+                        <input type="number" value="${cantidad}" min="1" class="form-control form-control-sm bg-dark text-white text-center me-1" style="width: 50px;" onchange="cambiarCantidad('${nombre}', this.value)">
                         <button type="button" class="btn btn-sm text-danger p-0" onclick="eliminarItem('${nombre}', '${id}')">✕</button>
                     </div>
                 </div>`;

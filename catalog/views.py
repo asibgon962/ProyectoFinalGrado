@@ -122,18 +122,22 @@ def ver_carrito(request):
     
     # Prioridad 2: Detección automática si no hay una seleccionada
     if not oferta_aplicada:
-        productos_en_carrito = set(cart.keys())
-        ofertas_auto = OfertaMercado.objects.filter(activo=True, auto_aplicar=True)
+        ofertas_auto = OfertaMercado.objects.filter(activo=True, auto_aplicar=True).prefetch_related('items__producto')
         for off in ofertas_auto:
-            ids_oferta = set(str(p.id) for p in off.productos.all())
-            # Si todos los productos de la oferta están en el carrito (y tienen cantidad >= 1)
-            if ids_oferta.issubset(productos_en_carrito):
+            es_valida = True
+            for item in off.items.all():
+                p_id = str(item.producto.id)
+                # Debe estar el producto y tener al menos la cantidad requerida
+                if p_id not in cart or cart[p_id]['cantidad'] < item.cantidad:
+                    es_valida = False
+                    break
+            if es_valida:
                 oferta_aplicada = off
                 break
 
     if oferta_aplicada:
-        # Calculamos cuánto costarían esos productos por separado (solo 1 unidad de cada uno para el pack)
-        coste_base_pack = sum(p.precio_venta for p in oferta_aplicada.productos.all())
+        # Calculamos cuánto costarían esos productos por separado (con las cantidades de la oferta)
+        coste_base_pack = sum(item.producto.precio_venta * item.cantidad for item in oferta_aplicada.items.all())
         # El ahorro es la diferencia
         descuento_oferta = coste_base_pack - oferta_aplicada.precio_total
         if descuento_oferta < 0: descuento_oferta = Decimal('0.00')
@@ -174,14 +178,18 @@ def aplicar_oferta_mercado(request, oferta_id):
     oferta = get_object_or_404(OfertaMercado, id=oferta_id, activo=True)
     cart = request.session.get('cart', {})
     
-    # Añadimos los productos de la oferta (1 unidad de cada)
-    for producto in oferta.productos.all():
-        p_id = str(producto.id)
-        if p_id not in cart:
+    # Añadimos los productos de la oferta con sus cantidades correspondientes
+    for item in oferta.items.all():
+        p_id = str(item.producto.id)
+        if p_id in cart:
+            # Si ya está, nos aseguramos de que tenga al menos la cantidad de la oferta
+            if cart[p_id]['cantidad'] < item.cantidad:
+                cart[p_id]['cantidad'] = item.cantidad
+        else:
             cart[p_id] = {
-                'nombre': producto.nombre,
-                'precio_venta': str(producto.precio_venta),
-                'cantidad': 1
+                'nombre': item.producto.nombre,
+                'precio_venta': str(item.producto.precio_venta),
+                'cantidad': item.cantidad
             }
     
     request.session['cart'] = cart
@@ -266,7 +274,7 @@ def procesar_compra(request):
         if oferta_id:
             oferta_obj = OfertaMercado.objects.filter(id=oferta_id, activo=True).first()
             if oferta_obj:
-                coste_base = sum(p.precio_venta for p in oferta_obj.productos.all())
+                coste_base = sum(item.producto.precio_venta * item.cantidad for item in oferta_obj.items.all())
                 descuento_total += (coste_base - oferta_obj.precio_total)
 
         cupon_id = request.session.get('cupon_id')
