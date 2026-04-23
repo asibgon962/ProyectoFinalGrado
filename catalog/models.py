@@ -32,7 +32,7 @@ class Plato(models.Model):
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE, related_name='platos')
     nombre = models.CharField(max_length=150)
     descripcion = models.TextField(blank=True)
-    precio_venta = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio de Venta")
+    precio_venta = models.DecimalField(max_digits=15, decimal_places=2, verbose_name="Precio de Venta")
     imagen = models.ImageField(upload_to='platos/', blank=True, null=True) # Permitimos que esté vacío al principio
     es_destacado = models.BooleanField(default=False)
     disponible = models.BooleanField(default=True)
@@ -83,7 +83,7 @@ class Producto(models.Model):
     categoria = models.ForeignKey(CategoriaProducto, on_delete=models.SET_NULL, null=True, blank=True, related_name='productos')
     nombre = models.CharField(max_length=150)
     descripcion = models.TextField(blank=True)
-    precio_venta = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio de Venta (Mercado Negro)")
+    precio_venta = models.DecimalField(max_digits=15, decimal_places=2, verbose_name="Precio de Venta (Mercado Negro)")
     stock = models.IntegerField(default=0, verbose_name="Stock Disponible")
     imagen = models.ImageField(upload_to='productos_mercado/', blank=True, null=True)
     disponible = models.BooleanField(default=True)
@@ -159,7 +159,7 @@ class BannerNormal(models.Model):
 class OfertaMercado(models.Model):
     titulo = models.CharField(max_length=200)
     descripcion = models.TextField(blank=True)
-    precio_total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio Total Pack")
+    precio_total = models.DecimalField(max_digits=15, decimal_places=2, verbose_name="Precio Total Pack")
     activo = models.BooleanField(default=True)
     auto_aplicar = models.BooleanField(
         default=False, 
@@ -185,7 +185,7 @@ class ItemOfertaMercado(models.Model):
 class OfertaServicio(models.Model):
     titulo = models.CharField(max_length=200)
     descripcion = models.TextField(blank=True)
-    precio_total = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio Total Pack")
+    precio_total = models.DecimalField(max_digits=15, decimal_places=2, verbose_name="Precio Total Pack")
     activo = models.BooleanField(default=True)
 
     class Meta:

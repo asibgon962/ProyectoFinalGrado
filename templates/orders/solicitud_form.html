@@ -35,7 +35,8 @@
                         {# Contenedor de datos de la oferta para evitar errores de sintaxis en el JS #}
                         <div id="data-oferta-config" style="display:none;" 
                              data-activa="true"
-                             data-platos='[{% for item in oferta_obj.items.all %}{"nombre": "{{ item.plato.nombre }}", "id": "{{ item.plato.id }}", "imagen": "{% if item.plato.imagen %}{{ item.plato.imagen.url }}{% endif %}", "cantidad": {{ item.cantidad }}}{% if not forloop.last %},{% endif %}{% endfor %}]'>
+                             data-precio-base="{{ oferta_obj.precio_total|stringformat:".2f" }}"
+                             data-platos='[{% for item in oferta_obj.items.all %}{"nombre": "{{ item.plato.nombre }}", "id": "{{ item.plato.id }}", "imagen": "{% if item.plato.imagen %}{{ item.plato.imagen.url }}{% endif %}", "cantidad": {{ item.cantidad }}, "precio": {{ item.plato.precio_venta|stringformat:".2f" }}}{% if not forloop.last %},{% endif %}{% endfor %}]'>
                         </div>
                         <div class="alert alert-info border-gold bg-black text-gold mb-4 text-center">
                             <i class="bi bi-gift-fill me-2"></i> <strong>Oferta Activa:</strong> {{ oferta_obj.titulo }}<br>
@@ -92,7 +93,7 @@
                             <select id="buscador-productos" class="form-select">
                                 <option value="">Buscar plato...</option>
                                 {% for plato in platos_disponibles %}
-                                    <option value="{{ plato.id }}" data-imagen="{% if plato.imagen %}{{ plato.imagen.url }}{% endif %}" data-nombre="{{ plato.nombre }}">
+                                    <option value="{{ plato.id }}" data-imagen="{% if plato.imagen %}{{ plato.imagen.url }}{% endif %}" data-nombre="{{ plato.nombre }}" data-precio="{{ plato.precio_venta|stringformat:".2f" }}">
                                         {{ plato.nombre }} ({{ plato.precio_venta }}€)
                                     </option>
                                 {% endfor %}
@@ -102,6 +103,11 @@
                             <div id="vacio-msg" class="text-center p-2">
                                 <p class="text-muted small m-0">Sin productos seleccionados.</p>
                             </div>
+                        </div>
+
+                        <div class="p-3 bg-black border border-gold rounded mb-4 d-flex justify-content-between align-items-center">
+                            <h5 class="text-gold m-0">Precio Aproximado:</h5>
+                            <span id="precio-total-display" class="h4 text-white m-0">0,00€</span>
                         </div>
                     </div>
 
@@ -130,11 +136,18 @@
     // --- Cargar Oferta Inicial si existe (limpio para el editor) ---
     const ofertaInfo = document.getElementById('data-oferta-config');
     let listaPlatosOferta = [];
+    let ofertaPrecioBase = 0;
     if (ofertaInfo && ofertaInfo.dataset.activa === 'true') {
         try {
+            ofertaPrecioBase = parseFloat(ofertaInfo.dataset.precioBase.replace(',', '.'));
             listaPlatosOferta = JSON.parse(ofertaInfo.dataset.platos);
             listaPlatosOferta.forEach(p => {
-                carrito[p.nombre] = p.cantidad; // Usamos la cantidad de la oferta
+                carrito[p.nombre] = {
+                    cantidad: p.cantidad,
+                    precio: parseFloat(p.precio),
+                    id: p.id,
+                    es_de_oferta: true
+                };
             });
         } catch (e) { console.error("Error cargando oferta", e); }
     }
@@ -205,16 +218,23 @@
             const data = e.params.data.element.dataset;
             const htmlId = e.params.data.id; 
             const nombrePlato = data.nombre; 
+            const precio = parseFloat(data.precio);
 
             if (!carrito[nombrePlato]) {
-                renderizarItemCarrito(nombrePlato, htmlId, data.imagen, 1);
+                renderizarItemCarrito(nombrePlato, htmlId, data.imagen, 1, precio);
                 actualizarInputOculto();
+                calcularTotal();
             }
             $(this).val(null).trigger('change');
         });
 
-        function renderizarItemCarrito(nombre, id, imagenUrl, cantidad) {
-            carrito[nombre] = cantidad;
+        function renderizarItemCarrito(nombre, id, imagenUrl, cantidad, precio) {
+            carrito[nombre] = {
+                cantidad: cantidad,
+                precio: precio,
+                id: id,
+                es_de_oferta: false // Si se añade por el buscador, no es de la oferta base
+            };
             const html = `
                 <div class="item-pedido d-flex align-items-center justify-content-between flex-wrap" id="fila-${id}">
                     <div class="d-flex align-items-center col-8">
@@ -249,12 +269,35 @@
         });
     });
 
-    function actualizarInputOculto() { $('[name="detalles_cantidades"]').val(JSON.stringify(carrito)); }
+    function actualizarInputOculto() { 
+        let soloCantidades = {};
+        for (let k in carrito) { soloCantidades[k] = carrito[k].cantidad; }
+        $('[name="detalles_cantidades"]').val(JSON.stringify(soloCantidades)); 
+    }
     function actualizarInputTrans() { $('[name="detalles_transporte"]').val(JSON.stringify(carritoTransporte)); }
     
+    function calcularTotal() {
+        let total = 0;
+        if (ofertaInfo && ofertaInfo.dataset.activa === 'true') {
+            total = ofertaPrecioBase;
+            // Sumamos solo lo que NO sea parte de la oferta original
+            for (let k in carrito) {
+                if (!carrito[k].es_de_oferta) {
+                    total += carrito[k].cantidad * carrito[k].precio;
+                }
+            }
+        } else {
+            for (let k in carrito) {
+                total += carrito[k].cantidad * carrito[k].precio;
+            }
+        }
+        $('#precio-total-display').text(total.toLocaleString('es-ES', { minimumFractionDigits: 2 }) + '€');
+    }
+
     function cambiarCantidad(nombrePlato, valor) { 
-        carrito[nombrePlato] = parseInt(valor); 
+        carrito[nombrePlato].cantidad = parseInt(valor); 
         actualizarInputOculto(); 
+        calcularTotal();
     }
     function cambiarCantTrans(v, valor) { 
         carritoTransporte[v] = parseInt(valor); 
@@ -264,8 +307,13 @@
     function eliminarItem(nombrePlato, htmlId) {
         delete carrito[nombrePlato];
         $(`#fila-${htmlId}`).remove();
-        if (Object.keys(carrito).length === 0) { $('#vacio-msg').show(); $('[name="detalles_cantidades"]').val('{}'); }
-        else { actualizarInputOculto(); }
+        if (Object.keys(carrito).length === 0) { 
+            $('#vacio-msg').show(); 
+            $('[name="detalles_cantidades"]').val('{}'); 
+        } else { 
+            actualizarInputOculto(); 
+        }
+        calcularTotal();
     }
 
     function eliminarTrans(v) {
