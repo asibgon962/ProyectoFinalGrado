@@ -48,7 +48,6 @@ def solicitar_servicio(request):
         # Pre-seleccionar platos si hay oferta
         initial_data = {}
         if oferta_obj:
-            initial_data['platos'] = oferta_obj.platos.all()
             messages.info(request, f"Se ha aplicado la oferta: {oferta_obj.titulo}")
 
         form = SolicitudServicioForm(user=request.user, initial=initial_data)
