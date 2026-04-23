@@ -1,6 +1,8 @@
 from django.shortcuts import render
+from django.views.decorators.cache import never_cache
 from .models import Plato, Categoria, BannerNormal, BannerMercadoNegro
 
+@never_cache
 def home_view(request):
     platos_destacados = Plato.objects.filter(es_destacado=True, disponible=True)
     # Banners generales (sin categoría) + todos los activos para el home
