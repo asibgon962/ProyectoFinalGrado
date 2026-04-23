@@ -214,6 +214,7 @@ class Cupon(models.Model):
     activo = models.BooleanField(default=True)
     usos_maximos = models.PositiveIntegerField(default=1, help_text="Cuántas veces se puede usar en total")
     usos_actuales = models.PositiveIntegerField(default=0)
+    usos_maximos_por_usuario = models.PositiveIntegerField(default=1, help_text="Cuántas veces puede usarlo cada usuario individualmente")
     fecha_expiracion = models.DateTimeField(null=True, blank=True)
 
     class Meta:
@@ -223,7 +224,7 @@ class Cupon(models.Model):
     def __str__(self):
         return f"{self.codigo} (-{self.valor}{'%' if self.tipo == 'PORCENTAJE' else '€'})"
 
-    def es_valido(self):
+    def es_valido(self, user=None):
         from django.utils import timezone
         if not self.activo:
             return False
@@ -231,6 +232,19 @@ class Cupon(models.Model):
             return False
         if self.fecha_expiracion and self.fecha_expiracion < timezone.now():
             return False
+
+        # Validación por usuario
+        if user and user.is_authenticated:
+            from django.apps import apps
+            PedidoMercado = apps.get_model('orders', 'PedidoMercado')
+            SolicitudServicio = apps.get_model('orders', 'SolicitudServicio')
+            
+            usos_pedidos = PedidoMercado.objects.filter(usuario=user, cupon_aplicado=self).count()
+            usos_servicios = SolicitudServicio.objects.filter(usuario=user, cupon_aplicado=self).count()
+            
+            if (usos_pedidos + usos_servicios) >= self.usos_maximos_por_usuario:
+                return False
+
         return True
 
 

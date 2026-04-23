@@ -6,7 +6,7 @@ from django.http import JsonResponse
 def validar_cupon_ajax(request):
     codigo = request.GET.get('codigo', '').strip().upper()
     cupon = Cupon.objects.filter(codigo=codigo, activo=True).first()
-    if cupon and cupon.es_valido():
+    if cupon and cupon.es_valido(request.user):
         return JsonResponse({
             'valido': True,
             'id': cupon.id,
@@ -216,7 +216,7 @@ def aplicar_cupon(request):
     if request.method == 'POST':
         codigo = request.POST.get('codigo', '').strip().upper()
         cupon = Cupon.objects.filter(codigo=codigo, activo=True).first()
-        if cupon and cupon.es_valido():
+        if cupon and cupon.es_valido(request.user):
             request.session['cupon_id'] = cupon.id
             messages.success(request, f"Cupón '{codigo}' aplicado con éxito.")
         else:
@@ -295,7 +295,7 @@ def procesar_compra(request):
         cupon_obj = None
         if cupon_id:
             cupon_obj = Cupon.objects.filter(id=cupon_id).first()
-            if cupon_obj and cupon_obj.es_valido():
+            if cupon_obj and cupon_obj.es_valido(request.user):
                 if cupon_obj.tipo == 'PORCENTAJE':
                     descuento_total += (total_pedido - descuento_total) * (cupon_obj.valor / 100)
                 else:
