@@ -135,7 +135,8 @@
                         <a class="nav-link nav-link-lux fs-3 p-0 position-relative" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Menú de usuario">
                             <i class="bi bi-person-circle text-gold" aria-hidden="true"></i>
                             {% if num_chats_user > 0 %}
-                                <span class="position-absolute badge rounded-pill bg-danger" style="font-size: 0.5rem; top: 8px; right: -2px;">
+                                <span class="position-absolute badge rounded-pill bg-danger d-flex align-items-center justify-content-center" 
+                                      style="font-size: 0.6rem; top: -2px; right: -6px; min-width: 1.3rem; height: 1.3rem; padding: 2px;">
                                     {{ num_chats_user }}
                                 </span>
                             {% endif %}
@@ -148,7 +149,7 @@
                                 <li><a class="dropdown-item fw-bold text-gold-brand d-flex align-items-center" href="{% url 'admin_chat_dashboard' %}" style="border-bottom: 1px solid rgba(212, 175, 55, 0.2);">
                                     <span><i class="bi bi-headset me-2 text-gold"></i>Centro de Soporte</span>
                                     {% if num_chats_admin > 0 %}
-                                        <span class="badge bg-danger rounded-pill ms-2" style="font-size: 0.7rem;">{{ num_chats_admin }}</span>
+                                        <span class="badge bg-danger rounded-pill ms-2" style="font-size: 0.7rem; padding: 0.25em 0.6em; min-width: 1.5em; display: inline-block; text-align: center;">{{ num_chats_admin }}</span>
                                     {% endif %}
                                 </a></li>
                                 {% endif %}
@@ -160,7 +161,7 @@
                                 <li><a class="dropdown-item d-flex align-items-center" href="{% url 'mis_gestiones' %}">
                                     <span><i class="bi bi-archive me-2"></i>Mis Gestiones</span>
                                     {% if num_chats_user > 0 %}
-                                        <span class="badge bg-danger rounded-pill ms-2" style="font-size: 0.7rem;">{{ num_chats_user }}</span>
+                                        <span class="badge bg-danger rounded-pill ms-2" style="font-size: 0.7rem; padding: 0.25em 0.6em; min-width: 1.5em; display: inline-block; text-align: center;">{{ num_chats_user }}</span>
                                     {% endif %}
                                 </a></li>
 
