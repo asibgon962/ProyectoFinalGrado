@@ -38,7 +38,7 @@
                              data-precio-base="{{ oferta_obj.precio_total|stringformat:".2f" }}"
                              data-platos='[{% for item in oferta_obj.items.all %}{"nombre": "{{ item.plato.nombre }}", "id": "{{ item.plato.id }}", "imagen": "{% if item.plato.imagen %}{{ item.plato.imagen.url }}{% endif %}", "cantidad": {{ item.cantidad }}, "precio": {{ item.plato.precio_venta|stringformat:".2f" }}}{% if not forloop.last %},{% endif %}{% endfor %}]'>
                         </div>
-                        <div class="alert alert-info border-gold bg-black text-gold mb-4 text-center">
+                        <div class="alert alert-info border-gold bg-black text-gold mb-4 text-center" id="alerta-oferta-visual">
                             <i class="bi bi-gift-fill me-2"></i> <strong>Oferta Activa:</strong> {{ oferta_obj.titulo }}<br>
                             <small class="text-white-50">Precio especial pre-acordado: {{ oferta_obj.precio_total }}€</small>
                         </div>
@@ -196,9 +196,10 @@
 
             // Renderizar el carrito visualmente
             listaPlatosOferta.forEach(p => {
-                renderizarItemCarrito(p.nombre, p.id, p.imagen, p.cantidad);
+                renderizarItemCarrito(p.nombre, p.id, p.imagen, p.cantidad, p.precio, true);
             });
             actualizarInputOculto();
+            calcularTotal();
         }
 
         $('#buscador-productos').select2({ width: '100%' });
@@ -221,19 +222,19 @@
             const precio = parseFloat(data.precio);
 
             if (!carrito[nombrePlato]) {
-                renderizarItemCarrito(nombrePlato, htmlId, data.imagen, 1, precio);
+                renderizarItemCarrito(nombrePlato, htmlId, data.imagen, 1, precio, false);
                 actualizarInputOculto();
                 calcularTotal();
             }
             $(this).val(null).trigger('change');
         });
 
-        function renderizarItemCarrito(nombre, id, imagenUrl, cantidad, precio) {
+        function renderizarItemCarrito(nombre, id, imagenUrl, cantidad, precio, esDeOferta) {
             carrito[nombre] = {
                 cantidad: cantidad,
                 precio: precio,
                 id: id,
-                es_de_oferta: false // Si se añade por el buscador, no es de la oferta base
+                es_de_oferta: esDeOferta
             };
             const html = `
                 <div class="item-pedido d-flex align-items-center justify-content-between flex-wrap" id="fila-${id}">
@@ -278,7 +279,14 @@
     
     function calcularTotal() {
         let total = 0;
-        if (ofertaInfo && ofertaInfo.dataset.activa === 'true') {
+        let tieneItemsOferta = false;
+        
+        // Comprobar si queda algún item que pertenezca a la oferta original
+        for (let k in carrito) {
+            if (carrito[k].es_de_oferta) { tieneItemsOferta = true; break; }
+        }
+
+        if (ofertaInfo && ofertaInfo.dataset.activa === 'true' && tieneItemsOferta) {
             total = ofertaPrecioBase;
             // Sumamos solo lo que NO sea parte de la oferta original
             for (let k in carrito) {
@@ -286,10 +294,14 @@
                     total += carrito[k].cantidad * carrito[k].precio;
                 }
             }
+            $('#alerta-oferta-visual').fadeIn();
+            $('[name="oferta_aplicada_id"]').prop('disabled', false);
         } else {
             for (let k in carrito) {
                 total += carrito[k].cantidad * carrito[k].precio;
             }
+            $('#alerta-oferta-visual').fadeOut();
+            $('[name="oferta_aplicada_id"]').prop('disabled', true);
         }
         $('#precio-total-display').text(total.toLocaleString('es-ES', { minimumFractionDigits: 2 }) + '€');
     }
