@@ -142,8 +142,8 @@
             console.error('DEBUG: Error WebSocket:', e);
         };
 
-        // Obtenemos el formulario (el único en esta vista)
-        const msgForm = document.querySelector('form');
+        // Obtenemos el formulario de chat específicamente por su acción o clase
+        const msgForm = document.querySelector('form[action*="enviar-mensaje"]');
         if (msgForm) {
             msgForm.onsubmit = function(e) {
                 if (socket.readyState === WebSocket.OPEN) {
