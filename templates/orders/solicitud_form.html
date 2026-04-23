@@ -146,7 +146,8 @@
                     cantidad: p.cantidad,
                     precio: parseFloat(p.precio),
                     id: p.id,
-                    es_de_oferta: true
+                    es_de_oferta: true,
+                    cant_base_oferta: p.cantidad
                 };
             });
         } catch (e) { console.error("Error cargando oferta", e); }
@@ -196,7 +197,7 @@
 
             // Renderizar el carrito visualmente
             listaPlatosOferta.forEach(p => {
-                renderizarItemCarrito(p.nombre, p.id, p.imagen, p.cantidad, p.precio, true);
+                renderizarItemCarrito(p.nombre, p.id, p.imagen, p.cantidad, p.precio, true, p.cantidad);
             });
             actualizarInputOculto();
             calcularTotal();
@@ -229,12 +230,13 @@
             $(this).val(null).trigger('change');
         });
 
-        function renderizarItemCarrito(nombre, id, imagenUrl, cantidad, precio, esDeOferta) {
+        function renderizarItemCarrito(nombre, id, imagenUrl, cantidad, precio, esDeOferta, cantBase) {
             carrito[nombre] = {
                 cantidad: cantidad,
                 precio: precio,
                 id: id,
-                es_de_oferta: esDeOferta
+                es_de_oferta: esDeOferta,
+                cant_base_oferta: cantBase || 0
             };
             const html = `
                 <div class="item-pedido d-flex align-items-center justify-content-between flex-wrap" id="fila-${id}">
@@ -279,30 +281,61 @@
     
     function calcularTotal() {
         let total = 0;
-        let tieneItemsOferta = false;
-        
-        // Comprobar si queda algún item que pertenezca a la oferta original
-        for (let k in carrito) {
-            if (carrito[k].es_de_oferta) { tieneItemsOferta = true; break; }
-        }
+        let numPacksOferta = 0;
+        let itemsDeOfertaPresentes = [];
 
-        if (ofertaInfo && ofertaInfo.dataset.activa === 'true' && tieneItemsOferta) {
-            total = ofertaPrecioBase;
-            // Sumamos solo lo que NO sea parte de la oferta original
-            for (let k in carrito) {
-                if (!carrito[k].es_de_oferta) {
+        if (ofertaInfo && ofertaInfo.dataset.activa === 'true') {
+            // 1. Identificar qué productos de la oferta están en el carrito y cuántos packs completos caben
+            let posiblesPacks = [];
+            let nombresOferta = listaPlatosOferta.map(p => p.nombre);
+            
+            // Comprobamos si todos los productos de la oferta están presentes (con cantidad >= cant_base)
+            let faltaAlgunProducto = false;
+            nombresOferta.forEach(nombre => {
+                if (carrito[nombre] && carrito[nombre].es_de_oferta) {
+                    let packs = Math.floor(carrito[nombre].cantidad / carrito[nombre].cant_base_oferta);
+                    posiblesPacks.push(packs);
+                } else {
+                    faltaAlgunProducto = true;
+                }
+            });
+
+            if (!faltaAlgunProducto && posiblesPacks.length > 0) {
+                numPacksOferta = Math.min(...posiblesPacks);
+            }
+
+            if (numPacksOferta > 0) {
+                // Aplicamos el precio de los packs
+                total = numPacksOferta * ofertaPrecioBase;
+                $('#alerta-oferta-visual').fadeIn();
+                $('#alerta-oferta-visual strong').text(`Oferta Activa (x${numPacksOferta}): ${ofertaInfo.dataset.titulo || 'Pack'}`);
+                $('[name="oferta_aplicada_id"]').prop('disabled', false);
+
+                // Sumamos el sobrante de los productos de la oferta + los productos que no son de la oferta
+                for (let k in carrito) {
+                    if (carrito[k].es_de_oferta) {
+                        let sobrante = carrito[k].cantidad - (numPacksOferta * carrito[k].cant_base_oferta);
+                        total += sobrante * carrito[k].precio;
+                    } else {
+                        total += carrito[k].cantidad * carrito[k].precio;
+                    }
+                }
+            } else {
+                // No se llega al mínimo para el pack, sumamos todo individualmente
+                for (let k in carrito) {
                     total += carrito[k].cantidad * carrito[k].precio;
                 }
+                $('#alerta-oferta-visual').fadeOut();
+                $('[name="oferta_aplicada_id"]').prop('disabled', true);
             }
-            $('#alerta-oferta-visual').fadeIn();
-            $('[name="oferta_aplicada_id"]').prop('disabled', false);
         } else {
+            // No hay oferta configurada en la URL
             for (let k in carrito) {
                 total += carrito[k].cantidad * carrito[k].precio;
             }
             $('#alerta-oferta-visual').fadeOut();
-            $('[name="oferta_aplicada_id"]').prop('disabled', true);
         }
+        
         $('#precio-total-display').text(total.toLocaleString('es-ES', { minimumFractionDigits: 2 }) + '€');
     }
 
