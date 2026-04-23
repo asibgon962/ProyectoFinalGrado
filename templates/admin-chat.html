@@ -21,9 +21,14 @@
             {% for s in solicitudes %}
             <a href="{% url 'admin_chat_detail' 'solicitud' s.id %}"
                 class="chat-item {% if chat_type == 'solicitud' and chat_activo.id == s.id %}active{% endif %}">
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between align-items-center">
                     <strong>#{{ s.id }} {{ s.nombre_entidad }}</strong>
-                    <span class="badge badge-solicitud">S</span>
+                    <div>
+                        {% if s.unread_count > 0 %}
+                            <span class="badge bg-danger rounded-pill me-1" style="font-size: 0.6rem;">{{ s.unread_count }}</span>
+                        {% endif %}
+                        <span class="badge badge-solicitud">S</span>
+                    </div>
                 </div>
                 <small class="text-white-50">{{ s.usuario.username }}</small>
             </a>
@@ -33,9 +38,14 @@
             {% for m in pedidos_mercado %}
             <a href="{% url 'admin_chat_detail' 'mercado' m.id %}"
                 class="chat-item {% if chat_type == 'mercado' and chat_activo.id == m.id %}active{% endif %}">
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between align-items-center">
                     <strong>#{{ m.id }} Transacción</strong>
-                    <span class="badge badge-mercado">MN</span>
+                    <div>
+                        {% if m.unread_count > 0 %}
+                            <span class="badge bg-danger rounded-pill me-1" style="font-size: 0.6rem;">{{ m.unread_count }}</span>
+                        {% endif %}
+                        <span class="badge badge-mercado">MN</span>
+                    </div>
                 </div>
                 <small class="text-white-50">{{ m.usuario.username }}</small>
             </a>

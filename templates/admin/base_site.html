@@ -164,6 +164,13 @@
                         {% endfor %}
                     {% endif %}
 
+                    {% if num_chats_admin > 0 %}
+                        <div class="dropdown-divider"></div>
+                        <a href="{% url 'admin_chat_dashboard' %}" class="dropdown-item dropdown-header bg-warning text-dark">
+                            <i class="fas fa-comments mr-2"></i> <strong>{{ num_chats_admin }} Chats con mensajes nuevos</strong>
+                        </a>
+                    {% endif %}
+
                     {% if admin_notifications_count == 0 %}
                         <div class="dropdown-divider"></div>
                         <a href="#" class="dropdown-item text-center text-muted"><small>No hay notificaciones nuevas</small></a>
@@ -208,12 +215,29 @@
                     }
                 }
 
+                // Inyectar badge en el sidebar para Chat en Vivo
+                function updateSidebarChatBadge() {
+                    var numChats = "{{ num_chats_admin|default:0 }}";
+                    if (parseInt(numChats) > 0) {
+                        // Buscamos el link que contiene "Chat en Vivo"
+                        var chatLink = $('nav.mt-2 a:contains("Chat en Vivo")');
+                        if (chatLink.length && !chatLink.find('.badge-chat-notify').length) {
+                            chatLink.append('<span class="badge badge-danger badge-chat-notify ml-auto" style="font-size: 0.7rem; padding: 2px 5px;">' + numChats + '</span>');
+                            chatLink.addClass('d-flex align-items-center');
+                        }
+                    }
+                }
+
                 // Escuchar cambios (compatible con Select2 si Jazzmin lo usa)
                 $(document).on('change', 'select[name="action"]', updateActionButton);
                 
                 // Ejecutar al inicio y periódicamente por si se carga vía Ajax
                 updateActionButton();
-                setTimeout(updateActionButton, 1000);
+                updateSidebarChatBadge();
+                setTimeout(function() {
+                    updateActionButton();
+                    updateSidebarChatBadge();
+                }, 1000);
             });
         </script>
     {% endif %}

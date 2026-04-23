@@ -46,15 +46,21 @@ def solicitar_servicio(request):
 
 @login_required
 def panel_organizacion(request, solicitud_id=None):
+    from django.db.models import Count, Q
     # Obtenemos la organización del usuario logueado
     org = request.user.organization
     if not org:
         messages.warning(request, "No perteneces a ninguna organización.")
         return redirect('home')
 
-    # Obtenemos todas las solicitudes de su empresa
-    solicitudes = SolicitudServicio.objects.filter(organizacion=org).order_by('-fecha_entrega')
-    pedidos_mercado = PedidoMercado.objects.filter(organizacion=org).order_by('-fecha_pedido')
+    # Obtenemos todas las solicitudes de su empresa, anotando si tienen mensajes sin leer del admin
+    solicitudes = SolicitudServicio.objects.filter(organizacion=org).annotate(
+        unread_count=Count('mensajes', filter=Q(mensajes__es_admin=True, mensajes__leido=False))
+    ).order_by('-fecha_entrega')
+    
+    pedidos_mercado = PedidoMercado.objects.filter(organizacion=org).annotate(
+        unread_count=Count('mensajes', filter=Q(mensajes__es_admin=True, mensajes__leido=False))
+    ).order_by('-fecha_pedido')
 
     solicitud_activa = None
     mensajes = []
@@ -67,6 +73,8 @@ def panel_organizacion(request, solicitud_id=None):
 
     if solicitud_activa:
         mensajes = solicitud_activa.mensajes.all()
+        # Marcar como leídos los mensajes que envió el admin
+        mensajes.filter(es_admin=True, leido=False).update(leido=True)
 
     return render(request, 'perfil-organizacion.html', {
         'organizacion': org,
@@ -101,13 +109,19 @@ def enviar_mensaje(request, solicitud_id):
 
 @login_required
 def panel_organizacion_mercado(request, pedido_id=None):
+    from django.db.models import Count, Q
     org = request.user.organization
     if not org:
         messages.warning(request, "No perteneces a ninguna organización.")
         return redirect('home')
 
-    solicitudes = SolicitudServicio.objects.filter(organizacion=org).order_by('-fecha_entrega')
-    pedidos_mercado = PedidoMercado.objects.filter(organizacion=org).order_by('-fecha_pedido')
+    solicitudes = SolicitudServicio.objects.filter(organizacion=org).annotate(
+        unread_count=Count('mensajes', filter=Q(mensajes__es_admin=True, mensajes__leido=False))
+    ).order_by('-fecha_entrega')
+    
+    pedidos_mercado = PedidoMercado.objects.filter(organizacion=org).annotate(
+        unread_count=Count('mensajes', filter=Q(mensajes__es_admin=True, mensajes__leido=False))
+    ).order_by('-fecha_pedido')
 
     pedido_activo = None
     mensajes = []
@@ -115,6 +129,8 @@ def panel_organizacion_mercado(request, pedido_id=None):
     if pedido_id:
         pedido_activo = get_object_or_404(PedidoMercado, id=pedido_id, organizacion=org)
         mensajes = pedido_activo.mensajes.all()
+        # Marcar como leídos los mensajes que envió el admin
+        mensajes.filter(es_admin=True, leido=False).update(leido=True)
 
     return render(request, 'perfil-organizacion.html', {
         'organizacion': org,
@@ -146,8 +162,11 @@ def enviar_mensaje_mercado(request, pedido_id):
 
 @login_required
 def mis_gestiones(request, solicitud_id=None):
-    # Obtenemos todas las solicitudes del usuario
-    solicitudes = SolicitudServicio.objects.filter(usuario=request.user).order_by('-fecha_entrega')
+    from django.db.models import Count, Q
+    # Obtenemos todas las solicitudes del usuario, anotando si tienen mensajes sin leer del admin
+    solicitudes = SolicitudServicio.objects.filter(usuario=request.user).annotate(
+        unread_count=Count('mensajes', filter=Q(mensajes__es_admin=True, mensajes__leido=False))
+    ).order_by('-fecha_entrega')
 
     solicitud_activa = None
     mensajes = []
@@ -160,6 +179,8 @@ def mis_gestiones(request, solicitud_id=None):
 
     if solicitud_activa:
         mensajes = solicitud_activa.mensajes.all()
+        # Marcar como leídos los mensajes que envió el admin
+        mensajes.filter(es_admin=True, leido=False).update(leido=True)
 
     return render(request, 'mis-gestiones.html', {
         'solicitudes': solicitudes,
@@ -169,9 +190,15 @@ def mis_gestiones(request, solicitud_id=None):
 
 @staff_member_required
 def admin_chat_dashboard(request, chat_type=None, object_id=None):
-    # Obtenemos todas las gestiones para el listado lateral
-    solicitudes = SolicitudServicio.objects.all().order_by('-fecha_entrega')
-    pedidos_mercado = PedidoMercado.objects.all().order_by('-fecha_pedido')
+    from django.db.models import Count, Q
+    # Obtenemos todas las gestiones para el listado lateral, anotando si tienen mensajes sin leer del usuario
+    solicitudes = SolicitudServicio.objects.annotate(
+        unread_count=Count('mensajes', filter=Q(mensajes__es_admin=False, mensajes__leido=False))
+    ).order_by('-fecha_entrega')
+    
+    pedidos_mercado = PedidoMercado.objects.annotate(
+        unread_count=Count('mensajes', filter=Q(mensajes__es_admin=False, mensajes__leido=False))
+    ).order_by('-fecha_pedido')
 
     chat_activo = None
     mensajes = []
@@ -179,9 +206,13 @@ def admin_chat_dashboard(request, chat_type=None, object_id=None):
     if chat_type == 'solicitud' and object_id:
         chat_activo = get_object_or_404(SolicitudServicio, id=object_id)
         mensajes = chat_activo.mensajes.all()
+        # Marcar como leídos los mensajes que envió el usuario
+        mensajes.filter(es_admin=False, leido=False).update(leido=True)
     elif chat_type == 'mercado' and object_id:
         chat_activo = get_object_or_404(PedidoMercado, id=object_id)
         mensajes = chat_activo.mensajes.all()
+        # Marcar como leídos los mensajes que envió el usuario
+        mensajes.filter(es_admin=False, leido=False).update(leido=True)
 
     return render(request, 'admin-chat.html', {
         'solicitudes': solicitudes,

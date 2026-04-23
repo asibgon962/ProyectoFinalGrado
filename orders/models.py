@@ -48,6 +48,7 @@ class MensajeSolicitud(models.Model):
     texto = models.TextField()
     fecha_envio = models.DateTimeField(auto_now_add=True)
     es_admin = models.BooleanField(default=False)
+    leido = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['fecha_envio']
@@ -117,6 +118,7 @@ class MensajePedidoMercado(models.Model):
     texto = models.TextField()
     fecha_envio = models.DateTimeField(auto_now_add=True)
     es_admin = models.BooleanField(default=False)
+    leido = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['fecha_envio']
