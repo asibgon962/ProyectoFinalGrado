@@ -23,7 +23,7 @@
 .banner-img {
     height: 450px;
     object-position: center;
-    object-fit: cover;
+    object-fit: fill; /* Adaptación completa al tamaño del contenedor */
     display: block;
     transition: transform 0.6s ease;
     filter: brightness(0.75);

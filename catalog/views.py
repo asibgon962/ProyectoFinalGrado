@@ -61,10 +61,13 @@ def mercado_negro_view(request):
         categorias = CategoriaProducto.objects.all().order_by('orden')
         productos = Producto.objects.filter(disponible=True).select_related('categoria')
         banners_mercado = BannerMercadoNegro.objects.filter(activo=True).select_related('categoria')
+        banners_generales = [b for b in banners_mercado if not b.categoria]
+        
         return render(request, 'mercado_negro.html', {
             'categorias': categorias,
             'productos': productos,
             'banners_mercado': banners_mercado,
+            'banners_generales': banners_generales,
         })
     messages.error(request, "Acceso Denegado. Solo organizaciones autorizadas pueden acceder al Mercado Negro.")
     return redirect('/')
