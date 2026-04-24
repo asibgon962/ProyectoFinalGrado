@@ -33,6 +33,29 @@
         transform: scale(1.02);
         transition: all 0.2s ease;
     }
+
+    /* Estilo para los errores de validación */
+    .errorlist {
+        color: #ff4d4d !important; /* Rojo vibrante para visibilidad */
+        list-style: none;
+        padding: 0;
+        margin-bottom: 10px;
+        font-size: 0.9rem;
+        font-weight: bold;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+    
+    .login-error-container {
+        background-color: rgba(192, 40, 45, 0.15);
+        border: 1px solid #c0282d;
+        color: #ff9494;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        font-size: 0.95rem;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
 </style>
 
 <div class="container mt-5">
@@ -46,6 +69,24 @@
                     
                     <form method="POST">
                         {% csrf_token %}
+                        
+                        {% if form.errors %}
+                            <div class="login-error-container">
+                                {% if form.non_field_errors %}
+                                    {% for error in form.non_field_errors %}
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <i class="fas fa-exclamation-circle me-2"></i>
+                                            <span>{{ error }}</span>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-exclamation-circle me-2"></i>
+                                        <span>Por favor, revisa los campos marcados en rojo.</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
                         
                         {{ form.as_p }}
 
