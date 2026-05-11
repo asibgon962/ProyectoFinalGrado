@@ -190,9 +190,9 @@
                 var notificationsHtml = $('#admin-notifications-template').html();
                 var userMenuLi = $('#jazzy-usermenu').parent();
                 if(userMenuLi.length) {
-                    userMenuLi.before(notificationsHtml);
+                    userMenuLi.after(notificationsHtml);
                 } else {
-                    $('.navbar-nav.ms-auto').prepend(notificationsHtml);
+                    $('.navbar-nav.ms-auto').append(notificationsHtml);
                 }
 
                 // Lógica del Botón Dinámico de Acciones
