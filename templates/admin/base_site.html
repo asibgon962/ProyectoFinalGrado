@@ -230,9 +230,9 @@
                                 // Buscamos el <p> dentro del <a> para añadirlo al lado del texto
                                 var pTag = chatLink.find('p');
                                 if (pTag.length) {
-                                    pTag.append('<span class="badge badge-danger badge-chat-notify ml-2" style="font-size: 0.7rem; padding: 2px 5px; vertical-align: middle; margin-left: 10px; color: white !important; line-height: 1;">' + numChats + '</span>');
+                                    pTag.append('<span class="badge bg-danger badge-chat-notify ms-2" style="font-size: 0.7rem; padding: 2px 5px; vertical-align: middle; margin-left: 10px; color: white !important; line-height: 1;">' + numChats + '</span>');
                                 } else {
-                                    chatLink.append('<span class="badge badge-danger badge-chat-notify ml-auto" style="font-size: 0.7rem; padding: 2px 5px; margin-left: 10px; color: white !important; line-height: 1;">' + numChats + '</span>');
+                                    chatLink.append('<span class="badge bg-danger badge-chat-notify ms-auto" style="font-size: 0.7rem; padding: 2px 5px; margin-left: 10px; color: white !important; line-height: 1;">' + numChats + '</span>');
                                 }
                                 chatLink.addClass('d-flex align-items-center');
                             }
