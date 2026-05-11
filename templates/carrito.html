@@ -70,7 +70,7 @@
                     <h6 class="text-white mb-3">¿Tienes un código de descuento?</h6>
                     <form action="{% url 'aplicar_cupon' %}" method="POST" class="d-flex gap-2">
                         {% csrf_token %}
-                        <input type="text" name="codigo" class="form-control form-control-sm bg-black text-white border-secondary" placeholder="Ingresa tu cupón..." required>
+                        <input type="text" name="codigo" class="form-control form-control-sm bg-black text-white border-secondary" placeholder="Ingresa tu cupón..." required style="--bs-body-color: #aaa; color: #fff;" oninput="this.style.color='#fff'">
                         <button type="submit" class="btn btn-outline-gold btn-sm px-3">Canjear</button>
                     </form>
                 </div>

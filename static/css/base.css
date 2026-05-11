@@ -154,6 +154,13 @@ h1, h2, h3, .navbar-brand {
     color: #ffffff !important;
 }
 
+/* Placeholder visible en inputs oscuros */
+.form-control::placeholder,
+.form-select::placeholder {
+    color: #999 !important;
+    opacity: 1;
+}
+
 .accordion-body {
     background-color: #111111 !important;
     color: var(--lux-gold) !important;
