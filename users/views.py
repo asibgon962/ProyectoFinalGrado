@@ -72,8 +72,12 @@ def editar_perfil_view(request):
                     user.organization = org
                     user.save()
                 except Organization.DoesNotExist:
-                    # Opcional: añadir un mensaje de error si el código no existe
                     pass
+            else:
+                # Si el campo viene vacío, se desvincula de la organización actual
+                if user.organization:
+                    user.organization = None
+                    user.save()
 
             # Lógica de Avatares Predefinidos
             option = request.POST.get('avatar_option')
