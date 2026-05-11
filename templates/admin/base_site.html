@@ -119,10 +119,10 @@
 
         <template id="admin-notifications-template">
             <li class="nav-item dropdown">
-                <a class="nav-link" data-toggle="dropdown" href="#" title="Notificaciones" aria-expanded="false">
+                <a class="nav-link" data-bs-toggle="dropdown" href="#" title="Notificaciones" aria-expanded="false">
                     <i class="far fa-bell" style="font-size: 1.2em;"></i>
                     {% if admin_notifications_count > 0 %}
-                        <span class="badge badge-danger navbar-badge">{{ admin_notifications_count }}</span>
+                        <span class="badge bg-danger navbar-badge">{{ admin_notifications_count }}</span>
                     {% endif %}
                 </a>
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right notification-dropdown">
@@ -167,7 +167,7 @@
                     {% if num_chats_admin > 0 %}
                         <div class="dropdown-divider"></div>
                         <a href="{% url 'admin_chat_dashboard' %}" class="dropdown-item dropdown-header bg-warning text-dark">
-                            <i class="fas fa-comments mr-2"></i> <strong>{{ num_chats_admin }} Chats con mensajes nuevos</strong>
+                            <i class="fas fa-comments me-2"></i> <strong>{{ num_chats_admin }} Chats con mensajes nuevos</strong>
                         </a>
                     {% endif %}
 
@@ -177,7 +177,7 @@
                     {% endif %}
                     
                     <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item dropdown-footer text-center" onclick="$('.dropdown-menu').removeClass('show');">Cerrar</a>
+                    <a href="#" class="dropdown-item dropdown-footer text-center" onclick="document.querySelectorAll('.dropdown-menu').forEach(el => el.classList.remove('show'))">Cerrar</a>
                 </div>
             </li>
         </template>
@@ -190,7 +190,7 @@
                 if(userMenuLi.length) {
                     userMenuLi.before(notificationsHtml);
                 } else {
-                    $('.navbar-nav.ml-auto').prepend(notificationsHtml);
+                    $('.navbar-nav.ms-auto').prepend(notificationsHtml);
                 }
 
                 // Lógica del Botón Dinámico de Acciones
