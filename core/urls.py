@@ -18,6 +18,30 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+
+# ── Patch: jazzmin 3.0.1 + Django 6 incompatibility ──────────────────────────
+# jazzmin_paginator_number llama format_html(html_str) sin args extra,
+# lo cual Django 6 prohíbe. Parcheamos format_html dentro del módulo de
+# jazzmin para que use mark_safe cuando no se pasan argumentos adicionales.
+try:
+    from django.utils.safestring import mark_safe as _mark_safe
+    from jazzmin.templatetags import jazzmin as _jazzmin_tags
+
+    _orig_format_html = _jazzmin_tags.format_html
+
+    def _patched_format_html(format_string, *args, **kwargs):
+        if not args and not kwargs:
+            return _mark_safe(format_string)
+        return _orig_format_html(format_string, *args, **kwargs)
+
+    _jazzmin_tags.format_html = _patched_format_html
+except Exception:
+    pass  # Si jazzmin se actualiza, este bloque no tendrá efecto
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Paginación global: todos los modelos del admin mostrarán 10 filas por página
+from django.contrib.admin import ModelAdmin
+ModelAdmin.list_per_page = 10
 from django.views.generic import TemplateView
 from django.http import HttpResponse
 from catalog.views import home_view, restaurante_view
