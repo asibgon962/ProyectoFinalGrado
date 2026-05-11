@@ -17,7 +17,11 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.admin import ModelAdmin
 from django.urls import path, include
+
+# Paginación global: todos los modelos del admin mostrarán 10 filas por página
+ModelAdmin.list_per_page = 10
 from django.views.generic import TemplateView
 from django.http import HttpResponse
 from catalog.views import home_view, restaurante_view
