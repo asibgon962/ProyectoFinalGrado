@@ -82,7 +82,9 @@
         {% for plato in platos %}
         <div class="col-md-4">
             <div class="card bg-dark text-gold h-100">
-                <img src="{{ plato.imagen.url }}" class="card-img-top" alt="{{ plato.nombre }}">
+                <div style="height: 220px; overflow: hidden;">
+                    <img src="{{ plato.imagen.url }}" class="card-img-top" alt="{{ plato.nombre }}" style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+                </div>
                 <div class="card-body text-center">
                     <h3 class="card-title h5">{{ plato.nombre }}</h3>
                     <div style="color: #d4af37 !important; font-weight: 900 !important; font-size: 1.5rem !important; text-shadow: 1px 1px 3px black;">{{ plato.precio_venta|floatformat:2 }} €</div>
@@ -100,17 +102,17 @@
 <section class="py-5 bg-dark-soft rounded p-4 border border-secondary">
     <div class="row g-4 text-center text-md-start">
         <div class="col-md-6">
-            <div class="p-4 border-start border-gold h-100">
+            <div class="p-4 border-start border-gold h-100 d-flex flex-column">
                 <h2 class="text-gold">Eventos Exclusivos</h2>
                 <p>Organizamos sus momentos más especiales con la distinción de nuestra marca. Desde cenas privadas hasta celebraciones.</p>
-                <a href="{% url 'solicitar_servicio' %}" class="btn btn-outline-gold">PLANIFICAR EVENTO</a>
+                <a href="{% url 'solicitar_servicio' %}" class="btn btn-outline-gold mt-auto">PLANIFICAR EVENTO</a>
             </div>
         </div>
         <div class="col-md-6">
-            <div class="p-4 border-start border-gold h-100">
+            <div class="p-4 border-start border-gold h-100 d-flex flex-column">
                 <h2 class="text-gold">Transporte de Lujo</h2>
                 <p>No se preocupe por el trayecto. Nuestro servicio de transporte privado le garantiza una llegada a la altura de la experiencia Koi.</p>
-                <a href="{% url 'solicitar_servicio' %}" class="btn btn-outline-gold">SOLICITAR TRANSPORTE</a>
+                <a href="{% url 'solicitar_servicio' %}" class="btn btn-outline-gold mt-auto">SOLICITAR TRANSPORTE</a>
             </div>
         </div>
     </div>
