@@ -5,7 +5,7 @@
     /* Estilo para las etiquetas (Username, Password) */
     form p label {
         display: block;
-        color: #f1e5c3 !important; /* Dorado crema claro */
+        color: #f1e5c3 !important;
         margin-bottom: 5px;
         font-size: 0.95rem;
         font-family: 'Playfair Display', serif;
@@ -15,7 +15,7 @@
     form p input {
         width: 100%;
         padding: 10px;
-        background-color: #f0f4f8 !important; /* Color claro como tu captura */
+        background-color: #f0f4f8 !important;
         border: 1px solid #bfa071;
         border-radius: 6px;
         margin-bottom: 15px;
@@ -36,7 +36,7 @@
 
     /* Estilo para los errores de validación */
     .errorlist {
-        color: #ff4d4d !important; /* Rojo vibrante para visibilidad */
+        color: #ff4d4d !important;
         list-style: none;
         padding: 0;
         margin-bottom: 10px;
@@ -56,11 +56,32 @@
         text-align: center;
         box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     }
+
+    /* --- RESPONSIVE: Ancho completo en móvil/tablet --- */
+    @media (max-width: 767.98px) {
+        .login-container-wrap {
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+        .login-container-wrap .card {
+            border-radius: 10px;
+        }
+        .login-container-wrap .card-body {
+            padding: 1.5rem !important;
+        }
+    }
+
+    @media (min-width: 768px) and (max-width: 991.98px) {
+        .login-container-wrap {
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+    }
 </style>
 
-<div class="container mt-5">
+<div class="container mt-5 login-container-wrap">
     <div class="row justify-content-center">
-        <div class="col-md-5"> <!-- Un poco más estrecho para mayor elegancia -->
+        <div class="col-12 col-sm-10 col-md-8 col-lg-5">
             <div class="card shadow-lg" style="background-color: #1a1c20; border: 1px solid #bfa071; border-radius: 10px;">
                 <div class="card-body p-4">
                     <h1 class="text-center mb-4 h2" style="color: #bfa071; font-family: 'Playfair Display', serif; font-weight: bold; letter-spacing: 1px;">
