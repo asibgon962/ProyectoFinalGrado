@@ -13,7 +13,7 @@ class SolicitudServicioForm(forms.ModelForm):
             'nombre_entidad', 
             'fecha_entrega', 
             'requiere_productos', 
-            'requiere_transporte', # Añadimos este campo
+            'requiere_transporte',
             'observaciones', 
             'detalles_cantidades',
             'detalles_transporte'
@@ -30,32 +30,28 @@ class SolicitudServicioForm(forms.ModelForm):
                 'rows': 3,
                 'placeholder': 'Detalles adicionales...'
             }),
-            # Ocultamos los cuadros blancos del JSON
+
             'detalles_cantidades': forms.HiddenInput(),
             'detalles_transporte': forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
-        # Extraemos el usuario que le pasaremos desde la vista
+
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         
         self.fields['detalles_cantidades'].initial = "{}"
         self.fields['detalles_transporte'].initial = "{}"
 
-        # --- NUEVO: BLOQUEO DE FECHAS EN EL CALENDARIO ---
         hoy = timezone.now().date()
         min_date = hoy + timedelta(days=4)
         max_date = hoy + timedelta(days=30)
-        
-        # Le decimos al input de HTML cuál es la fecha mínima y máxima permitida
         self.fields['fecha_entrega'].widget.attrs.update({
             'min': min_date.strftime('%Y-%m-%d'),
             'max': max_date.strftime('%Y-%m-%d')
         })
-        # -------------------------------------------------
 
-        # Lógica para mostrar solo nombre o nombre de empresa
+
         opciones_entidad = []
         if self.user and self.user.is_authenticated:
             nombre_usuario = self.user.get_full_name() or self.user.username
@@ -85,7 +81,7 @@ class SolicitudServicioForm(forms.ModelForm):
             elif not value:
                 cleaned_data[field] = {}
 
-        # Auto-marcar los checks en base a si se enviaron datos en los JSON
+        # Los campos booleanos se infieren de los JSON recibidos
         cleaned_data['requiere_productos'] = bool(cleaned_data.get('detalles_cantidades'))
         cleaned_data['requiere_transporte'] = bool(cleaned_data.get('detalles_transporte'))
 

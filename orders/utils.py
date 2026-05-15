@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 BASE_URL = "https://koienterprise.onrender.com"
 
-# ── Estados disponibles para cada tipo de objeto ──────────────────────────────
+
 ESTADOS_ACCION = {
     'solicitud': [
         ('ACEPTADO',   '✅ Aceptar'),
@@ -27,7 +27,7 @@ ESTADOS_ACCION = {
 }
 
 
-# ── HMAC helpers ──────────────────────────────────────────────────────────────
+
 
 def _firma_mensaje(tipo: str, objeto_id: int, nuevo_estado: str) -> str:
     """Cadena normalizada que se firma con HMAC."""
@@ -64,7 +64,7 @@ def generar_links_accion(tipo: str, objeto_id: int) -> list[dict]:
     return links
 
 
-# ── Formato numérico ───────────────────────────────────────────────────────────
+
 
 def formato_europeo(valor):
     """Formatea un número al estilo europeo: 26.200.000,00"""
@@ -76,7 +76,7 @@ def formato_europeo(valor):
         return str(valor)
 
 
-# ── Envío de notificación Discord ─────────────────────────────────────────────
+
 
 def send_discord_notification(webhook_type, title, description, fields=None, url=None):
     """

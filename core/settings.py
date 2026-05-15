@@ -60,7 +60,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
-    'django.middleware.gzip.GZipMiddleware',          # Compresión - debe ir antes de sessions
+    'django.middleware.gzip.GZipMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -170,10 +170,10 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 # SR-003 [SESSION MANAGEMENT] - Configuración segura de sesiones (OWASP V3)
-SESSION_COOKIE_AGE = 7200          # 2 horas de inactividad máxima
-SESSION_COOKIE_HTTPONLY = True     # JS no puede leer la cookie de sesión
-SESSION_COOKIE_SAMESITE = 'Lax'   # Protege contra CSRF cross-site
-SESSION_SAVE_EVERY_REQUEST = False # No renueva sesión en cada petición (rendimiento)
+SESSION_COOKIE_AGE = 7200          
+SESSION_COOKIE_HTTPONLY = True     
+SESSION_COOKIE_SAMESITE = 'Lax'  
+SESSION_SAVE_EVERY_REQUEST = False 
 
 # SR-004 [SECURITY HEADERS] Solo en producción
 if not DEBUG:
@@ -207,17 +207,17 @@ LOGGING = {
         },
     },
     'loggers': {
-        'django.security': {          # Intentos CSRF, SuspiciousOperation, etc.
+        'django.security': {          
             'handlers': ['console'],
             'level': 'WARNING',
             'propagate': False,
         },
-        'django.request': {           # Errores HTTP 4xx/5xx
+        'django.request': {           
             'handlers': ['console'],
             'level': 'ERROR',
             'propagate': False,
         },
-        'koi.security': {             # Logger propio para eventos de la app
+        'koi.security': {             
             'handlers': ['console'],
             'level': 'INFO',
             'propagate': False,
@@ -225,15 +225,13 @@ LOGGING = {
     },
 }
 
-# La carpeta física en tu ordenador/servidor
+
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# La URL que se verá en el navegador
+
 MEDIA_URL = '/media/'
 
 if os.environ.get('CLOUDINARY_URL'):
-    # Al usar cloudinary-storage, no hace falta forzar MEDIA_URL de forma manual.
-    # El backend de almacenamiento ya se encarga de generar la URL completa.
     STORAGES["default"] = {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     }
@@ -244,7 +242,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
-EMAIL_TIMEOUT = 25  # segundos - evita el 502 de Render por timeout de Gunicorn (30s)
+EMAIL_TIMEOUT = 25  
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
@@ -308,4 +306,4 @@ JAZZMIN_UI_TWEAKS = {
 # ===== CONFIGURACIÓN DISCORD =====
 DISCORD_WEBHOOK_SERVICIOS = os.environ.get('DISCORD_WEBHOOK_SERVICIOS')
 DISCORD_WEBHOOK_MN = os.environ.get('DISCORD_WEBHOOK_MN')
-
+

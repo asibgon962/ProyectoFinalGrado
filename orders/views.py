@@ -10,7 +10,6 @@ from catalog.models import Plato, OfertaServicio, Cupon
 
 @login_required
 def solicitar_servicio(request):
-    # Excelente que filtres solo los disponibles
     platos = Plato.objects.filter(disponible=True)
     
     oferta_id = request.GET.get('oferta_id')
@@ -29,7 +28,6 @@ def solicitar_servicio(request):
                 if form.cleaned_data.get('nombre_entidad') == request.user.organization.nombre:
                     solicitud.organizacion = request.user.organization
             
-            # Aplicar oferta si existe (la traemos de un campo oculto o la volvemos a buscar)
             post_oferta_id = request.POST.get('oferta_aplicada_id')
             if post_oferta_id:
                 off = OfertaServicio.objects.filter(id=post_oferta_id, activo=True).first()
@@ -39,14 +37,11 @@ def solicitar_servicio(request):
 
             solicitud.save()
             
-            # Aplicar cupón si existe
             cupon_id = request.POST.get('cupon_id')
             if cupon_id:
                 cp = Cupon.objects.filter(id=cupon_id, activo=True).first()
                 if cp and cp.es_valido(request.user):
                     solicitud.cupon_aplicado = cp
-                    # El descuento_total se calculará en base al total enviado o lo dejamos para que se vea en el admin
-                    # Por ahora lo guardamos para referencia
                     solicitud.save()
                     cp.usos_actuales += 1
                     cp.save()
@@ -58,7 +53,6 @@ def solicitar_servicio(request):
         else:
             messages.error(request, "Hay errores en el formulario. Revisa los campos.")
     else:
-        # Pre-seleccionar platos si hay oferta
         initial_data = {}
         if oferta_obj:
             messages.info(request, f"Se ha aplicado la oferta: {oferta_obj.titulo}")
@@ -74,13 +68,11 @@ def solicitar_servicio(request):
 @login_required
 def panel_organizacion(request, solicitud_id=None):
     from django.db.models import Count, Q
-    # Obtenemos la organización del usuario logueado
     org = request.user.organization
     if not org:
         messages.warning(request, "No perteneces a ninguna organización.")
         return redirect('home')
 
-    # Obtenemos todas las solicitudes de su empresa, anotando si tienen mensajes sin leer del admin
     solicitudes = SolicitudServicio.objects.filter(organizacion=org).annotate(
         unread_count=Count('mensajes', filter=Q(mensajes__es_admin=True, mensajes__leido=False))
     ).order_by('-fecha_entrega')
@@ -121,7 +113,6 @@ def enviar_mensaje(request, solicitud_id):
         if texto and len(texto) > 1000:
             texto = texto[:1000]
         
-        # Validación de seguridad: el usuario debe ser de la misma organización, el autor, o admin
         if ((solicitud.organizacion and solicitud.organizacion == getattr(request.user, 'organization', None)) or solicitud.usuario == request.user or request.user.is_staff) and texto:
             MensajeSolicitud.objects.create(
                 solicitud=solicitud,
@@ -156,7 +147,6 @@ def panel_organizacion_mercado(request, pedido_id=None):
     if pedido_id:
         pedido_activo = get_object_or_404(PedidoMercado, id=pedido_id, organizacion=org)
         mensajes = pedido_activo.mensajes.all()
-        # Marcar como leídos los mensajes que envió el admin
         mensajes.filter(es_admin=True, leido=False).update(leido=True)
 
     return render(request, 'perfil-organizacion.html', {
@@ -177,7 +167,6 @@ def enviar_mensaje_mercado(request, pedido_id):
             texto = texto[:1000]
             
         from .models import MensajePedidoMercado
-        # Validación: comprador, organización o admin
         if ((pedido.organizacion == getattr(request.user, 'organization', None)) or pedido.usuario == request.user or request.user.is_staff) and texto:
             MensajePedidoMercado.objects.create(
                 pedido=pedido,
@@ -190,7 +179,6 @@ def enviar_mensaje_mercado(request, pedido_id):
 @login_required
 def mis_gestiones(request, solicitud_id=None):
     from django.db.models import Count, Q
-    # Obtenemos todas las solicitudes del usuario, anotando si tienen mensajes sin leer del admin
     solicitudes = SolicitudServicio.objects.filter(usuario=request.user).annotate(
         unread_count=Count('mensajes', filter=Q(mensajes__es_admin=True, mensajes__leido=False))
     ).order_by('-fecha_entrega')
@@ -218,7 +206,6 @@ def mis_gestiones(request, solicitud_id=None):
 @staff_member_required
 def admin_chat_dashboard(request, chat_type=None, object_id=None):
     from django.db.models import Count, Q
-    # Obtenemos todas las gestiones para el listado lateral, anotando si tienen mensajes sin leer del usuario
     solicitudes = SolicitudServicio.objects.annotate(
         unread_count=Count('mensajes', filter=Q(mensajes__es_admin=False, mensajes__leido=False))
     ).order_by('-fecha_entrega')
@@ -233,12 +220,10 @@ def admin_chat_dashboard(request, chat_type=None, object_id=None):
     if chat_type == 'solicitud' and object_id:
         chat_activo = get_object_or_404(SolicitudServicio, id=object_id)
         mensajes = chat_activo.mensajes.all()
-        # Marcar como leídos los mensajes que envió el usuario
         mensajes.filter(es_admin=False, leido=False).update(leido=True)
     elif chat_type == 'mercado' and object_id:
         chat_activo = get_object_or_404(PedidoMercado, id=object_id)
         mensajes = chat_activo.mensajes.all()
-        # Marcar como leídos los mensajes que envió el usuario
         mensajes.filter(es_admin=False, leido=False).update(leido=True)
 
     return render(request, 'admin-chat.html', {
@@ -271,7 +256,6 @@ def accion_estado(request, tipo, objeto_id, nuevo_estado):
     No requiere autenticación; la seguridad la garantiza el token.
     GET /orders/accion/<tipo>/<objeto_id>/<nuevo_estado>/?token=<hmac>
     """
-    # 1. Validar tipo y estado
     config = TIPOS_VALIDOS.get(tipo)
     if not config:
         return HttpResponseBadRequest("Tipo de objeto no reconocido.")
@@ -279,25 +263,21 @@ def accion_estado(request, tipo, objeto_id, nuevo_estado):
     if nuevo_estado not in config['estados']:
         return HttpResponseBadRequest("Estado no válido.")
 
-    # 2. Verificar token HMAC
     token = request.GET.get('token', '')
     if not verificar_token_accion(tipo, objeto_id, nuevo_estado, token):
         return HttpResponseForbidden("Token inválido o manipulado. Acceso denegado.")
 
-    # 3. Obtener el objeto y aplicar el cambio
     Model = config['model']
     obj = get_object_or_404(Model, id=objeto_id)
     estado_anterior = obj.get_estado_display()
     obj.estado = nuevo_estado
     obj.save()
 
-    # 4. Notificar a Discord el cambio de estado
     try:
         from .utils import send_discord_notification, generar_links_accion
 
         webhook_type = 'mn' if tipo == 'mercado' else 'servicios'
 
-        # Emojis por estado
         EMOJI_ESTADO = {
             'ACEPTADO':   '✅',
             'EN_CAMINO':  '🚚',
@@ -312,15 +292,12 @@ def accion_estado(request, tipo, objeto_id, nuevo_estado):
             f"a **{obj.get_estado_display()}**."
         )
 
-        # Construir campos con info del objeto
         fields = [
             {"name": "Estado anterior", "value": estado_anterior,          "inline": True},
             {"name": "Estado nuevo",    "value": obj.get_estado_display(), "inline": True},
         ]
 
-        # Añadir nuevos links de acción para los estados restantes
         links = generar_links_accion(tipo, objeto_id)
-        # Filtrar el estado actual de los links
         links_filtrados = [l for l in links if nuevo_estado not in l['url']]
         if links_filtrados:
             links_texto = "  ·  ".join(f"[{l['label']}]({l['url']})" for l in links_filtrados)
@@ -328,9 +305,8 @@ def accion_estado(request, tipo, objeto_id, nuevo_estado):
 
         send_discord_notification(webhook_type, title, description, fields)
     except Exception:
-        pass  # Nunca bloquear la acción por un fallo de Discord
+        pass
 
-    # 5. Renderizar página de confirmación mínima
     return render(request, 'orders/accion_confirmada.html', {
         'tipo_label': config['label'],
         'objeto_id': objeto_id,

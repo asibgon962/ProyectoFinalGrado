@@ -19,7 +19,6 @@ def validar_cupon_ajax(request):
 @never_cache
 def home_view(request):
     platos_destacados = Plato.objects.filter(es_destacado=True, disponible=True)
-    # Banners generales (sin categoría) + todos los activos para el home
     banners_home = BannerNormal.objects.filter(activo=True)
     return render(request, 'home.html', {
         'platos': platos_destacados,
@@ -30,16 +29,9 @@ def restaurante_view(request):
     return render(request, 'restaurante.html')
 
 def menu_view(request):
-    # 1. Traemos todas las categorías ordenadas según el campo 'orden' que definiste
     categorias = Categoria.objects.all().order_by('orden')
-    
-    # 2. Traemos solo los platos que están marcados como disponibles y los ordenamos por el orden de la categoría
     platos = Plato.objects.filter(disponible=True).select_related('categoria').order_by('categoria__orden', 'id')
-
-    # 3. Banners activos del menú, excluyendo los marcados solo para home
     banners_menu = BannerNormal.objects.filter(activo=True, solo_en_home=False).select_related('categoria')
-    
-    # 4. Enviamos los datos al template
     context = {
         'categorias': categorias,
         'platos': platos,
@@ -128,23 +120,18 @@ def ver_carrito(request):
             'subtotal': subtotal
         })
 
-    # --- Lógica de Ofertas Automáticas ---
     oferta_aplicada = None
     descuento_oferta = Decimal('0.00')
-    
-    # Prioridad 1: Oferta seleccionada por banner
     oferta_id = request.session.get('oferta_id_mn')
     if oferta_id:
         oferta_aplicada = OfertaMercado.objects.filter(id=oferta_id, activo=True).first()
     
-    # Prioridad 2: Detección automática si no hay una seleccionada
     if not oferta_aplicada:
         ofertas_auto = OfertaMercado.objects.filter(activo=True, auto_aplicar=True).prefetch_related('items__producto')
         for off in ofertas_auto:
             es_valida = True
             for item in off.items.all():
                 p_id = str(item.producto.id)
-                # Debe estar el producto y tener al menos la cantidad requerida
                 if p_id not in cart or cart[p_id]['cantidad'] < item.cantidad:
                     es_valida = False
                     break
@@ -153,13 +140,10 @@ def ver_carrito(request):
                 break
 
     if oferta_aplicada:
-        # Calculamos cuánto costarían esos productos por separado (con las cantidades de la oferta)
         coste_base_pack = sum(item.producto.precio_venta * item.cantidad for item in oferta_aplicada.items.all())
-        # El ahorro es la diferencia
         descuento_oferta = coste_base_pack - oferta_aplicada.precio_total
         if descuento_oferta < 0: descuento_oferta = Decimal('0.00')
 
-    # --- Lógica de Cupones ---
     cupon_aplicado = None
     descuento_cupon = Decimal('0.00')
     cupon_id = request.session.get('cupon_id')
@@ -195,11 +179,9 @@ def aplicar_oferta_mercado(request, oferta_id):
     oferta = get_object_or_404(OfertaMercado, id=oferta_id, activo=True)
     cart = request.session.get('cart', {})
     
-    # Añadimos los productos de la oferta con sus cantidades correspondientes
     for item in oferta.items.all():
         p_id = str(item.producto.id)
         if p_id in cart:
-            # Si ya está, nos aseguramos de que tenga al menos la cantidad de la oferta
             if cart[p_id]['cantidad'] < item.cantidad:
                 cart[p_id]['cantidad'] = item.cantidad
         else:
@@ -229,7 +211,6 @@ def aplicar_cupon(request):
 @login_required
 def aplicar_oferta_servicio(request, oferta_id):
     oferta = get_object_or_404(OfertaServicio, id=oferta_id, activo=True)
-    # Redirigimos al formulario con la oferta en la URL
     return redirect(f"/solicitar/?oferta_id={oferta.id}")
 
 @login_required
@@ -284,7 +265,6 @@ def procesar_compra(request):
             )
             total_pedido += precio * cantidad
             
-        # --- Gestión de Descuentos ---
         descuento_total = Decimal('0.00')
         oferta_id = request.session.get('oferta_id_mn')
         oferta_obj = None
@@ -304,7 +284,6 @@ def procesar_compra(request):
                 else:
                     descuento_total += cupon_obj.valor
                 
-                # Consumir uso del cupón
                 cupon_obj.usos_actuales += 1
                 cupon_obj.save()
 
@@ -314,7 +293,6 @@ def procesar_compra(request):
         pedido.cupon_aplicado = cupon_obj
         pedido.save()
 
-        # Limpiar sesión
         request.session['oferta_id_mn'] = None
         request.session['cupon_id'] = None
 
