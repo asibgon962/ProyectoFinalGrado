@@ -84,7 +84,6 @@ def panel_organizacion(request, solicitud_id=None):
     solicitud_activa = None
     mensajes = []
 
-    # Lógica para seleccionar qué chat mostrar
     if solicitud_id:
         solicitud_activa = get_object_or_404(SolicitudServicio, id=solicitud_id, organizacion=org)
     elif solicitudes.exists():
@@ -92,7 +91,6 @@ def panel_organizacion(request, solicitud_id=None):
 
     if solicitud_activa:
         mensajes = solicitud_activa.mensajes.all()
-        # Marcar como leídos los mensajes que envió el admin
         mensajes.filter(es_admin=True, leido=False).update(leido=True)
 
     return render(request, 'perfil-organizacion.html', {
@@ -186,7 +184,6 @@ def mis_gestiones(request, solicitud_id=None):
     solicitud_activa = None
     mensajes = []
 
-    # Lógica para seleccionar qué chat mostrar
     if solicitud_id:
         solicitud_activa = get_object_or_404(SolicitudServicio, id=solicitud_id, usuario=request.user)
     elif solicitudes.exists():
@@ -194,7 +191,6 @@ def mis_gestiones(request, solicitud_id=None):
 
     if solicitud_activa:
         mensajes = solicitud_activa.mensajes.all()
-        # Marcar como leídos los mensajes que envió el admin
         mensajes.filter(es_admin=True, leido=False).update(leido=True)
 
     return render(request, 'mis-gestiones.html', {
