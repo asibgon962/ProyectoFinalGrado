@@ -70,9 +70,13 @@ a {
 .profile-name {
     color: #f1e5c3 !important;
     font-family: 'Playfair Display', serif;
-    font-size: 2.5rem;
+    font-size: clamp(1.2rem, 5vw, 2.5rem);
     margin: 15px 0 5px;
     text-transform: capitalize;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    padding: 0 10px;
 }
 
 .profile-id {
@@ -186,8 +190,15 @@ a {
     box-shadow: 0 0 30px rgba(191, 160, 113, 0.4);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .profile-body { padding: 25px; }
     .info-grid { grid-template-columns: 1fr; }
+    .profile-header { padding: 40px 20px 30px; }
+    .profile-avatar-wrapper { width: 150px; height: 150px; }
+    .profile-id { font-size: 0.9rem; letter-spacing: 1.5px; padding: 4px 16px; }
+}
+
+@media (max-width: 480px) {
+    .profile-name { font-size: clamp(1rem, 7vw, 1.6rem); }
+    .profile-avatar-wrapper { width: 120px; height: 120px; }
 }
