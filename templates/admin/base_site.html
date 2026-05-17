@@ -1,6 +1,36 @@
 {% extends 'admin/base.html' %}
 {% load static %}
 
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    /* Centrar imagen de logo en la página de login del admin */
+    #login-logo {
+        display: block !important;
+        margin: 0 auto !important;
+        text-align: center !important;
+    }
+    #login-logo img {
+        display: block !important;
+        margin: 0 auto !important;
+        max-width: 220px !important;
+    }
+    .login-logo-container,
+    .brand-link .brand-image {
+        display: block !important;
+        margin: 0 auto !important;
+    }
+    /* Contenedor principal del formulario de login */
+    body.login #container {
+        text-align: center !important;
+    }
+    body.login .card,
+    body.login #content-main {
+        margin: 0 auto !important;
+    }
+</style>
+{% endblock %}
+
 {% block extrajs %}
     {{ block.super }}
     {% if request.user.is_authenticated and request.user.is_staff %}
