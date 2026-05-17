@@ -4,29 +4,18 @@
 {% block extrastyle %}
 {{ block.super }}
 <style>
-    /* Centrar imagen de logo en la página de login del admin */
-    #login-logo {
-        display: block !important;
-        margin: 0 auto !important;
+    /* ===== LOGO DE LOGIN - Jazzmin usa .login-logo (clase, no ID) ===== */
+    .login-logo {
         text-align: center !important;
+        padding: 20px 0 10px !important;
     }
-    #login-logo img {
+    .login-logo img.logo-light,
+    .login-logo img.logo-dark {
         display: block !important;
         margin: 0 auto !important;
-        max-width: 220px !important;
-    }
-    .login-logo-container,
-    .brand-link .brand-image {
-        display: block !important;
-        margin: 0 auto !important;
-    }
-    /* Contenedor principal del formulario de login */
-    body.login #container {
-        text-align: center !important;
-    }
-    body.login .card,
-    body.login #content-main {
-        margin: 0 auto !important;
+        width: 200px !important;
+        max-width: 100% !important;
+        height: auto !important;
     }
 </style>
 {% endblock %}
