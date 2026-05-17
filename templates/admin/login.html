@@ -4,23 +4,31 @@
 {% block extrastyle %}
 {{ block.super }}
 <style>
-    /* ===== LOGO LOGIN - centrado correcto ===== */
+    /* ===== LOGO LOGIN - Jazzmin renderiza .logo-light y .logo-dark ===== */
+    /* Ocultamos .logo-light porque siempre usamos darkly (tema oscuro)  */
+    .login-logo .logo-light {
+        display: none !important;
+    }
+
+    /* Solo mostramos .logo-dark, centrado y a buen tamaño */
+    .login-logo .logo-dark {
+        display: block !important;
+        margin: 0 auto !important;
+        width: 260px !important;
+        max-width: 100% !important;
+        height: auto !important;
+    }
+
+    /* Contenedor centrado */
     .login-logo {
         text-align: center !important;
         width: 100% !important;
         display: block !important;
-        padding-bottom: 10px !important;
+        padding-bottom: 16px !important;
     }
     .login-logo a {
         display: block !important;
         text-align: center !important;
-    }
-    .login-logo img {
-        display: block !important;
-        margin: 0 auto !important;
-        max-width: 180px !important;
-        width: 180px !important;
-        height: auto !important;
     }
 </style>
 {% endblock %}
